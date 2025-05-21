@@ -1,0 +1,91 @@
+# Personalized News Recommendation Engine — Project Plan
+
+## 1. Project Overview
+
+Build a web application that suggests news articles tailored to each user based on (a) collaborative filtering of reading histories and (b) content-based similarity on article metadata.
+
+Core Features
+User Authentication
+
+Sign-up / Log-in
+
+Secure password storage (e.g., hashing)
+
+User Interaction Tracking
+
+Store what articles the user reads, likes, or skips
+
+Store keywords from user searches or article metadata
+
+News Ingestion Pipeline
+
+Periodically fetch or upload articles (from RSS feeds or scraping)
+
+Store them in a structured format with metadata
+
+Recommendation Engine
+
+Use ML (collaborative filtering, content-based filtering, or hybrid)
+
+Generate a list of suggested articles per user
+
+Frontend Interface
+
+Show personalized news feed
+
+Allow interaction (like/dislike/save/share)
+
+## 2. Objectives
+
+Implement both collaborative and content-based recommendation models
+
+Expose a Python API (FastAPI) serving recommendations
+
+Build a responsive frontend (React) showing a personalized "For You" feed
+
+Store data in PostgreSQL and optimize queries for performance
+
+Deploy end-to-end in a containerized setup (Docker)
+
+## 3. MVP Features
+
+User onboarding (simple sign-up/login)
+
+Article ingestion pipeline (static dataset or News API)
+
+Recording user interactions (clicks, likes, reads)
+
+Batch model training and nightly updates
+
+Endpoint: GET /recommendations?user_id=...
+
+Frontend: display recommended articles with title, summary, and image
+
+## 4. Tech Stack
+
+Backend & ML: Python 3.10+, FastAPI, scikit-learn / surprise.psych, PySpark
+
+Database: PostgreSQL (ORM via SQLAlchemy)
+
+Frontend: React (TypeScript)
+
+Infrastructure: Docker, Docker-Compose, GitHub Actions CI
+
+## 5. Data Sources
+
+Initial: Kaggle "All the News" dataset (NYTimes, The Huffington Post)
+
+Later: integrate a live News API (e.g., NewsAPI.org) for fresh articles
+
+## 6. Setup
+
+
+# FastAPI
+
+| Function                        | Role of FastAPI                                           |
+| ------------------------------- | --------------------------------------------------------- |
+| Handle user authentication      | Provide `POST /signup` and `POST /login` endpoints        |
+| Expose recommendation endpoints | Serve `GET /recommendations` for logged-in users          |
+| Manage articles                 | Serve `GET /articles`, `POST /article`, etc.              |
+| Track user interaction          | Accept likes/views via `POST /interactions`               |
+| Serve API to frontend           | React app will call FastAPI endpoints using HTTP requests |
