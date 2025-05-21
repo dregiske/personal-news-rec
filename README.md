@@ -101,8 +101,6 @@ pip freeze > requirements.txt
 ```
 
 
-
-
 # FastAPI
 
 | Function                        | Role of FastAPI                                           |
