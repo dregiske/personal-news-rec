@@ -78,6 +78,29 @@ Initial: Kaggle "All the News" dataset (NYTimes, The Huffington Post)
 Later: integrate a live News API (e.g., NewsAPI.org) for fresh articles
 
 ## 6. Setup
+Clone github repository, and cd into project file:
+```
+git clone https://github.com/dregiske/personal_project.git
+cd personal_project.git
+```
+
+Start environment:
+```
+python3 -m venv venv
+source venv/bin/activate
+```
+
+Install dependencies:
+```
+pip install fastapi uvicorn pytest httpx
+```
+
+Store in `requirements.txt`:
+```
+pip freeze > requirements.txt
+```
+
+
 
 
 # FastAPI
@@ -89,3 +112,26 @@ Later: integrate a live News API (e.g., NewsAPI.org) for fresh articles
 | Manage articles                 | Serve `GET /articles`, `POST /article`, etc.              |
 | Track user interaction          | Accept likes/views via `POST /interactions`               |
 | Serve API to frontend           | React app will call FastAPI endpoints using HTTP requests |
+
+## FILE STRUCUTURE
+```
+Personalized_News_Recommendation_Engine/
+├── app/
+│   ├── __init__.py
+│   ├── main.py
+│   └── tests/
+│       ├── __init__.py
+│       └── test_main.py
+```
+
+| **Component**             | **Keep in `main.py`?** | **Move to modules?**                    |
+| ------------------------- | ---------------------- | ----------------------------------------|
+| FastAPI app creation      | ✅ Yes                  | ❌ No                                   |
+| Middleware config         | ✅ Yes                  | ❌ No                                   |
+| Include routers           | ✅ Yes                  | ❌ No                                   |
+| Actual route logic        | ❌ No                   | ✅ Yes — in `api/routes/`               |
+| Database models           | ❌ No                   | ✅ `models/` or `app/models.py`         |
+| Pydantic schemas          | ❌ No                   | ✅ `schemas/` or `app/schemas.py`       |
+| Auth logic (hashing, JWT) | ❌ No                   | ✅ `services/auth.py` or `core/auth.py` |
+| Business logic            | ❌ No                   | ✅ Services/modules                     |
+
