@@ -152,3 +152,18 @@ find . -type d -name "__pycache__" -exec rm -r {} +
 | Pydantic schemas          | `app/schemas.py`       |
 | Auth logic (hashing, JWT) | `app/services/auth.py` |
 | Business logic            | `services/`            |
+
+## What to do next
+Build Login Route
+Verify credentials
+
+Compare entered password against stored hash
+
+Add Unique Email Check
+Prevent duplicate users with the same email
+
+Add Teardown Logic (optional)
+Auto-clean the DB between test runs
+
+Add JWT Authentication
+So users can securely log in and receive tokens
