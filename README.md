@@ -92,7 +92,7 @@ source venv/bin/activate
 
 Install dependencies:
 ```
-pip install fastapi uvicorn pytest httpx pydantic passlib
+pip install fastapi uvicorn pytest httpx pydantic passlib sqlalchemy
 ```
 
 Store in `requirements.txt`:
