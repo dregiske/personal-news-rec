@@ -17,6 +17,7 @@ def read_root():
 def get_user(user_id: int):
 	return {"user_id": user_id}
 
+# signup endpoint
 @router.post("/signup/", response_model=UserOut)
 def signup(user: UserCreate, database: Session = Depends(get_database)):
 	new_user = UserModel(
@@ -28,3 +29,14 @@ def signup(user: UserCreate, database: Session = Depends(get_database)):
 	database.refresh(new_user)
 	
 	return new_user
+
+# login endpoint
+@router.post("/login/", response_model=UserOut)
+def login(user: UserOut, database: Session = Depends(get_database)):
+	login_user = UserModel(
+		email = user.email,
+		hash
+	)
+	database.get_user(login_user)
+	
+	return login_user
