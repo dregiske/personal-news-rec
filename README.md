@@ -92,7 +92,7 @@ source venv/bin/activate
 
 Install dependencies:
 ```
-pip install fastapi uvicorn pytest httpx
+pip install fastapi uvicorn pytest httpx pydantic passlib
 ```
 
 Store in `requirements.txt`:
@@ -115,11 +115,29 @@ pip freeze > requirements.txt
 ```
 Personalized_News_Recommendation_Engine/
 ├── app/
+│	├── api/
+│	│	├── routes/
+│	│	│	├── __init__.py
+│	│	│	└── users.py
+│	│	└── __init__.py
+│	├── services/
+│	│	├── __init__.py
+│	│	└── auth.py
+│   ├── tests/
+│   │   ├── __init__.py
+│   │   └── test_main.py
 │   ├── __init__.py
 │   ├── main.py
-│   └── tests/
-│       ├── __init__.py
-│       └── test_main.py
+│	└── schemas.py
+├── .gitignore
+├── README.md
+└── requirements.txt
+```
+
+## To remove `__pycache__/`:
+```
+find . -type d -name "__pycache__" -exec rm -r {} +
+
 ```
 
 | **Component**             | **Keep in `main.py`?** | **Move to modules?**                    |
