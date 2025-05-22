@@ -25,9 +25,9 @@ client = TestClient(app)
 
 def test_signup():
 	response = client.post("/users/signup", json={
-		"email": "tes@example.com",
+		"email": "test@example.com", # change email to test
 		"password": "examplepass"
 	})
 	assert response.status_code == 200
-	assert response.json()["email"] == "tes@example.com"
+	assert response.json()["email"] == "test@example.com" # match signup email
 	assert "id" in response.json()

@@ -125,9 +125,12 @@ Personalized_News_Recommendation_Engine/
 │	│	└── auth.py
 │   ├── tests/
 │   │   ├── __init__.py
-│   │   └── test_main.py
+│   │   ├── test_main.py
+│	│	└── test_users.py
 │   ├── __init__.py
+│	├── database.py
 │   ├── main.py
+│	├── models.py
 │	└── schemas.py
 ├── .gitignore
 ├── README.md
@@ -137,17 +140,15 @@ Personalized_News_Recommendation_Engine/
 ## To remove `__pycache__/`:
 ```
 find . -type d -name "__pycache__" -exec rm -r {} +
-
 ```
 
-| **Component**             | **Keep in `main.py`?** | **Move to modules?**                    |
-| ------------------------- | ---------------------- | ----------------------------------------|
-| FastAPI app creation      | ✅ Yes                  | ❌ No                                   |
-| Middleware config         | ✅ Yes                  | ❌ No                                   |
-| Include routers           | ✅ Yes                  | ❌ No                                   |
-| Actual route logic        | ❌ No                   | ✅ Yes — in `api/routes/`               |
-| Database models           | ❌ No                   | ✅ `models/` or `app/models.py`         |
-| Pydantic schemas          | ❌ No                   | ✅ `schemas/` or `app/schemas.py`       |
-| Auth logic (hashing, JWT) | ❌ No                   | ✅ `services/auth.py` or `core/auth.py` |
-| Business logic            | ❌ No                   | ✅ Services/modules                     |
-
+| **Component**             | **Location** 			 |
+| ------------------------- | ---------------------- |
+| FastAPI app creation      | `~/main.py`            |
+| Middleware config         | `~/main.py`            | 
+| Include routers           | `~/main.py`            |
+| Actual route logic        | `app/api/routes/`      |
+| Database models           | `app/models.py`        |
+| Pydantic schemas          | `app/schemas.py`       |
+| Auth logic (hashing, JWT) | `app/services/auth.py` |
+| Business logic            | `services/`            |
