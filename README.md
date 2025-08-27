@@ -4,36 +4,22 @@
 
 Build a web application that suggests news articles tailored to each user based on (a) collaborative filtering of reading histories and (b) content-based similarity on article metadata.
 
-Core Features
-User Authentication
-
-Sign-up / Log-in
-
-Secure password storage (e.g., hashing)
-
-User Interaction Tracking
-
-Store what articles the user reads, likes, or skips
-
-Store keywords from user searches or article metadata
-
-News Ingestion Pipeline
-
-Periodically fetch or upload articles (from RSS feeds or scraping)
-
-Store them in a structured format with metadata
-
-Recommendation Engine
-
-Use ML (collaborative filtering, content-based filtering, or hybrid)
-
-Generate a list of suggested articles per user
-
-Frontend Interface
-
-Show personalized news feed
-
-Allow interaction (like/dislike/save/share)
+### Core Features
+- User Authentication
+- Sign-up / Log-in
+- Secure password storage (e.g., hashing)
+- User Interaction Tracking
+- Store what articles the user reads, likes, or skips
+- Store keywords from user searches or article metadata
+- News Ingestion Pipeline
+- Periodically fetch or upload articles (from RSS feeds or scraping)
+- Store them in a structured format with metadata
+- Recommendation Engine
+- Use ML (collaborative filtering, content-based filtering, or hybrid)
+- Generate a list of suggested articles per user
+- Frontend Interface
+- Show personalized news feed
+- Allow interaction (like/dislike/save/share)
 
 ## 2. Objectives
 
@@ -92,13 +78,12 @@ source venv/bin/activate
 
 3) Install dependencies:
 ```
-pip install requirements.txt
+pip install --upgrade pip
+pip install -r requirements.txt
 ```
 
 
-
-# FastAPI
-
+# FastAPI:
 | Function                        | Role of FastAPI                                           |
 | ------------------------------- | --------------------------------------------------------- |
 | Handle user authentication      | Provide `POST /signup` and `POST /login` endpoints        |
@@ -106,6 +91,7 @@ pip install requirements.txt
 | Manage articles                 | Serve `GET /articles`, `POST /article`, etc.              |
 | Track user interaction          | Accept likes/views via `POST /interactions`               |
 | Serve API to frontend           | React app will call FastAPI endpoints using HTTP requests |
+
 
 ## FILE STRUCUTURE
 ```
@@ -136,6 +122,18 @@ Personalized_News_Recommendation_Engine/
 ## To remove `__pycache__/`:
 ```
 find . -type d -name "__pycache__" -exec rm -r {} +
+```
+## Issues with x86_64, download requirements under arm64
+```
+	# remove current env
+deactivate 2>/dev/null || true
+rm -rf venv .venv
+
+	# start new env
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
 ```
 
 

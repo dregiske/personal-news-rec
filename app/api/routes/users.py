@@ -15,9 +15,15 @@ def read_root():
 
 @router.get("/user/{user_id}")
 def get_user(user_id: int):
-	return {"user_id": user_id}
+	return {
+		"user_id": user_id
+	}
 
-# signup endpoint
+'''
+signup endpoint:
+- initialize email / hashed pass
+- add to database
+'''
 @router.post("/signup/", response_model=UserOut)
 def signup(user: UserCreate, database: Session = Depends(get_database)):
 	new_user = UserModel(
@@ -30,7 +36,12 @@ def signup(user: UserCreate, database: Session = Depends(get_database)):
 	
 	return new_user
 
-# login endpoint
+'''
+login endpoint:
+- checks for user in database
+- throws error if not found
+- creates JWT token
+'''
 @router.post("/login/", response_model=LoginResponse)
 def login(user: LoginRequest, database: Session = Depends(get_database)):
 	database_user = database.query(UserModel).filter(UserModel.email == user.email).first()
