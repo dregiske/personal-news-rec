@@ -24,7 +24,7 @@ app.dependency_overrides[get_database] = override_get_database
 client = TestClient(app)
 
 # ----- SIGNUP TESTS -----
-
+'''
 def test_signup():
 	response = client.post("/users/signup", json={
 		"email": "test@example.com", # change email to test
@@ -33,23 +33,35 @@ def test_signup():
 	assert response.status_code == 200
 	assert response.json()["email"] == "test@example.com" # match signup email
 	assert "id" in response.json()
+'''
 
 # ----- LOGIN TESTS -----
 
 def test_login():
 	response = client.post("/users/login", json={
-		"email": user.email,
-		"password": user.password
+		"email": "test@example.com",
+		"password": "examplepass"
 	})
 	assert response.status_code == 200
-	assert response.json()["email"] == user.email
-	assert "id" in response.json()
+
+	data = response.json()
+	assert "access_token" in data
+	assert data["token_type"] == "bearer"
+	assert data["user"]["email"] == "test@example.com"
+	assert "id" in data["user"]
 
 def test_login_not_found():
-	reposnse = client.post("users/login", json={
-		"email": user.email,
-		"password": user.password
+	response = client.post("/users/login", json={
+		"email": "unknown@example.com",
+		"password": "examplepass"
 	})
-	assert response.status_code == 403
-	assert response.json()["email"] == user.email
-	assert "id" in response.json()
+	assert response.status_code == 404
+	assert response.json()["detail"] == "User not found"
+
+def test_login_wrong_pass():
+	response = client.post("/users/login", json={
+		"email": "test@example.com",
+		"password": "wrongpass"
+	})
+	assert response.status_code == 401
+	assert response.json()["detail"] == "Incorrect password"

@@ -78,27 +78,23 @@ Initial: Kaggle "All the News" dataset (NYTimes, The Huffington Post)
 Later: integrate a live News API (e.g., NewsAPI.org) for fresh articles
 
 ## 6. Setup
-Clone github repository, and cd into project file:
+1) Clone github repository, and cd into project file:
 ```
 git clone https://github.com/dregiske/personal_project.git
 cd personal_project.git
 ```
 
-Start environment:
+2) Start environment:
 ```
 python3 -m venv venv
 source venv/bin/activate
 ```
 
-Install dependencies:
+3) Install dependencies:
 ```
-pip install fastapi uvicorn pytest httpx pydantic passlib sqlalchemy
+pip install requirements.txt
 ```
 
-Store in `requirements.txt`:
-```
-pip freeze > requirements.txt
-```
 
 
 # FastAPI
@@ -142,16 +138,6 @@ Personalized_News_Recommendation_Engine/
 find . -type d -name "__pycache__" -exec rm -r {} +
 ```
 
-| **Component**             | **Location** 			 |
-| ------------------------- | ---------------------- |
-| FastAPI app creation      | `~/main.py`            |
-| Middleware config         | `~/main.py`            | 
-| Include routers           | `~/main.py`            |
-| Actual route logic        | `app/api/routes/`      |
-| Database models           | `app/models.py`        |
-| Pydantic schemas          | `app/schemas.py`       |
-| Auth logic (hashing, JWT) | `app/services/auth.py` |
-| Business logic            | `services/`            |
 
 ## What to do next
 Build Login Route

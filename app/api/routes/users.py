@@ -1,9 +1,9 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 
 from sqlalchemy.orm import Session
 
-from app.schemas import UserCreate, UserOut
-from app.services.auth import hash_password
+from app.schemas import UserCreate, UserOut, LoginRequest, LoginResponse
+from app.services.auth import hash_password, verify_password, create_access_token
 from app.models import User as UserModel
 from app.database import SessionLocal, get_database
 
@@ -31,12 +31,23 @@ def signup(user: UserCreate, database: Session = Depends(get_database)):
 	return new_user
 
 # login endpoint
-@router.post("/login/", response_model=UserOut)
-def login(user: UserOut, database: Session = Depends(get_database)):
-	login_user = UserModel(
-		email = user.email,
-		hash
-	)
-	database.get_user(login_user)
+@router.post("/login/", response_model=LoginResponse)
+def login(user: LoginRequest, database: Session = Depends(get_database)):
+	database_user = database.query(UserModel).filter(UserModel.email == user.email).first()
 	
-	return login_user
+	if not database_user:
+		raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+	if not verify_password(user.password, database_user.hashed_password):
+		raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect password")
+	
+	# Create JWT token
+	access_token = create_access_token(data={"user_id": database_user.id})
+
+	return {
+		"access_token": access_token,
+		"token_type": "bearer",
+		"user": {
+			"id": database_user.id,
+			"email": database_user.email
+		}
+	}
