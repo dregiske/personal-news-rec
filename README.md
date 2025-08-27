@@ -22,46 +22,29 @@ Build a web application that suggests news articles tailored to each user based 
 - Allow interaction (like/dislike/save/share)
 
 ## 2. Objectives
-
-Implement both collaborative and content-based recommendation models
-
-Expose a Python API (FastAPI) serving recommendations
-
-Build a responsive frontend (React) showing a personalized "For You" feed
-
-Store data in PostgreSQL and optimize queries for performance
-
-Deploy end-to-end in a containerized setup (Docker)
+- Implement both collaborative and content-based recommendation models
+- Expose a Python API (FastAPI) serving recommendations
+- Build a responsive frontend (React) showing a personalized "For You" feed
+- Store data in PostgreSQL and optimize queries for performance
+- Deploy end-to-end in a containerized setup (Docker)
 
 ## 3. MVP Features
-
-User onboarding (simple sign-up/login)
-
-Article ingestion pipeline (static dataset or News API)
-
-Recording user interactions (clicks, likes, reads)
-
-Batch model training and nightly updates
-
-Endpoint: GET /recommendations?user_id=...
-
-Frontend: display recommended articles with title, summary, and image
+- User onboarding (simple sign-up/login)
+- Article ingestion pipeline (static dataset or News API)
+- Recording user interactions (clicks, likes, reads)
+- Batch model training and nightly updates
+- Endpoint: GET /recommendations?user_id=...
+- Frontend: display recommended articles with title, summary, and image
 
 ## 4. Tech Stack
-
-Backend & ML: Python 3.10+, FastAPI, scikit-learn / surprise.psych, PySpark
-
-Database: PostgreSQL (ORM via SQLAlchemy)
-
-Frontend: React (TypeScript)
-
-Infrastructure: Docker, Docker-Compose, GitHub Actions CI
+- Backend & ML: Python 3.10+, FastAPI, scikit-learn / surprise.psych, PySpark
+- Database: PostgreSQL (ORM via SQLAlchemy)
+- Frontend: React (TypeScript)
+- Infrastructure: Docker, Docker-Compose, GitHub Actions CI
 
 ## 5. Data Sources
-
-Initial: Kaggle "All the News" dataset (NYTimes, The Huffington Post)
-
-Later: integrate a live News API (e.g., NewsAPI.org) for fresh articles
+- Initial: Kaggle "All the News" dataset (NYTimes, The Huffington Post)
+- Later: integrate a live News API (e.g., NewsAPI.org) for fresh articles
 
 ## 6. Setup
 1) Clone github repository, and cd into project file:
@@ -123,6 +106,7 @@ Personalized_News_Recommendation_Engine/
 ```
 find . -type d -name "__pycache__" -exec rm -r {} +
 ```
+
 ## Issues with x86_64, download requirements under arm64
 ```
 	# remove current env
