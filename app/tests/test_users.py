@@ -1,3 +1,5 @@
+# app/tests/test_users.py
+
 from fastapi.testclient import TestClient
 
 from sqlalchemy import create_engine
@@ -24,7 +26,7 @@ app.dependency_overrides[get_database] = override_get_database
 client = TestClient(app)
 
 # ----- SIGNUP TESTS -----
-'''
+
 def test_signup():
 	response = client.post("/users/signup", json={
 		"email": "test@example.com", # change email to test
@@ -33,7 +35,7 @@ def test_signup():
 	assert response.status_code == 200
 	assert response.json()["email"] == "test@example.com" # match signup email
 	assert "id" in response.json()
-'''
+
 
 # ----- LOGIN TESTS -----
 
