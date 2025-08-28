@@ -1,8 +1,8 @@
 # app/api/routes/users.py
 
 from fastapi import APIRouter, Depends, HTTPException, status
-
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
 
 from app.schemas import UserCreate, UserOut, LoginRequest, LoginResponse
 from app.services.auth import hash_password, verify_password, create_access_token
@@ -23,18 +23,30 @@ def get_user(user_id: int):
 
 '''
 signup endpoint:
+- check that email is unique
 - initialize email / hashed pass
 - add to database
+- sends user info back
 '''
 @router.post("/signup/", response_model=UserOut)
 @router.post("/signup", response_model=UserOut)
 def signup(user: UserCreate, database: Session = Depends(get_database)):
+
+	normalized_email = user.email.strip().lower()
+	if database.query(UserModel).filter(UserModel.email == normalized_email).first():
+		raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email already registered")
+	
 	new_user = UserModel(
-		email = user.email,
+		email = normalized_email,
 		hashed_password = hash_password(user.password)
 	)
 	database.add(new_user)
-	database.commit()
+	try:
+		database.commit()
+	except IntegrityError:
+		database.rollback()
+		raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email already registered")
+	
 	database.refresh(new_user)
 	
 	return new_user
@@ -44,6 +56,7 @@ login endpoint:
 - checks for user in database
 - throws error if not found
 - creates JWT token
+- send login info back
 '''
 @router.post("/login/", response_model=LoginResponse)
 @router.post("/login", response_model=LoginResponse)

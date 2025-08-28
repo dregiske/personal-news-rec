@@ -52,3 +52,10 @@ def test_login_wrong_pass(client):
     })
     assert r.status_code == 401
     assert r.json()["detail"] == "Incorrect password"
+    
+def test_signup_duplicate_email(client):
+    client.post("/signup/", json={"email": "dupe@example.com", "password": "x"})
+    r = client.post("/signup/", json={"email": "dupe@example.com", "password": "x"})
+    assert r.status_code == 409
+    assert r.json()["detail"] == "Email already registered"
+
