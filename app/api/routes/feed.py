@@ -5,11 +5,15 @@ from sqlalchemy.orm import Session
 from typing import List
 from app.database import get_database
 from app.models import Article
-from app.schemas import ArticleOut
+from app.schemas import FeedItem
 
 router = APIRouter()
 
-@router.get("/feed/", response_model=List[ArticleOut])
-def feed(db: Session = Depends(get_database)):
-    # v0 baseline: latest articles (later: personalize)
-    return db.query(Article).order_by(Article.published_at.desc().nullslast(), Article.id.desc()).limit(20).all()
+@router.get("/feed/", response_model=List[FeedItem])
+@router.get("/feed", response_model=List[FeedItem])
+def get_feed(limit: int = 20,
+			 offset: int = 0,
+			 db: Session = Depends(get_database),
+			 current_user: User = Depends(get_current_user)):
+	items = recommend_articles(user=current_user, db=db, limit=limit, offset=offset)
+	return items
