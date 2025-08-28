@@ -136,3 +136,21 @@ Auto-clean the DB between test runs
 
 Add JWT Authentication
 So users can securely log in and receive tokens
+
+Start simple, then iterate:
+
+___
+v0 (now): “Latest” feed (above) + record interactions.
+
+v0.5 (fast): “Trending” = latest + sort by #interactions in last N hours.
+
+v1 (better): content-based TF-IDF:
+
+Add scikit-learn to requirements.txt.
+
+Build vectors from title + content + keywords.
+
+For a user, average vectors of interacted articles; rank candidates by cosine similarity.
+
+Cache vectors in memory; refresh on ingest.
+___
