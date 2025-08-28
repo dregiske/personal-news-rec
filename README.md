@@ -108,12 +108,13 @@ find . -type d -name "__pycache__" -exec rm -r {} +
 ```
 
 ## Issues with x86_64, download requirements under arm64
+1) remove current env
 ```
-	# remove current env
 deactivate 2>/dev/null || true
 rm -rf venv .venv
-
-	# start new env
+```
+2) start new env
+```
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
