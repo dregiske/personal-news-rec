@@ -8,6 +8,7 @@ from app.api.routes import users
 from app.api.routes import articles as articles_routes
 from app.api.routes import interactions as interactions_routes
 from app.api.routes import feed as feed_routes
+from app.api.routes import ingest as ingest_routes
 
 app = FastAPI()
 
@@ -24,3 +25,4 @@ app.include_router(users.router, tags=["users"])
 app.include_router(articles_routes.router, tags=["articles"])
 app.include_router(interactions_routes.router, tags=["interactions"])
 app.include_router(feed_routes.router, tags=["feed"])
+app.include_router(ingest_routes.router, tags=["ingest"])

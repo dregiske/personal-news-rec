@@ -1,6 +1,5 @@
 # app/tests/test_main.py
 
-
 # test read_root() in main
 def test_read_root(client):
     response = client.get("/")

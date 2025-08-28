@@ -40,7 +40,7 @@ def fetch_rss(url: str) -> List[ArticleCreate]:
     resp.raise_for_status()
 
     try:
-        import feedparser  # pip install feedparser
+        import feedparser
         feed = feedparser.parse(resp.text)
         out: List[ArticleCreate] = []
         feed_title = (feed.feed.get("title") if getattr(feed, "feed", None) else None) or url

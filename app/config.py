@@ -9,6 +9,9 @@ class Settings(BaseSettings):
     SECRET_KEY: str = Field("dev-change-me", description="JWT signing key")
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    RSS_SOURCES: str = ""
+    NEWSAPI_KEY: str | None = None
+    
 
     # Database
     DATABASE_URL: str = "sqlite:///./app.db"
@@ -26,3 +29,6 @@ settings = Settings()
 
 def access_token_expiry() -> timedelta:
     return timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+
+def rss_list() -> List[str]:
+    return [s.strip() for s in settings.RSS_SOURCES.split(",") if s.strip()]
