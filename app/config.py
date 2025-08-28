@@ -1,5 +1,3 @@
-# app/config.py
-
 from pydantic_settings import BaseSettings
 from pydantic import AnyHttpUrl, Field
 from typing import List

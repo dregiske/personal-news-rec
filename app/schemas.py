@@ -1,5 +1,3 @@
-# app/schemas.py
-
 from pydantic import BaseModel, EmailStr, ConfigDict, HttpUrl
 from typing import Optional, List
 from datetime import datetime

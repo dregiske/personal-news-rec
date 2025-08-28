@@ -1,5 +1,3 @@
-# app/tests/test_users.py
-
 '''
 TO RUN TESTS:
 PYTHONPATH=. pytest -q

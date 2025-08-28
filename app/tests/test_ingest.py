@@ -1,4 +1,3 @@
-# app/tests/test_ingest.py
 def test_ingest_pipeline_smoke(client, monkeypatch):
     # stub provider to return one article
     from app.services import ingest as ing
