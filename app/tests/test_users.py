@@ -1,5 +1,11 @@
 # app/tests/test_users.py
 
+'''
+TO RUN TESTS:
+PYTHONPATH=. pytest -q
+'''
+
+
 from fastapi.testclient import TestClient
 
 from sqlalchemy import create_engine
