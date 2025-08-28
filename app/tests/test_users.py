@@ -5,71 +5,50 @@ TO RUN TESTS:
 PYTHONPATH=. pytest -q
 '''
 
+def test_signup(client):
+    r = client.post("/signup/", json={
+        "email": "test@example.com",
+        "password": "examplepass"
+    })
+    assert r.status_code == 200, r.text
+    data = r.json()
+    assert data["email"] == "test@example.com"
+    assert "id" in data
 
-from fastapi.testclient import TestClient
+def test_login_success(client):
+    # ensure the user exists
+    client.post("/signup/", json={
+        "email": "login@example.com",
+        "password": "examplepass"
+    })
+    r = client.post("/login/", json={
+        "email": "login@example.com",
+        "password": "examplepass"
+    })
+    assert r.status_code == 200, r.text
+    data = r.json()
+    assert "access_token" in data
+    assert data["token_type"] == "bearer"
+    assert data["user"]["email"] == "login@example.com"
+    assert "id" in data["user"]
 
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+def test_login_not_found(client):
+    r = client.post("/login/", json={
+        "email": "unknown@example.com",
+        "password": "examplepass"
+    })
+    assert r.status_code == 404
+    assert r.json()["detail"] == "User not found"
 
-from app.main import app
-from app.models import Base
-from app.database import get_database
-
-SQLALCHEMY_DATABASE_URL = "sqlite:///./test_test.database"
-engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-Base.metadata.create_all(bind=engine)
-
-def override_get_database():
-	database = TestingSessionLocal()
-	try:
-		yield database
-	finally:
-		database.close()
-
-app.dependency_overrides[get_database] = override_get_database
-client = TestClient(app)
-
-# ----- SIGNUP TESTS -----
-
-def test_signup():
-	response = client.post("/users/signup", json={
-		"email": "test@example.com", # change email to test
-		"password": "examplepass"
-	})
-	assert response.status_code == 200
-	assert response.json()["email"] == "test@example.com" # match signup email
-	assert "id" in response.json()
-
-
-# ----- LOGIN TESTS -----
-
-def test_login():
-	response = client.post("/users/login", json={
-		"email": "test@example.com",
-		"password": "examplepass"
-	})
-	assert response.status_code == 200
-
-	data = response.json()
-	assert "access_token" in data
-	assert data["token_type"] == "bearer"
-	assert data["user"]["email"] == "test@example.com"
-	assert "id" in data["user"]
-
-def test_login_not_found():
-	response = client.post("/users/login", json={
-		"email": "unknown@example.com",
-		"password": "examplepass"
-	})
-	assert response.status_code == 404
-	assert response.json()["detail"] == "User not found"
-
-def test_login_wrong_pass():
-	response = client.post("/users/login", json={
-		"email": "test@example.com",
-		"password": "wrongpass"
-	})
-	assert response.status_code == 401
-	assert response.json()["detail"] == "Incorrect password"
+def test_login_wrong_pass(client):
+    # create the user
+    client.post("/signup/", json={
+        "email": "wrongpass@example.com",
+        "password": "rightpass"
+    })
+    r = client.post("/login/", json={
+        "email": "wrongpass@example.com",
+        "password": "wrongpass"
+    })
+    assert r.status_code == 401
+    assert r.json()["detail"] == "Incorrect password"

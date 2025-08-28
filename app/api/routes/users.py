@@ -27,6 +27,7 @@ signup endpoint:
 - add to database
 '''
 @router.post("/signup/", response_model=UserOut)
+@router.post("/signup", response_model=UserOut)
 def signup(user: UserCreate, database: Session = Depends(get_database)):
 	new_user = UserModel(
 		email = user.email,
@@ -45,6 +46,7 @@ login endpoint:
 - creates JWT token
 '''
 @router.post("/login/", response_model=LoginResponse)
+@router.post("/login", response_model=LoginResponse)
 def login(user: LoginRequest, database: Session = Depends(get_database)):
 	database_user = database.query(UserModel).filter(UserModel.email == user.email).first()
 	
