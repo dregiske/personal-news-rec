@@ -4,6 +4,3 @@ __pycache__/
 *.pyc
 .env
 .pytest_cache/
-test_results.txt
-test_test.database
-test.database
