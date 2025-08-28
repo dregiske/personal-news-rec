@@ -1,5 +1,3 @@
-# app/api/routes/articles.py
-
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from typing import List
@@ -28,10 +26,19 @@ def list_articles(
 @router.post("/articles/", response_model=ArticleOut, status_code=201)
 @router.post("/articles", response_model=ArticleOut, status_code=201)
 def upsert_article(payload: ArticleCreate, db: Session = Depends(get_database)):
+    url = str(payload.url)
     # simple upsert by URL
-    existing = db.query(Article).filter(Article.url == str(payload.url)).first()
+    existing = db.query(Article).filter(Article.url == url).first()
     if existing:
         return existing
-    a = Article(**payload.model_dump())
-    db.add(a); db.commit(); db.refresh(a)
+    a = Article(
+        title=payload.title,
+        url=url, content=payload.content,
+        source=payload.source,
+        published_at=payload.published_at,
+        keywords=payload.keywords,
+    )
+    db.add(a)
+    db.commit()
+    db.refresh(a)
     return a

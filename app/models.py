@@ -1,8 +1,6 @@
 # app/models.py
-
-from datetime import datetime, timezone
 from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey
-from sqlalchemy.orm import declarative_base, relationship
+from sqlalchemy.orm import declarative_base
 
 from datetime import datetime, timezone
 
@@ -28,7 +26,7 @@ class Article(Base):
 class Interaction(Base):
     __tablename__ 		= "interactions"
     id 					= Column(Integer, primary_key=True)
-    user_id 			= Column(Integer, ForeignKey("user.id"), index=True, nullable=False)
-    article_id 			= Column(Integer, ForeignKey("article.id"), index=True, nullable=False)
+    user_id    			= Column(Integer, ForeignKey("users.id"), index=True, nullable=False)
+    article_id 			= Column(Integer, ForeignKey("articles.id"), index=True, nullable=False)
     type				= Column(String(32), nullable=False)
     ts 					= Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))

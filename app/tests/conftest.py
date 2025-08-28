@@ -6,9 +6,9 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
+from app import models as m
 from app.main import app
 from app.database import get_database
-from app.models import Base
 
 @pytest.fixture(scope="function")
 def client():
@@ -22,7 +22,7 @@ def client():
     TestingSessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False)
 
     # Create a clean schema for each test
-    Base.metadata.create_all(bind=engine)
+    m.Base.metadata.create_all(bind=engine)
 
     def _get_db():
         db = TestingSessionLocal()
