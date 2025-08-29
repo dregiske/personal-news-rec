@@ -1,3 +1,7 @@
+'''
+Env driven settings (secrets, DB, URL, apikey)
+'''
+
 from pydantic_settings import BaseSettings
 from pydantic import AnyHttpUrl, Field
 from typing import List
@@ -9,13 +13,11 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     RSS_SOURCES: str = ""
     NEWSAPI_KEY: str | None = None
-    
 
     # Database
     DATABASE_URL: str = "sqlite:///./app.db"
     # e.g. postgresql+psycopg2://user:pass@host:5432/db
 
-    # CORS (comma-separated)
     CORS_ORIGINS: str = "" 
     # e.g. "http://localhost:5173,http://127.0.0.1:5173"
 

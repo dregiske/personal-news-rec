@@ -1,3 +1,18 @@
+'''
+Fetch Providers:
+- fetch_rss(url): httpx + feedparser to parse RSS entries
+into ArticleCreate objects
+	- fallback to minimal XML parsing if feedparser isn't present
+
+URL hygiene:
+- canonicalize_url(): removes tracking params and fragments so the
+same article URL isnt ingested twice
+
+Upsert:
+- upsert_article(db, items): checks Article.url uniqeness, accumulates
+insets, and commits. Catches IntegrityError as last resort dedupe
+'''
+
 from __future__ import annotations
 from typing import Iterable, List, Dict, Callable
 from datetime import datetime, timezone

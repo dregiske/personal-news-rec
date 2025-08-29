@@ -1,3 +1,12 @@
+'''
+Passwords are hashed using passlib (bcrypt), hash_password(), and verify_password()
+Tokens are created using create_access_token(), uses timezone and emits JWT's
+Reads secrets from settings, ensure no hardcoded info
+
+FLOW:
+login -> verify -> sign JWT (w/ SECRET_KEY + ALGORITHM)
+'''
+
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 

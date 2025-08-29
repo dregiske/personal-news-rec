@@ -1,3 +1,7 @@
+'''
+SQLAlchemy ORM models and DB session
+'''
+
 from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey
 from sqlalchemy.orm import declarative_base
 

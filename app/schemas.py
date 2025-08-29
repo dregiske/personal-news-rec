@@ -1,3 +1,10 @@
+'''
+Pydantic models for uniform HTTP request/response models
+
+UserCreate/UserOut/LoginRequest/LoginResponse: authentication endpoints
+ArticleCreate/ArticleOut: validated as URL cast to str
+'''
+
 from pydantic import BaseModel, EmailStr, ConfigDict, HttpUrl
 from typing import Optional, List
 from datetime import datetime
@@ -38,7 +45,7 @@ class ArticleOut(BaseModel):
     
 class InteractionCreate(BaseModel):
     article_id: int
-    type: str	#ex. "VIEW", "CLICK", "LIKE"
+    type: str		#ex. "VIEW", "CLICK", "LIKE"
     
 class FeedItem(BaseModel):
     id: int
@@ -48,4 +55,3 @@ class FeedItem(BaseModel):
     published_at: datetime | None = None
     source: str | None = None
     score: float 	# personalized score
-    
