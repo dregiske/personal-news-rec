@@ -6,6 +6,7 @@ __pycache__/
 .pytest_cache/
 app.db
 results.txt
+
 app/frontend/.next
 app/frontend/node_modules
 app/frontend/.env.local

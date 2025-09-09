@@ -2,7 +2,7 @@
 User enpoints
 '''
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Response
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 
@@ -62,7 +62,7 @@ login endpoint:
 '''
 @router.post("/login/", response_model=LoginResponse)
 @router.post("/login", response_model=LoginResponse)
-def login(user: LoginRequest, database: Session = Depends(get_database)):
+def login(user: LoginRequest, database: Session = Depends(get_database), response: Response = None):
 	database_user = database.query(UserModel).filter(UserModel.email == user.email).first()
 	
 	if not database_user:
@@ -72,6 +72,15 @@ def login(user: LoginRequest, database: Session = Depends(get_database)):
 	
 	# Create JWT token
 	access_token = create_access_token(data={"user_id": database_user.id})
+
+	response.set_cookie(
+		key="access_token",
+		value=access_token,
+		httponly=True,
+		secure=False,
+		samesite="lax",
+		path="/"
+	)
 
 	return {
 		"access_token": access_token,

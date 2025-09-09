@@ -65,6 +65,17 @@ pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
+4) Start uvicorn
+```
+uvicorn app.main:app --reload
+```
+
+5) Start frontend localhost
+```
+cd frontend
+npm run dev
+```
+
 
 # FastAPI:
 | Function                        | Role of FastAPI                                           |
@@ -120,6 +131,30 @@ source .venv/bin/activate
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 ```
+
+## Flow Diagram of News Engine:
+'''
+[ User Browser ]
+      │
+      ▼
+ [Next.js page.tsx]  ←─── routes in src/app/
+   (e.g. /login, /feed)
+      │
+      │ calls functions from
+      ▼
+ [ api.ts ]
+   (axios wrapper + TypeScript types)
+      │
+      │ sends HTTP request
+      ▼
+ [ FastAPI backend ]
+   (app/main.py + routers)
+      │
+      │ talks to
+      ▼
+ [ Database ]
+   (SQLAlchemy models: users, articles, interactions)
+'''
 
 
 ## What to do next
