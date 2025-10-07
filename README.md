@@ -56,7 +56,7 @@ cd personal_project.git
 2) Start environment:
 ```
 python3 -m venv venv
-source venv/bin/activate
+source .venv/bin/activate
 ```
 
 3) Install dependencies:
@@ -90,7 +90,7 @@ npm run dev
 ## FILE STRUCUTURE
 ```
 Personalized_News_Recommendation_Engine/
-├── app/
+├── backend/
 │	├── api/
 │	│	├── routes/
 │	│	│	├── __init__.py
