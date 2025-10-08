@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
-from app.models import Article, Interaction
-from app.schemas import FeedItem
+from backend.models import Article, Interaction
+from backend.schemas import FeedItem
 
 def recommend_articles(user, db: Session, limit: int = 20, offset: int = 0):
     # super simple: recommend latest articles

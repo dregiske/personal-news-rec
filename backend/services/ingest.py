@@ -22,9 +22,9 @@ import httpx
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app.schemas import ArticleCreate
-from app.models import Article
-from app.config import settings, rss_list
+from backend.schemas import ArticleCreate
+from backend.models import Article
+from backend.config import settings, rss_list
 
 # Strip common tracking params to canonicalize URLs
 _TRACKING_PARAMS = {

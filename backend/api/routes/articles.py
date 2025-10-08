@@ -5,9 +5,9 @@ Article enpoints
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from typing import List
-from app.database import get_database
-from app.models import Article
-from app.schemas import ArticleOut, ArticleCreate
+from backend.database import get_database
+from backend.models import Article
+from backend.schemas import ArticleOut, ArticleCreate
 
 router = APIRouter()
 

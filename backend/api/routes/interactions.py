@@ -4,9 +4,9 @@ Interaction enpoints
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from app.database import get_database
-from app.models import Interaction, Article
-from app.schemas import InteractionCreate
+from backend.database import get_database
+from backend.models import Interaction, Article
+from backend.schemas import InteractionCreate
 
 router = APIRouter()
 

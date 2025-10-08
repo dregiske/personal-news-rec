@@ -17,9 +17,9 @@ from jose import jwt, JWTError
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 
-from app.config import settings, access_token_expiry
-from app.database import get_database
-from app.models import User as UserModel
+from backend.config import settings, access_token_expiry
+from backend.database import get_database
+from backend.models import User as UserModel
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 

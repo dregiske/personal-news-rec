@@ -4,13 +4,13 @@ Create FastAPI app, mount routers and middlewares
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.config import settings
+from backend.config import settings
 
-from app.api.routes import users
-from app.api.routes import articles as articles_routes
-from app.api.routes import interactions as interactions_routes
-from app.api.routes import feed as feed_routes
-from app.api.routes import ingest as ingest_routes
+from backend.api.routes import users
+from backend.api.routes import articles as articles_routes
+from backend.api.routes import interactions as interactions_routes
+from backend.api.routes import feed as feed_routes
+from backend.api.routes import ingest as ingest_routes
 
 app = FastAPI()
 

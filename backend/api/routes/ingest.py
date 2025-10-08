@@ -4,8 +4,8 @@ Ingest enpoints
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from app.database import get_database
-from app.services.ingest import run_ingest
+from backend.database import get_database
+from backend.services.ingest import run_ingest
 
 router = APIRouter()
 

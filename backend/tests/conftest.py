@@ -4,9 +4,9 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from app import models as m
-from app.main import app
-from app.database import get_database
+from backend import models as m
+from backend.main import app
+from backend.database import get_database
 
 @pytest.fixture(scope="function")
 def client():

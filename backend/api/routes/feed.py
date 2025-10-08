@@ -6,11 +6,11 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from typing import List
 
-from app.database import get_database
-from app.models import User as UserModel
-from app.services.auth import get_current_user
-from app.services.recommendation import recommend_articles
-from app.schemas import FeedItem
+from backend.database import get_database
+from backend.models import User as UserModel
+from backend.services.auth import get_current_user
+from backend.services.recommendation import recommend_articles
+from backend.schemas import FeedItem
 
 router = APIRouter()
 

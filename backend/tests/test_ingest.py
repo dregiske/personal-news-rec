@@ -1,8 +1,8 @@
 def test_ingest_pipeline_smoke(client, monkeypatch):
     # stub provider to return one article
-    from app.services import ingest as ing
+    from backend.services import ingest as ing
     def fake_provider():
-        from app.schemas import ArticleCreate
+        from backend.schemas import ArticleCreate
         return [ArticleCreate(title="X", url="https://ex.org/a", source="ex")]
     monkeypatch.setattr(ing, "build_registry", lambda: [fake_provider])
     r = client.post("/ingest/run")
