@@ -87,7 +87,7 @@ npm run dev
 | Serve API to frontend           | React app will call FastAPI endpoints using HTTP requests |
 
 
-## FILE STRUCUTURE
+## FILE STRUCUTURE (backend)
 ```
 Personalized_News_Recommendation_Engine/
 ├── backend/
