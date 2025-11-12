@@ -9,13 +9,15 @@ from sqlalchemy.exc import IntegrityError
 from backend.schemas import UserCreate, UserOut, LoginRequest, LoginResponse
 from backend.services.auth import hash_password, verify_password, create_access_token
 from backend.models import User as UserModel
-from backend.database import SessionLocal, get_database
+from backend.database import get_database
 
 router = APIRouter()
 
 @router.get("/")
 def read_root():
-	return {"message": "Welcome to the News Recommendation Engine!"}
+	return {
+		"message": "Welcome to the News Recommendation Engine!"
+	}
 
 @router.get("/user/{user_id}")
 def get_user(user_id: int):

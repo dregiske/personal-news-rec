@@ -7,8 +7,7 @@ FLOW:
 login -> verify -> sign JWT (w/ SECRET_KEY + ALGORITHM)
 '''
 
-from datetime import datetime, timedelta, timezone
-from typing import Optional
+from datetime import datetime, timezone
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
@@ -23,14 +22,12 @@ from backend.models import User as UserModel
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-# ==== Password Functions ====
 def hash_password(password: str) -> str:
     return pwd_context.hash(password)
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
 
-# ==== JWT Create ====
 def create_access_token(data: dict) -> str:
     now = datetime.now(timezone.utc)
     exp = now + access_token_expiry()
@@ -43,7 +40,6 @@ def create_access_token(data: dict) -> str:
     encoded_jwt = jwt.encode(payload, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
     return encoded_jwt
 
-# ==== OAuth2 Bearer Extraction ====
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 def get_current_user(

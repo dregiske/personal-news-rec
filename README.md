@@ -2,12 +2,15 @@
 
 ## 1. Project Overview
 
-Build a web application that suggests news articles tailored to each user based on (a) collaborative filtering of reading histories and (b) content-based similarity on article metadata.
+This is a web application that suggests news articles tailored to each user based on:
+1) Reading histories
+2) Content-based similarity on article metadata
+3) Interaction histories
 
 ### Core Features
-- User Authentication
+- User Authentication (JWT)
 - Sign-up / Log-in
-- Secure password storage (e.g., hashing)
+- Secure password storage (hashing)
 - User Interaction Tracking
 - Store what articles the user reads, likes, or skips
 - Store keywords from user searches or article metadata
@@ -19,16 +22,8 @@ Build a web application that suggests news articles tailored to each user based 
 - Generate a list of suggested articles per user
 - Frontend Interface
 - Show personalized news feed
-- Allow interaction (like/dislike/save/share)
 
-## 2. Objectives
-- Implement both collaborative and content-based recommendation models
-- Expose a Python API (FastAPI) serving recommendations
-- Build a responsive frontend (React) showing a personalized "For You" feed
-- Store data in PostgreSQL and optimize queries for performance
-- Deploy end-to-end in a containerized setup (Docker)
-
-## 3. MVP Features
+## 2. MVP Features
 - User onboarding (simple sign-up/login)
 - Article ingestion pipeline (static dataset or News API)
 - Recording user interactions (clicks, likes, reads)
@@ -36,17 +31,17 @@ Build a web application that suggests news articles tailored to each user based 
 - Endpoint: GET /recommendations?user_id=...
 - Frontend: display recommended articles with title, summary, and image
 
-## 4. Tech Stack
+## 3. Tech Stack
 - Backend & ML: Python 3.10+, FastAPI, scikit-learn / surprise.psych, PySpark
 - Database: PostgreSQL (ORM via SQLAlchemy)
 - Frontend: React (TypeScript)
 - Infrastructure: Docker, Docker-Compose, GitHub Actions CI
 
-## 5. Data Sources
+## 4. Data Sources
 - Initial: Kaggle "All the News" dataset (NYTimes, The Huffington Post)
 - Later: integrate a live News API (e.g., NewsAPI.org) for fresh articles
 
-## 6. Setup
+## 5. Setup
 1) Clone github repository, and cd into project file:
 ```
 git clone https://github.com/dregiske/personal_project.git
@@ -56,7 +51,7 @@ cd personal_project.git
 2) Start environment:
 ```
 python3 -m venv venv
-source .venv/bin/activate
+source venv/bin/activate
 ```
 
 3) Install dependencies:
