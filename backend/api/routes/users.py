@@ -91,3 +91,15 @@ def login(user: LoginRequest, database: Session = Depends(get_database), respons
 			"email": database_user.email
 		}
 	}
+
+@router.post("/logout/")
+@router.post("/logout")
+def logout(response: Response):
+	response.delete_cookie(
+		key="acess_token",
+		path="/",
+		samesite="lax"
+	)
+	return {
+		"message": "Logged out successfully."
+	}
