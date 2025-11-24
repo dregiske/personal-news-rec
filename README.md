@@ -82,37 +82,6 @@ npm run dev
 | Serve API to frontend           | React app will call FastAPI endpoints using HTTP requests |
 
 
-## FILE STRUCUTURE (backend)
-```
-Personalized_News_Recommendation_Engine/
-├── backend/
-│	├── api/
-│	│	├── routes/
-│	│	│	├── __init__.py
-│	│	│	└── users.py
-│	│	└── __init__.py
-│	├── services/
-│	│	├── __init__.py
-│	│	└── auth.py
-│   ├── tests/
-│   │   ├── __init__.py
-│   │   ├── test_main.py
-│	│	└── test_users.py
-│   ├── __init__.py
-│	├── database.py
-│   ├── main.py
-│	├── models.py
-│	└── schemas.py
-├── .gitignore
-├── README.md
-└── requirements.txt
-```
-
-## To remove `__pycache__/`:
-```
-find . -type d -name "__pycache__" -exec rm -r {} +
-```
-
 ## Issues with x86_64, download requirements under arm64
 1) remove current env
 ```
