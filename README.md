@@ -60,16 +60,20 @@ pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-4) Start uvicorn
+4) Start uvicorn app (backend)
 ```
-uvicorn app.main:app --reload
+uvicorn backend.main:app --reload --port 8000
 ```
 
-5) Start frontend localhost
+5) Start react app (frontend)
 ```
 cd frontend
+npm install
 npm run dev
 ```
+
+## Demo Run:
+http://127.0.0.1:8000/docs
 
 
 # FastAPI:

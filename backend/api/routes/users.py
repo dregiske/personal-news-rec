@@ -19,20 +19,17 @@ def home():
 		"message": "Home page"
 	}
 
-@router.get("/user/{user_id}/")
 @router.get("/user/{user_id}")
 def get_user(user_id: int):
 	return {
 		"user_id": user_id
 	}
 
-@router.get("/users/")
 @router.get("/users")
 def list_users(database: Session = Depends(get_database)):
 	users = database.query(UserModel).all()
 	return users
 
-@router.post("/signup/", response_model=UserOut)
 @router.post("/signup", response_model=UserOut)
 def signup(user: UserCreate, database: Session = Depends(get_database)):
 	'''
@@ -63,7 +60,6 @@ def signup(user: UserCreate, database: Session = Depends(get_database)):
 	
 	return new_user
 
-@router.post("/login/", response_model=LoginResponse)
 @router.post("/login", response_model=LoginResponse)
 def login(user: LoginRequest, database: Session = Depends(get_database), response: Response = None):
 	'''
@@ -100,11 +96,10 @@ def login(user: LoginRequest, database: Session = Depends(get_database), respons
 		}
 	}
 
-@router.post("/logout/")
 @router.post("/logout")
 def logout(response: Response):
 	response.delete_cookie(
-		key="acess_token",
+		key="access_token",
 		path="/",
 		samesite="lax"
 	)

@@ -15,6 +15,7 @@ class Settings(BaseSettings):
 	NEWSAPI_KEY: str | None = None
 	DATABASE_URL: str 
 	CORS_ORIGINS: str
+	BACKEND_CORS_ORIGINS: str
 
 	class Config:
 		env_file = ".env"
