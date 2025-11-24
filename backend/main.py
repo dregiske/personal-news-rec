@@ -29,6 +29,3 @@ app.include_router(users.router, tags=["users"])
 # app.include_router(interactions_routes.router, tags=["interactions"])
 # app.include_router(feed_routes.router, tags=["feed"])
 # app.include_router(ingest_routes.router, tags=["ingest"])
-
-if __name__ == "__main__":
-	uvicorn.run(app, host="0.0.0.0", port=8000)

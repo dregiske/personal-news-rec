@@ -26,6 +26,12 @@ def get_user(user_id: int):
 		"user_id": user_id
 	}
 
+@router.get("/users/")
+@router.get("/users")
+def list_users(database: Session = Depends(get_database)):
+	users = database.query(UserModel).all()
+	return users
+
 @router.post("/signup/", response_model=UserOut)
 @router.post("/signup", response_model=UserOut)
 def signup(user: UserCreate, database: Session = Depends(get_database)):
@@ -37,6 +43,7 @@ def signup(user: UserCreate, database: Session = Depends(get_database)):
 	- sends user info back
 	'''
 	normalized_email = user.email.strip().lower()
+
 	if database.query(UserModel).filter(UserModel.email == normalized_email).first():
 		raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email already registered")
 	
@@ -44,6 +51,7 @@ def signup(user: UserCreate, database: Session = Depends(get_database)):
 		email = normalized_email,
 		hashed_password = hash_password(user.password)
 	)
+
 	database.add(new_user)
 	try:
 		database.commit()
