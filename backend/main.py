@@ -1,10 +1,11 @@
 '''
 Create FastAPI app, mount routers and middlewares
 '''
+import uvicorn
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .config import settings
+from backend.config import settings
 
 from backend.api.routes import users
 # from backend.api.routes import articles as articles_routes
@@ -30,5 +31,4 @@ app.include_router(users.router, tags=["users"])
 # app.include_router(ingest_routes.router, tags=["ingest"])
 
 if __name__ == "__main__":
-	import uvicorn
 	uvicorn.run(app, host="0.0.0.0", port=8000)

@@ -23,50 +23,51 @@ from backend.models import User as UserModel
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def hash_password(password: str) -> str:
-    return pwd_context.hash(password)
+	return pwd_context.hash(password)
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(plain_password, hashed_password)
+	return pwd_context.verify(plain_password, hashed_password)
 
 def create_access_token(data: dict) -> str:
-    now = datetime.now(timezone.utc)
-    exp = now + access_token_expiry()
-    
-    payload = {
-        **data,
-        "iat": int(now.timestamp()),
-        "exp": int(exp.timestamp()),
+	now = datetime.now(timezone.utc)
+	exp = now + access_token_expiry()
+	
+	payload = {
+		**data,
+		"iat": int(now.timestamp()),
+		"exp": int(exp.timestamp()),
 	}
-    encoded_jwt = jwt.encode(payload, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
-    return encoded_jwt
+	encoded_jwt = jwt.encode(payload, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+	return encoded_jwt
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
-def get_current_user(
-        token: str = Depends(oauth2_scheme),
-        db: Session = Depends(get_database),
-) -> UserModel:
-    '''
-    - Extract Bearer token from Authorization header
-    - Decode JWT
-    - Load the User from DB
-    - 401 if invalid/missing
-    '''
-    credentials_exc = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-    try:
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
-        sub = payload.get("sub")
-        if sub is None:
-            raise credentials_exc
-        user_id = int(sub)
-    except (JWTError, ValueError):
-        raise credentials_exc
 
-    user = db.query(UserModel).filter(UserModel.id == user_id).first()
-    if not user:
-        raise credentials_exc
-    return user
+def get_current_user(
+		token: str = Depends(oauth2_scheme),
+		db: Session = Depends(get_database),
+) -> UserModel:
+	'''
+	- Extract Bearer token from Authorization header
+	- Decode JWT
+	- Load the User from DB
+	- 401 if invalid/missing
+	'''
+	credentials_exc = HTTPException(
+		status_code=status.HTTP_401_UNAUTHORIZED,
+		detail="Could not validate credentials",
+		headers={"WWW-Authenticate": "Bearer"},
+	)
+	try:
+		payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+		sub = payload.get("sub")
+		if sub is None:
+			raise credentials_exc
+		user_id = int(sub)
+	except (JWTError, ValueError):
+		raise credentials_exc
+
+	user = db.query(UserModel).filter(UserModel.id == user_id).first()
+	if not user:
+		raise credentials_exc
+	return user
