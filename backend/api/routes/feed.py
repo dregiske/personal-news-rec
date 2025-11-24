@@ -1,6 +1,6 @@
 '''
 Feed enpoints
-'''
+
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
@@ -22,3 +22,4 @@ def get_feed(limit: int = 20,
 			 current_user: UserModel = Depends(get_current_user)):
 	items = recommend_articles(user=current_user, db=db, limit=limit, offset=offset)
 	return items
+'''

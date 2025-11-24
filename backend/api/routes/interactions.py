@@ -1,6 +1,6 @@
 '''
 Interaction enpoints
-'''
+
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -25,3 +25,4 @@ def record_interaction(
     inter = Interaction(user_id=user_id, article_id=body.article_id, type=body.type)
     db.add(inter); db.commit()
     return
+'''

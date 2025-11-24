@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "sqlite:///./app.db"
     # e.g. postgresql+psycopg2://user:pass@host:5432/db
 
-    CORS_ORIGINS: str = "" 
+    CORS_ORIGINS: str = "http://localhost:3000" 
     # e.g. "http://localhost:5173,http://127.0.0.1:5173"
 
     class Config:

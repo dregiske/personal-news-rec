@@ -1,6 +1,6 @@
 '''
 Article enpoints
-'''
+
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
@@ -46,3 +46,4 @@ def upsert_article(payload: ArticleCreate, db: Session = Depends(get_database)):
     db.commit()
     db.refresh(a)
     return a
+'''

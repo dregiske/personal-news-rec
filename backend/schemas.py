@@ -24,6 +24,7 @@ class LoginResponse(BaseModel):
 	token_type: str
 	user: UserOut
 
+'''
 class ArticleCreate(BaseModel):
 	title: str
 	url: HttpUrl
@@ -52,3 +53,4 @@ class FeedItem(BaseModel):
 	published_at: datetime | None = None
 	source: str | None = None
 	score: float			# personalized score
+'''
