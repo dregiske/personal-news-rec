@@ -1,35 +1,31 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { Routes, Route, Link } from "react-router-dom";
+import LoginPage from "./features/auth/LoginPage";
+import SignupPage from "./features/auth/SignupPage";
+import ProtectedRoute from "./features/auth/ProtectedRoute";
+import { useAuth } from "./features/auth/AuthContext";
 
-function App() {
-  const [count, setCount] = useState(0)
-
+function HomePage() {
+  const { user, logout } = useAuth();
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <div>
+      <h1>Home</h1>
+      {user && <p>Welcome, {user.email}</p>}
+      <button onClick={logout}>Logout</button>
+    </div>
+  );
 }
 
-export default App
+export default function App() {
+  return (
+      <Routes>
+      <nav style={{ padding: "1rem", borderBottom: "1px solid #000000ff" }}>
+        <Link to="/login" style={{ marginRight: "1rem" }}>Login</Link>
+        <Link to="/signup">Sign Up</Link>
+      </nav>
+
+      <Route path="/" element={ <LoginPage /> } />
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/signup" element={<SignupPage />} />
+    </Routes>
+  );
+}

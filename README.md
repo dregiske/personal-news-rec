@@ -72,6 +72,12 @@ npm install
 npm run dev
 ```
 
+5) Install packages
+```
+npm install react
+npm install react-router-dom
+```
+
 ## Demo Run:
 http://127.0.0.1:8000/docs
 

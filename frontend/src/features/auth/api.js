@@ -1,4 +1,4 @@
-import api from "../../api/client";
+import api from "../../api/api";
 
 export async function signup({ email, password }) {
   const res = await api.post("/signup", { email, password });
