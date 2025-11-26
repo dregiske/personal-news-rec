@@ -1,4 +1,3 @@
-// src/features/auth/SignupPage.jsx
 import { useState } from "react";
 import { signup } from "./api";
 
@@ -14,7 +13,6 @@ export default function SignupPage() {
     try {
       await signup({ email, password });
       setMessage("Account created! Redirecting to login...");
-      // small delay or immediate redirect
       window.location.href = "/login";
     } catch (err) {
       console.error(err);

@@ -1,4 +1,3 @@
-// src/features/auth/LoginPage.jsx
 import { useState } from "react";
 import { useAuth } from "./AuthContext";
 
@@ -20,7 +19,7 @@ export default function LoginPage() {
     }
 
     setMessage("Logged in! Redirecting...");
-    window.location.href = "/"; // or /dashboard
+    window.location.href = "/";
   }
 
   return (

@@ -1,15 +1,11 @@
-// src/features/auth/AuthContext.jsx
 import { createContext, useContext, useState, useEffect } from "react";
 import { login as loginApi } from "./api";
-// optional: import getMe() later to fetch current user from backend
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);      // { id, email } or null
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
-
-  // optional: on mount, hit a /me endpoint to see if user is already logged in
   useEffect(() => {
     // TODO: call /me later
   }, []);
@@ -19,7 +15,6 @@ export function AuthProvider({ children }) {
     try {
       const data = await loginApi({ email, password });
       setUser(data.user);
-      // cookie gets set by backend, we just store user info
       return { ok: true, data };
     } catch (err) {
       console.error(err);
