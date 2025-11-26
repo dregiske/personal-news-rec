@@ -1,31 +1,31 @@
-// src/features/auth/LoginPage.jsx
+// src/features/auth/SignupPage.jsx
 import { useState } from "react";
-import { useAuth } from "./AuthContext";
+import { signup } from "./api";
 
-export default function LoginPage() {
-  const { login, loading } = useAuth();
+export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
 
   async function handleSubmit(e) {
     e.preventDefault();
-    setMessage("");
+    setMessage("Creating account...");
 
-    const result = await login(email, password);
-
-    if (!result.ok) {
-      setMessage(result.error);
-      return;
+    try {
+      await signup({ email, password });
+      setMessage("Account created! Redirecting to login...");
+      // small delay or immediate redirect
+      window.location.href = "/login";
+    } catch (err) {
+      console.error(err);
+      const msg = err.response?.data?.detail || "Signup failed";
+      setMessage(msg);
     }
-
-    setMessage("Logged in! Redirecting...");
-    window.location.href = "/"; // or /dashboard
   }
 
   return (
     <div style={{ maxWidth: 400, margin: "2rem auto" }}>
-      <h1>Log In</h1>
+      <h1>Sign Up</h1>
       <form onSubmit={handleSubmit}>
         <div style={{ marginBottom: "1rem" }}>
           <label>
@@ -53,9 +53,7 @@ export default function LoginPage() {
           </label>
         </div>
 
-        <button type="submit" disabled={loading}>
-          {loading ? "Logging in..." : "Log In"}
-        </button>
+        <button type="submit">Create Account</button>
       </form>
 
       {message && <p style={{ marginTop: "1rem" }}>{message}</p>}
