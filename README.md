@@ -100,31 +100,6 @@ python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 ```
 
-## Flow Diagram of News Engine:
-'''
-[ User Browser ]
-      │
-      ▼
- [Next.js page.tsx]  ←─── routes in src/app/
-   (e.g. /login, /feed)
-      │
-      │ calls functions from
-      ▼
- [ api.ts ]
-   (axios wrapper + TypeScript types)
-      │
-      │ sends HTTP request
-      ▼
- [ FastAPI backend ]
-   (app/main.py + routers)
-      │
-      │ talks to
-      ▼
- [ Database ]
-   (SQLAlchemy models: users, articles, interactions)
-'''
-
-
 ## What to do next
 Build Login Route
 Verify credentials
@@ -157,3 +132,37 @@ For a user, average vectors of interacted articles; rank candidates by cosine si
 
 Cache vectors in memory; refresh on ingest.
 ___
+
+
+## Notes:
+Backend authentication
+- Actual security
+- Verifies password
+- Creates JWT
+- Validates JWT
+- Controls access to protected routes
+
+Frontend authentication (AuthContext)
+- Holds user info, not JWT
+- Redirects user
+- Shows/hides pages
+- Sends requests w/ cookies
+- Purely UI + state management
+
+
+Backend does:
+✔ Password hashing
+✔ JWT token creation
+✔ JWT token validation
+✔ Cookie settings
+✔ Access control
+✔ DB queries
+✔ Security logic
+
+Frontend does:
+✔ UI
+✔ Routing
+✔ Forms
+✔ Call backend APIs
+✔ Keep simple “user metadata” (not secrets)
+✔ Show different screens depending on login state
