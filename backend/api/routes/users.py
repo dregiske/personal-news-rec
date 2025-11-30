@@ -13,12 +13,6 @@ from backend.database import get_database
 
 router = APIRouter()
 
-@router.get("/")
-def home():
-	return {
-		"message": "Home page"
-	}
-
 @router.get("/user/{user_id}")
 def get_user(user_id: int):
 	return {

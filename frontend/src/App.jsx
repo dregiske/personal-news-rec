@@ -5,6 +5,7 @@ import Home from "./pages/Home";
 
 import LoginPage from "./features/auth/LoginPage";
 import SignupPage from "./features/auth/SignupPage";
+
 import ProtectedRoute from "./features/auth/ProtectedRoute";
 import { useAuth } from "./features/auth/AuthContext";
 
@@ -30,7 +31,7 @@ export default function App() {
 			}
 		  />
 		  DELETE HERE > */}
-		  
+
 		</Routes>
 	  </Router>
 	  

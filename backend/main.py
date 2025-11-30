@@ -13,6 +13,7 @@ from backend import models
 from backend.database import engine, Base
 
 from backend.api.routes import users
+from backend.api.routes import home
 # from backend.api.routes import articles as articles_routes
 # from backend.api.routes import interactions as interactions_routes
 # from backend.api.routes import feed as feed_routes
@@ -41,6 +42,7 @@ app.add_middleware(
 	allow_headers=["*"],
 )
 
+app.include_router(home.router, tags=["home"])
 app.include_router(users.router, tags=["users"])
 # app.include_router(articles_routes.router, tags=["articles"])
 # app.include_router(interactions_routes.router, tags=["interactions"])
