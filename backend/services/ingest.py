@@ -2,6 +2,8 @@
 News ingestion services.
 '''
 from datetime import datetime
+from sqlalchemy.orm import Session
+from backend.models import Article as Article 
 
 def fetch_newsapi_articles(api_key, query, page_size=3):
 	'''
@@ -43,3 +45,47 @@ def normalize_article_data(raw):
 		# Grab keywords via extraction later
 		"keywords": None 
 	}
+
+def upsert_into_database(db: Session, api_key: str, query: str, page_size: int):
+	'''
+	Call fetch function and normalize data, then
+	upsert articles into the database
+	- if article with same URL exists, update it
+	- else, insert new article
+	'''
+	raw_articles = fetch_newsapi_articles(api_key, query, page_size)
+	upserted = 0
+	for raw in raw_articles:
+
+		# normalize data
+		normalized = normalize_article_data(raw)
+		url = normalized["url"]
+
+		if not url:
+			continue # skip articles without URL
+
+		# check for existing article
+		existing = db.query(Article).filter(Article.url == url).first()
+
+		if existing: # update if exists
+			existing.title = normalized["title"]
+			existing.content = normalized["content"]
+			existing.source = normalized["source"]
+			existing.published_at = normalized["published_at"]
+			existing.keywords = normalized["keywords"]
+
+		else: # else, insert new
+			article = Article(
+				title = normalized["title"],
+				content = normalized["content"],
+				source = normalized["source"],
+				url = normalized["url"],
+				published_at = normalized["published_at"],
+				keywords = normalized["keywords"]
+			)
+			db.add(article)
+
+		upserted += 1
+
+	db.commit()
+	return upserted
