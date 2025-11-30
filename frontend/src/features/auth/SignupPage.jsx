@@ -1,7 +1,11 @@
 import { useState } from "react";
 import { signup } from "./api";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "./AuthContext";
 
 export default function SignupPage() {
+  const navigate = useNavigate();
+  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
@@ -12,8 +16,14 @@ export default function SignupPage() {
 
     try {
       await signup({ email, password });
-      setMessage("Account created! Redirecting to login...");
-      window.location.href = "/login";
+	  const result = await login(email, password);
+	  if (!result.ok) {
+		setMessage("Account created, but login failed. Redirecting to login...");
+		navigate("/login");
+		return;
+	  }
+      setMessage("Account created! Redirecting to dashboard...");
+      navigate("/dashboard");
     } catch (err) {
       console.error(err);
       const msg = err.response?.data?.detail || "Signup failed";
