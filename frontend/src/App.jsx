@@ -1,7 +1,7 @@
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 
-import NavBar from "./components/NavBar";
-import Home from "./pages/Home";
+import NavBar from "../components/NavBar";
+import Home from "../pages/Home";
 
 import LoginPage from "./features/auth/LoginPage";
 import SignupPage from "./features/auth/SignupPage";
@@ -12,7 +12,7 @@ import { useAuth } from "./features/auth/AuthContext";
 
 export default function App() {
   return (
-      <Router>
+      <>
 		<NavBar />
 		<Routes>
 		  <Route path="/" element={<Home />} />
@@ -33,7 +33,7 @@ export default function App() {
 		  DELETE HERE > */}
 
 		</Routes>
-	  </Router>
+	  </>
 	  
   );
 }
