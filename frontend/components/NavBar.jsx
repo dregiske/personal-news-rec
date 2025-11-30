@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 export default function NavBar() {
   return (
     <nav style={styles.nav}>
-      <h2 style={styles.logo}>NewsRec</h2>
+      <h2 style={styles.logo}>The News Rec</h2>
 
       <div style={styles.links}>
         <Link to="/login" style={styles.link}>Login</Link>

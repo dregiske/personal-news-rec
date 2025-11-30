@@ -14,6 +14,9 @@ export default function App() {
   return (
       <>
 		<NavBar />
+
+		{/* Content Wrapper */}
+		<div style ={{ paddingTop: "80px" }}></div>
 		<Routes>
 		  <Route path="/" element={<Home />} />
 		  <Route path="/login" element={<LoginPage />} />

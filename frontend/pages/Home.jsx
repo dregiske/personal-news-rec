@@ -14,7 +14,7 @@ export default function Home() {
 
 const styles = {
   container: {
-    marginTop: "80px",
+    marginTop: "100px",
     textAlign: "center",
     padding: "0 20px",
   },
