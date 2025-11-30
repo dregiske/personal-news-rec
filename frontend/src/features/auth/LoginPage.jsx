@@ -24,7 +24,7 @@ export default function LoginPage() {
 
   return (
     <div style={{ maxWidth: 400, margin: "2rem auto" }}>
-      <h1>Log In</h1>
+      <h1>Login</h1>
       <form onSubmit={handleSubmit}>
         <div style={{ marginBottom: "1rem" }}>
           <label>
@@ -53,7 +53,7 @@ export default function LoginPage() {
         </div>
 
         <button type="submit" disabled={loading}>
-          {loading ? "Logging in..." : "Log In"}
+          {loading ? "Logging in..." : "Login"}
         </button>
       </form>
 
