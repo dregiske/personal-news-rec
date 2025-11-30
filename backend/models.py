@@ -15,7 +15,7 @@ class User(Base):
 	hashed_password 	= Column(String, nullable=False)
 	created_at 			= Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
-'''
+
 class Article(Base):
 	__tablename__ 		= "articles"
 	id 					= Column(Integer, primary_key=True)
@@ -26,6 +26,7 @@ class Article(Base):
 	published_at 		= Column(DateTime(timezone=True), index=True, nullable=True)
 	keywords			= Column(String(512), nullable=True)
 
+'''
 class Interaction(Base):
 	__tablename__ 		= "interactions"
 	id 					= Column(Integer, primary_key=True)

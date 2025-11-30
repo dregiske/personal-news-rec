@@ -1,5 +1,5 @@
 '''
-Env driven settings (secrets, DB, URL, apikey)
+Env driven settings
 '''
 
 from pydantic_settings import BaseSettings
