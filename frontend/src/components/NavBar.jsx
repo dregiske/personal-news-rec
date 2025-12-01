@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useAuth } from "../src/features/auth/AuthContext";
+import { useAuth } from "../features/auth/AuthContext";
 
 export default function NavBar() {
 
