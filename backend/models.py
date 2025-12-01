@@ -26,12 +26,10 @@ class Article(Base):
 	published_at 		= Column(DateTime(timezone=True), index=True, nullable=True)
 	keywords			= Column(String(512), nullable=True)
 
-'''
 class Interaction(Base):
 	__tablename__ 		= "interactions"
 	id 					= Column(Integer, primary_key=True)
 	user_id				= Column(Integer, ForeignKey("users.id"), index=True, nullable=False)
 	article_id 			= Column(Integer, ForeignKey("articles.id"), index=True, nullable=False)
 	type				= Column(String(32), nullable=False)
-	ts 					= Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
-'''
+	timestamp			= Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))

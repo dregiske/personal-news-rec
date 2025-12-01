@@ -40,8 +40,14 @@ class ArticleOut(BaseModel):
 	published_at: Optional[datetime] = None
 	model_config = ConfigDict(from_attributes=True)
 
-'''
 class InteractionCreate(BaseModel):
 	article_id: int
-	type: str				#ex. "VIEW", "CLICK", "LIKE"
-'''
+	type: str
+
+class InteractionOut(BaseModel):
+	id: int
+	user_id: int
+	article_id: int
+	type: str
+	timestamp: datetime
+	model_config = ConfigDict(from_attributes=True)

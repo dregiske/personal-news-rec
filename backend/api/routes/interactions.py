@@ -1,28 +1,37 @@
 '''
 Interaction enpoints
-
+'''
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from backend.database import get_database
 from backend.models import Interaction, Article
-from backend.schemas import InteractionCreate
+from backend.schemas import InteractionCreate, InteractionOut
+from backend.services.auth import get_current_user
+from backend.models import User
 
 router = APIRouter()
 
-@router.post("/interactions/", status_code=204)
-@router.post("/interactions", status_code=204)
+@router.post("/interactions", response_model=InteractionOut, status_code=status.HTTP_201_CREATED)
 def record_interaction(
-    body: InteractionCreate,
-    db: Session = Depends(get_database),
-    # TODO: pull user_id from JWT; for v0, use a fixed user 1 or add dependency
+	interaction: InteractionCreate,
+	db: Session = Depends(get_database),
+	current_user: User = Depends(get_current_user)
 ):
-    user_id = 1  # replace with real auth dependency soon
-    art = db.query(Article).get(body.article_id)
-    if not art:
-        raise HTTPException(status_code=404, detail="Article not found")
+	'''
+	Record a user interaction with an article
+	'''
+	article = db.query(Article).get(interaction.article_id)
+	if not article:
+		raise HTTPException(status_code=404, detail="Article not found")
 
-    inter = Interaction(user_id=user_id, article_id=body.article_id, type=body.type)
-    db.add(inter); db.commit()
-    return
-'''
+	inter = Interaction(
+		user_id=current_user.id,
+		article_id=interaction.article_id,
+		type=interaction.type
+	)
+	db.add(inter)
+	db.commit()
+	db.refresh(inter)
+
+	return inter
