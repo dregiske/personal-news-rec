@@ -2,8 +2,8 @@ import { Routes, Route } from "react-router-dom";
 
 import NavBar from "../components/NavBar";
 
-import Home from "../pages/Home";
-import Dashboard from "../pages/Dashboard";
+import Home from "../src/pages/Home";
+import Dashboard from "../src/pages/Dashboard";
 
 import LoginPage from "./features/auth/LoginPage";
 import SignupPage from "./features/auth/SignupPage";
