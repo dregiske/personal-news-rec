@@ -1,8 +1,8 @@
-import { useAuth } from "../src/features/auth/AuthContext";
+import { useAuth } from "../features/auth/AuthContext";
 
 import { useEffect, useState } from "react";
 
-import api from "../src/api/api";
+import api from "../api/api";
 
 export default function Dashboard() {
 
