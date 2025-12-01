@@ -76,6 +76,7 @@ npm run dev
 ```
 npm install react
 npm install react-router-dom
+npm install axios
 ```
 
 ## Demo Run:
