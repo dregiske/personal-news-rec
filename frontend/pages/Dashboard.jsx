@@ -47,7 +47,7 @@ export default function Dashboard() {
 			style={styles.article}
 		  >
 			<h2 style={styles.article_title}>{a.title}</h2>
-			{a.source && <p style={article_source}>{a.source}</p>}
+			{a.source && <p style={styles.article_source}>{a.source}</p>}
 			{a.content && <p style={styles.article_content}>{a.content}</p>}
 			<a href={a.url} target="_blank" rel="noopener noreferrer">Read more</a>
 		  </article>
