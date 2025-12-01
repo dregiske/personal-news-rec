@@ -14,9 +14,9 @@ from backend.database import engine, Base
 from backend.api.routes import users
 from backend.api.routes import home
 from backend.api.routes import ingest as ingest_routes
+from backend.api.routes import feed as feed_routes
 # from backend.api.routes import articles as articles_routes
 # from backend.api.routes import interactions as interactions_routes
-# from backend.api.routes import feed as feed_routes
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -44,6 +44,6 @@ app.add_middleware(
 app.include_router(home.router, tags=["home"])
 app.include_router(users.router, tags=["users"])
 app.include_router(ingest_routes.router, tags=["ingest"])
+app.include_router(feed_routes.router, tags=["feed"])
 # app.include_router(articles_routes.router, tags=["articles"])
 # app.include_router(interactions_routes.router, tags=["interactions"])
-# app.include_router(feed_routes.router, tags=["feed"])

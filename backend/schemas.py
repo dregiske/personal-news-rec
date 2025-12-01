@@ -24,7 +24,6 @@ class LoginResponse(BaseModel):
 	token_type: str
 	user: UserOut
 
-
 class ArticleCreate(BaseModel):
 	title: str
 	url: HttpUrl
@@ -45,13 +44,4 @@ class ArticleOut(BaseModel):
 class InteractionCreate(BaseModel):
 	article_id: int
 	type: str				#ex. "VIEW", "CLICK", "LIKE"
-
-class FeedItem(BaseModel):
-	id: int
-	title: str
-	url: HttpUrl
-	summary: str | None = None
-	published_at: datetime | None = None
-	source: str | None = None
-	score: float			# personalized score
 '''
