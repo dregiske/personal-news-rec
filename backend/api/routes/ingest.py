@@ -1,16 +1,22 @@
 '''
 Ingest enpoints
-
+'''
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from backend.database import get_database
-from backend.services.ingest import run_ingest
+from backend.services.ingest import upsert_into_database
+from backend.config import settings
 
 router = APIRouter()
 
-@router.post("/ingest/run", tags=["ingest"])
+@router.post("/admin/ingest", tags=["ingest"])
 def ingest_run(db: Session = Depends(get_database)):
-    return run_ingest(db)
+	count = upsert_into_database(
+		db,
+		api_key=settings.NEWSAPI_KEY,
+		query="technology",
+		page_size=5
+	)
 
-'''
+	return {"ingested / updated": count}

@@ -2,10 +2,13 @@
 News ingestion services.
 '''
 from datetime import datetime
+
 from sqlalchemy.orm import Session
 from backend.models import Article as Article 
 
-def fetch_newsapi_articles(api_key, query, page_size=3):
+from fastapi import HTTPException
+
+def fetch_newsapi_articles(api_key, query, page_size):
 	'''
 	Fetch articles from News API based on a query
 	'''
@@ -17,8 +20,16 @@ def fetch_newsapi_articles(api_key, query, page_size=3):
 		"pageSize": page_size,
 		"apiKey": api_key
 	}
-	response = requests.get(url, params=params)
-	response.raise_for_status()
+	try:
+		response = requests.get(url, params=params)
+		response.raise_for_status()
+	except requests.RequestException as e:
+		print("NewsAPI request failed:", e, response.text if 'response' in locals() else '')
+		raise HTTPException(
+			status_code=502,
+			detail="Failed to fetch articles from NewsAPI"
+		)
+
 	return response.json().get("articles", [])
 
 def normalize_article_data(raw):
@@ -54,7 +65,9 @@ def upsert_into_database(db: Session, api_key: str, query: str, page_size: int):
 	- else, insert new article
 	'''
 	raw_articles = fetch_newsapi_articles(api_key, query, page_size)
+
 	upserted = 0
+
 	for raw in raw_articles:
 
 		# normalize data

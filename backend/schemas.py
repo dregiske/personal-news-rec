@@ -24,7 +24,7 @@ class LoginResponse(BaseModel):
 	token_type: str
 	user: UserOut
 
-'''
+
 class ArticleCreate(BaseModel):
 	title: str
 	url: HttpUrl
@@ -41,6 +41,7 @@ class ArticleOut(BaseModel):
 	published_at: Optional[datetime] = None
 	model_config = ConfigDict(from_attributes=True)
 
+'''
 class InteractionCreate(BaseModel):
 	article_id: int
 	type: str				#ex. "VIEW", "CLICK", "LIKE"
