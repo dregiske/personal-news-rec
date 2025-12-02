@@ -48,11 +48,10 @@ def build_article_keywords(article) -> str:
 	Builds a keyword string for the given article by
 	extracting keywords from its title and content.
 	'''
-	title = article.title or ""
-	content = article.content or ""
+	title = article.get("title") or ""
+	content = article.get("content") or ""
 
-	text_parts = [title or ""]
-
+	text_parts = [title]
 
 	if content:
 		text_parts.append(content)

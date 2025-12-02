@@ -8,6 +8,8 @@ from backend.models import Article as Article
 
 from fastapi import HTTPException
 
+from backend.services.keywords import build_article_keywords
+
 def fetch_newsapi_articles(api_key, query, page_size):
 	'''
 	Fetch articles from News API based on a query
@@ -52,15 +54,13 @@ def normalize_article_data(raw):
 		"source": raw.get("source", {}).get("name"),
 		"url": raw.get("url"),
 		"published_at": published_at,
-
-		# Grab keywords via extraction later
-		"keywords": None 
+		"keywords": None, 
 	}
 
 def upsert_into_database(db: Session, api_key: str, query: str, page_size: int):
 	'''
-	Call fetch function and normalize data, then
-	upsert articles into the database
+	Call fetch function and normalize data, adds
+	keywords then upserts articles into the database
 	- if article with same URL exists, update it
 	- else, insert new article
 	'''
@@ -72,10 +72,14 @@ def upsert_into_database(db: Session, api_key: str, query: str, page_size: int):
 
 		# normalize data
 		normalized = normalize_article_data(raw)
+
 		url = normalized["url"]
 
 		if not url:
 			continue # skip articles without URL
+
+		# extract keywords
+		keywords = build_article_keywords(normalized)
 
 		# check for existing article
 		existing = db.query(Article).filter(Article.url == url).first()
@@ -85,16 +89,16 @@ def upsert_into_database(db: Session, api_key: str, query: str, page_size: int):
 			existing.content = normalized["content"]
 			existing.source = normalized["source"]
 			existing.published_at = normalized["published_at"]
-			existing.keywords = normalized["keywords"]
+			existing.keywords = keywords
 
-		else: # else, insert new
+		else: # else, insert new article
 			article = Article(
 				title = normalized["title"],
 				content = normalized["content"],
 				source = normalized["source"],
 				url = normalized["url"],
 				published_at = normalized["published_at"],
-				keywords = normalized["keywords"]
+				keywords = keywords
 			)
 			db.add(article)
 
