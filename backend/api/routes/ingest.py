@@ -16,7 +16,7 @@ def ingest_run(db: Session = Depends(get_database)):
 		db,
 		api_key=settings.NEWSAPI_KEY,
 		query=settings.NEWS_QUERY,
-		page_size=20
+		page_size=50
 	)
 
 	return {"ingested / updated": count}
