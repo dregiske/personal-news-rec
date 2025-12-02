@@ -131,7 +131,7 @@ def recommend_articles(user_id: int, db: Session, k: int = 20):
 
 	candidates = []
 	for idx, sim in enumerate(sims):
-		article_id = article_ids[x]
+		article_id = article_ids[idx]
 		if article_id in seen_article_ids:
 			continue
 		candidates.append((article_id, float(sim)))
