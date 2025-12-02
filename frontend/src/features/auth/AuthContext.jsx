@@ -14,8 +14,12 @@ export function AuthProvider({ children }) {
     setLoading(true);
     try {
       const data = await loginApi({ email, password });
+
+	  localStorage.setItem("access_token", data.access_token);
       setUser(data.user);
+
       return { ok: true, data };
+	  
     } catch (err) {
       console.error(err);
       const message = err.response?.data?.detail || "Login failed";

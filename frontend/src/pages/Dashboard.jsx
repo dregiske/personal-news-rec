@@ -1,8 +1,10 @@
 import { useAuth } from "../features/auth/AuthContext";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 
 import api from "../api/api";
+
+import { recordInteraction } from "../api/interactions";
 
 export default function Dashboard() {
 
@@ -24,6 +26,10 @@ export default function Dashboard() {
 	loadFeed();
   }, []);
 
+  const sendInteraction = useCallback(async (articleId, type) => {
+	await recordInteraction(articleId, type);
+  }, []);
+
   if (loading) {
 	return <p style={{ paddingTop: "60px", textAlign: "center" }}>Loading your feed ...</p>
   }
@@ -31,7 +37,7 @@ export default function Dashboard() {
   return (
 	<div style={styles.container}>
 	  <h1 style={styles.title}>
-		{user ? `Welcome back, ${user.email}` : "Welcome to your dashboard"}
+		{user ? `Welcome, ${user.email}` : "Welcome to your dashboard"}
 	  </h1>
 
 	  <p style={styles.subtitle}>
@@ -50,6 +56,10 @@ export default function Dashboard() {
 			{a.source && <p style={styles.article_source}>{a.source}</p>}
 			{a.content && <p style={styles.article_content}>{a.content}</p>}
 			<a href={a.url} target="_blank" rel="noopener noreferrer">Read more</a>
+			<div className="interaction_buttons" style={styles.article_buttons}>
+			  <button style={styles.article_button} onClick={() => sendInteraction(a.id, "like")}>Like</button>
+			  <button style={styles.article_button} onClick={() => sendInteraction(a.id, "dislike")}>Dislike</button>
+			</div>
 		  </article>
 		))}
 	  </div>
@@ -97,5 +107,20 @@ const styles = {
 	fontSize: "1rem",
 	color: "#333",
 	marginBottom: "10px",
+  },
+  article_buttons: {
+	textAlign: "right",
+	display: "flex",
+	justifyContent: "flex-end",
+  },
+  article_button: {
+	marginRight: "10px",
+	padding: "8px 12px",
+	fontSize: "0.9rem",
+	cursor: "pointer",
+	borderRadius: "4px",
+	border: "none",
+	backgroundColor: "#007BFF",
+	color: "white",
   },
 };

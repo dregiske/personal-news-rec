@@ -70,7 +70,7 @@ def login(user: LoginRequest, database: Session = Depends(get_database), respons
 	if not verify_password(user.password, database_user.hashed_password):
 		raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect password")
 	
-	access_token = create_access_token(data={"user_id": database_user.id})
+	access_token = create_access_token(data={"sub": str(database_user.id)})
 
 	response.set_cookie(
 		key="access_token",

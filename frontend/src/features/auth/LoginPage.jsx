@@ -1,27 +1,33 @@
-import { use, useState } from "react";
+import { useState } from "react";
 import { useAuth } from "./AuthContext";
 import { useNavigate } from "react-router-dom";
 
 export default function LoginPage() {
   const { login, loading } = useAuth();
   const navigate = useNavigate();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
   const [message, setMessage] = useState("");
 
   async function handleSubmit(e) {
     e.preventDefault();
     setMessage("");
 
-    const result = await login(email, password);
+	try {
+	  const result = await login(email, password);
+	  if (!result.ok) {
+		setMessage(result.error);
+		return;
+	  }
+	  setMessage("Logged in! Redirecting...");
+      navigate("/dashboard");
 
-    if (!result.ok) {
-      setMessage(result.error);
-      return;
-    }
-
-    setMessage("Logged in! Redirecting...");
-    navigate("/dashboard");
+	} catch (err) {
+	  setMessage("Login failed. Please try again.");
+	  return;
+	}
   }
 
   return (
