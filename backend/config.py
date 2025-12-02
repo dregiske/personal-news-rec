@@ -16,6 +16,7 @@ class Settings(BaseSettings):
 	DATABASE_URL: str 
 	CORS_ORIGINS: str
 	BACKEND_CORS_ORIGINS: str
+	NEWS_QUERY: str
 
 	class Config:
 		env_file = ".env"

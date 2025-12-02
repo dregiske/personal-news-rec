@@ -16,7 +16,7 @@ from backend.schemas import ArticleOut
 router = APIRouter()
 
 @router.get("/feed", response_model=List[ArticleOut])
-def get_feed(limit: int = 20,
+def get_feed(limit: int=20,
 			 # offset: int = 0,
 			 db: Session = Depends(get_database),
 			 # current_user: UserModel = Depends(get_current_user)

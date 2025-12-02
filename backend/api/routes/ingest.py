@@ -15,7 +15,7 @@ def ingest_run(db: Session = Depends(get_database)):
 	count = upsert_into_database(
 		db,
 		api_key=settings.NEWSAPI_KEY,
-		query="technology",
+		query=settings.NEWS_QUERY,
 		page_size=20
 	)
 
