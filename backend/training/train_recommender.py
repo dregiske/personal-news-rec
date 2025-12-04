@@ -8,9 +8,6 @@ from backend.services.recommendation import build_tfidf_model, build_knn_index
 
 
 def main():
-	MODEL_DIRECTORY = os.path.join(os.path.dirname(__file__), "..", "models")
-	MODEL_DIRECTORY = os.path.abspath(MODEL_DIRECTORY)
-	os.makedirs(MODEL_DIRECTORY, exist_ok=True)
 
 	db: Session = SessionLocal()
 	try:

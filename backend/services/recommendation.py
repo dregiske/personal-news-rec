@@ -12,8 +12,40 @@ import numpy as np
 
 from collections import defaultdict
 
+# ---------- MODEL DIRECTORY ----------
 MODEL_DIRECTORY = os.path.join(os.path.dirname(__file__), "..", "models")
 MODEL_DIRECTORY = os.path.abspath(MODEL_DIRECTORY)
+os.makedirs(MODEL_DIRECTORY, exist_ok=True)
+
+# ---------- GLOBAL MODEL HANDLES (lazy) ----------
+vectorizer = None
+tfidf_matrix = None
+article_ids = None
+id_to_index = None
+knn = None
+
+# ---------- INTERACTION WEIGHTS ----------
+INTERACTION_WEIGHTS = {
+	"like": 2.0,
+	"dislike": -1.5,
+	"view": 1.0,
+}
+
+def load_models():
+	'''
+	Lazily load recommendation models from disk
+	'''
+	global vectorizer, tfidf_matrix, article_ids, id_to_index, knn
+	if vectorizer is None:
+		vectorizer = joblib.load(f"{MODEL_DIRECTORY}/tfidf_vectorizer.joblib")
+	if tfidf_matrix is None:
+		tfidf_matrix = joblib.load(f"{MODEL_DIRECTORY}/tfidf_matrix.joblib")
+	if article_ids is None:
+		article_ids	= joblib.load(f"{MODEL_DIRECTORY}/article_ids.joblib")
+	if id_to_index is None:
+		id_to_index	= joblib.load(f"{MODEL_DIRECTORY}/article_id_to_index.joblib")
+	if knn is None:
+		knn	= joblib.load(f"{MODEL_DIRECTORY}/article_knn.joblib")
 
 def article_to_text(article: Article):
 	'''
@@ -40,10 +72,10 @@ def build_tfidf_model(articles: list[Article]):
 	article_ids = [article.id for article in articles]
 	id_to_index = {article_id: i for i, article_id in enumerate(article_ids)}
 
-	joblib.dump(vectorizer,		f"{MODEL_DIRECTORY}/tfidf_vectorizer.joblib")
-	joblib.dump(tfidf_matrix,	f"{MODEL_DIRECTORY}/tfidf_matrix.joblib")
-	joblib.dump(article_ids,	f"{MODEL_DIRECTORY}/article_ids.joblib")
-	joblib.dump(id_to_index,	f"{MODEL_DIRECTORY}/article_id_to_index.joblib")
+	joblib.dump(vectorizer,		os.path.join(MODEL_DIRECTORY, "tfidf_vectorizer.joblib"))
+	joblib.dump(tfidf_matrix,	os.path.join(MODEL_DIRECTORY, "tfidf_matrix.joblib"))
+	joblib.dump(article_ids,	os.path.join(MODEL_DIRECTORY, "article_ids.joblib"))
+	joblib.dump(id_to_index,	os.path.join(MODEL_DIRECTORY, "article_id_to_index.joblib"))
 
 	return tfidf_matrix
 
@@ -55,24 +87,15 @@ def build_knn_index(tfidf_matrix, n_neighbors: int = 10):
 	knn = NearestNeighbors(n_neighbors=n_neighbors, metric="cosine")
 	knn.fit(tfidf_matrix)
 
-	joblib.dump(knn, f"{MODEL_DIRECTORY}/article_knn.joblib")
+	joblib.dump(knn, os.path.join(MODEL_DIRECTORY, "article_knn.joblib"))
 
-vectorizer		= joblib.load(f"{MODEL_DIRECTORY}/tfidf_vectorizer.joblib")
-tfidf_matrix	= joblib.load(f"{MODEL_DIRECTORY}/tfidf_matrix.joblib")
-article_ids		= joblib.load(f"{MODEL_DIRECTORY}/article_ids.joblib")
-id_to_index		= joblib.load(f"{MODEL_DIRECTORY}/article_id_to_index.joblib")
-knn				= joblib.load(f"{MODEL_DIRECTORY}/article_knn.joblib")
-
-INTERACTION_WEIGHTS = {
-	"like": 2.0,
-	"dislike": -1.5,
-	"view": 1.0,
-}
 
 def get_similar_articles(article_id: int, k: int = 10):
 	'''
 	Uses KNN to find articles similar to the given article_id
 	'''
+	load_models()
+
 	idx = id_to_index.get(article_id)
 	if idx is None:
 		return []
@@ -94,6 +117,7 @@ def get_similar_articles(article_id: int, k: int = 10):
 	return results
 
 def build_user_vector(user_id: int, db: Session):
+	load_models()
 	interactions = (
 		db.query(Interaction)
 			.filter(Interaction.user_id == user_id)
@@ -129,6 +153,7 @@ def recommend_articles(user_id: int, db: Session, k: int = 20):
 	'''
 	User-based article recommendation function
 	'''
+	load_models()
 	user_vec = build_user_vector(user_id, db)
 	if user_vec is None:
 		return db.query(Article).order_by(Article.published_at.desc().nullslast()).limit(k).all()
@@ -162,6 +187,7 @@ def hybrid_recommend_articles(
 	'''
 	Hybrid recommendation combining content-based and user-based methods
 	'''
+	load_models()
 
 	# get interactions
 	interactions: list[Interaction] = (
