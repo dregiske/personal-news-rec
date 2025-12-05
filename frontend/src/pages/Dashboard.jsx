@@ -2,7 +2,7 @@ import { useAuth } from "../features/auth/AuthContext";
 
 import { useEffect, useState, useCallback } from "react";
 
-import api from "../api/api";
+import {fetchForYou} from "../api/for-you";
 
 import { recordInteraction } from "../api/interactions";
 
@@ -11,19 +11,26 @@ export default function Dashboard() {
   const { user } = useAuth();
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
+	let isMounted = true;
 	async function loadFeed() {
 	  try {
-		const res = await api.get("/feed");
-		setArticles(res.data);
+		setLoading(true);
+		const data = await fetchForYou(20);
+		if (isMounted) setArticles(data);
 	  } catch (err) {
 		console.error("Error loading feed:", err);
-	  } finally{
-		setLoading(false);
+		if (isMounted) setError("Failed to load feed. Please try again later.");
+	  } finally {
+		if (isMounted) setLoading(false);
 	  }
 	}
 	loadFeed();
+	return () => {
+	  isMounted = false;
+	};
   }, []);
 
   const sendInteraction = useCallback(async (articleId, type) => {
@@ -33,35 +40,40 @@ export default function Dashboard() {
   if (loading) {
 	return <p style={{ paddingTop: "60px", textAlign: "center" }}>Loading your feed ...</p>
   }
+  if (error) {
+	return <p style={{ paddingTop: "60px", textAlign: "center", color: "red" }}>{error}</p>
+  }
 
   return (
-	<div style={styles.container}>
-	  <h1 style={styles.title}>
-		{user ? `Welcome, ${user.email}` : "Welcome to your dashboard"}
-	  </h1>
+	<div className="dashboard">
+	  <div style={styles.container}>
+		<h1 style={styles.title}>
+			{user ? `Welcome, ${user.email}` : "Welcome to your dashboard"}
+		</h1>
 
-	  <p style={styles.subtitle}>
-		This platform delivers tailored news recommendations based on your
-		reading history, preferences, and trending global topics.  
-		Here's what we found for you today.
-	  </p>
+		<p style={styles.subtitle}>
+			This platform delivers tailored news recommendations based on your
+			reading history, preferences, and trending global topics.  
+			Here's what we found for you today.
+		</p>
 
-	  <div>
-		{articles.map((a) => (
-		  <article
-			key={a.id}
-			style={styles.article}
-		  >
-			<h2 style={styles.article_title}>{a.title}</h2>
-			{a.source && <p style={styles.article_source}>{a.source}</p>}
-			{a.content && <p style={styles.article_content}>{a.content}</p>}
-			<a href={a.url} target="_blank" rel="noopener noreferrer">Read more</a>
-			<div className="interaction_buttons" style={styles.article_buttons}>
-			  <button style={styles.article_button} onClick={() => sendInteraction(a.id, "like")}>Like</button>
-			  <button style={styles.article_button} onClick={() => sendInteraction(a.id, "dislike")}>Dislike</button>
-			</div>
-		  </article>
-		))}
+		<div>
+		  {articles.map((a) => (
+			<article
+			  key={a.id}
+			  style={styles.article}
+			>
+			  <h2 style={styles.article_title}>{a.title}</h2>
+			  {a.source && <p style={styles.article_source}>{a.source}</p>}
+			  {a.content && <p style={styles.article_content}>{a.content}</p>}
+			  <a href={a.url} target="_blank" rel="noopener noreferrer">Read more</a>
+			  <div className="interaction_buttons" style={styles.article_buttons}>
+				<button style={styles.article_button} onClick={() => sendInteraction(a.id, "like")}>Like</button>
+				<button style={styles.article_button} onClick={() => sendInteraction(a.id, "dislike")}>Dislike</button>
+			  </div>
+			</article>
+		  ))}
+		</div>
 	  </div>
 	</div>
   );
