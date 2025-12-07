@@ -2,7 +2,8 @@ import { useAuth } from "../features/auth/AuthContext";
 
 import { useEffect, useState, useCallback } from "react";
 
-import {fetchForYou} from "../api/for-you";
+// import { fetchForYou } from "../api/for-you";
+import { fetchFeed } from "../api/feed";
 
 import { recordInteraction } from "../api/interactions";
 
@@ -18,8 +19,9 @@ export default function Dashboard() {
 	async function loadFeed() {
 	  try {
 		setLoading(true);
-		const data = await fetchForYou(20);
-		if (isMounted) setArticles(data);
+		//const forYouData = await fetchForYou();
+		const feedData = await fetchFeed();
+		if (isMounted) setArticles(feedData);
 	  } catch (err) {
 		console.error("Error loading feed:", err);
 		if (isMounted) setError("Failed to load feed. Please try again later.");
@@ -45,35 +47,33 @@ export default function Dashboard() {
   }
 
   return (
-	<div className="dashboard">
-	  <div style={styles.container}>
-		<h1 style={styles.title}>
-			{user ? `Welcome, ${user.email}` : "Welcome to your dashboard"}
-		</h1>
+	<div style={styles.container}>
+	  <h1 style={styles.title}>
+		{user ? `Welcome, ${user.email}` : "Welcome to your dashboard"}
+	  </h1>
 
-		<p style={styles.subtitle}>
-			This platform delivers tailored news recommendations based on your
-			reading history, preferences, and trending global topics.  
-			Here's what we found for you today.
-		</p>
+	  <p style={styles.subtitle}>
+		This platform delivers tailored news recommendations based on your
+		reading history, preferences, and trending global topics.  
+		Here's what we found for you today.
+	  </p>
 
-		<div>
-		  {articles.map((a) => (
-			<article
-			  key={a.id}
-			  style={styles.article}
-			>
-			  <h2 style={styles.article_title}>{a.title}</h2>
-			  {a.source && <p style={styles.article_source}>{a.source}</p>}
-			  {a.content && <p style={styles.article_content}>{a.content}</p>}
-			  <a href={a.url} target="_blank" rel="noopener noreferrer">Read more</a>
-			  <div className="interaction_buttons" style={styles.article_buttons}>
-				<button style={styles.article_button} onClick={() => sendInteraction(a.id, "like")}>Like</button>
-				<button style={styles.article_button} onClick={() => sendInteraction(a.id, "dislike")}>Dislike</button>
-			  </div>
-			</article>
-		  ))}
-		</div>
+	  <div>
+		{articles.map((a) => (
+		  <article
+			key={a.id}
+			style={styles.article}
+		  >
+			<h2 style={styles.article_title}>{a.title}</h2>
+			{a.source && <p style={styles.article_source}>{a.source}</p>}
+			{a.content && <p style={styles.article_content}>{a.content}</p>}
+			<a href={a.url} target="_blank" rel="noopener noreferrer">Read more</a>
+			<div className="interaction_buttons" style={styles.article_buttons}>
+			  <button style={styles.article_button} onClick={() => sendInteraction(a.id, "like")}>Like</button>
+			  <button style={styles.article_button} onClick={() => sendInteraction(a.id, "dislike")}>Dislike</button>
+			</div>
+		  </article>
+		))}
 	  </div>
 	</div>
   );
