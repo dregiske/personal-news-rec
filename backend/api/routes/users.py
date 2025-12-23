@@ -10,6 +10,8 @@ from backend.schemas import UserCreate, UserOut, LoginRequest, LoginResponse
 from backend.services.auth import hash_password, verify_password, create_access_token
 from backend.models import User as UserModel
 from backend.database import get_database
+from backend.models import Interaction
+from backend.services.auth import get_current_user
 
 router = APIRouter()
 
@@ -99,4 +101,19 @@ def logout(response: Response):
 	)
 	return {
 		"message": "Logged out successfully."
+	}
+
+@router.get("/me/stats")
+def get_user_stats(
+	db: Session = Depends(get_database),
+	current_user: int = Depends(get_current_user),
+):
+	count = (
+		db.query(Interaction)
+		.filter(Interaction.user_id == current_user.id)
+		.count()
+	)
+	return {
+		"interaction_count": count,
+		"is_personalized": count >= 5
 	}

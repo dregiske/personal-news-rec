@@ -22,7 +22,6 @@ STOP_WORDS = {
 	"this", "those", "through", "to", "too", "under", "until", "up", "ve", "very", "was", "wasn't",
 }
 
-
 def extract_keywords(text: str, max_keywords: int = 10) -> list[str]:
 	'''
 	Extracts keywords from the given text by removing 
@@ -41,7 +40,6 @@ def extract_keywords(text: str, max_keywords: int = 10) -> list[str]:
 	counts = Counter(filtered)
 	common = counts.most_common(max_keywords)
 	return [word for word, _ in common]
-
 
 def build_article_keywords(article) -> str:
 	'''

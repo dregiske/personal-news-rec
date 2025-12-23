@@ -47,7 +47,7 @@ def get_personalized_feed(
 	article_by_id = {article.id: article for article in articles}
 	ordered_articles = [
 		article_by_id[article_id]
-		for article_id, _ in article_ids
+		for article_id in article_ids
 		if article_id in article_by_id
 	]
 	return ordered_articles
