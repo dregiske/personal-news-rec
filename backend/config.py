@@ -3,8 +3,7 @@ Env driven settings
 '''
 
 from pydantic_settings import BaseSettings
-from pydantic import AnyHttpUrl, Field
-from typing import List
+
 from datetime import timedelta
 
 class Settings(BaseSettings):
@@ -28,6 +27,3 @@ settings = Settings()
 
 def access_token_expiry() -> timedelta:
 	return timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-
-def rss_list() -> List[str]:
-	return [s.strip() for s in settings.RSS_SOURCES.split(",") if s.strip()]

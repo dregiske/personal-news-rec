@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+
 from backend.models import Article, Interaction
 
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -17,7 +18,7 @@ MODEL_DIRECTORY = os.path.join(os.path.dirname(__file__), "..", "models")
 MODEL_DIRECTORY = os.path.abspath(MODEL_DIRECTORY)
 os.makedirs(MODEL_DIRECTORY, exist_ok=True)
 
-# ---------- GLOBAL MODEL HANDLES (lazy) ----------
+# ---------- GLOBAL MODEL HANDLES ----------
 vectorizer = None
 tfidf_matrix = None
 article_ids = None
