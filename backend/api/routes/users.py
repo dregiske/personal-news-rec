@@ -3,6 +3,7 @@ User enpoints
 '''
 
 from fastapi import APIRouter, Depends, HTTPException, status, Response
+
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 
@@ -10,7 +11,7 @@ from backend.schemas import UserCreate, UserOut, LoginRequest, LoginResponse
 from backend.services.auth import hash_password, verify_password, create_access_token
 from backend.models import User as UserModel
 from backend.database import get_database
-from backend.models import Interaction
+from backend.models import Interaction, User
 from backend.services.auth import get_current_user
 
 router = APIRouter()
@@ -57,7 +58,11 @@ def signup(user: UserCreate, database: Session = Depends(get_database)):
 	return new_user
 
 @router.post("/login", response_model=LoginResponse)
-def login(user: LoginRequest, database: Session = Depends(get_database), response: Response = None):
+def login(
+	user: LoginRequest,
+	response: Response,
+	database: Session = Depends(get_database),
+):
 	'''
 	login endpoint:
 	- checks for user in database
@@ -106,7 +111,7 @@ def logout(response: Response):
 @router.get("/me/stats")
 def get_user_stats(
 	db: Session = Depends(get_database),
-	current_user: int = Depends(get_current_user),
+	current_user: User = Depends(get_current_user),
 ):
 	count = (
 		db.query(Interaction)

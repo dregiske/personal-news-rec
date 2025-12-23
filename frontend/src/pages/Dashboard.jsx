@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 
 import { fetchForYou } from "../api/for-you";
 import { fetchFeed } from "../api/feed";
-import { fetchUserStats } from "../api/user-stats";
+import { fetchUserStats } from "../api/stats";
 
 import { recordInteraction } from "../api/interactions";
 
