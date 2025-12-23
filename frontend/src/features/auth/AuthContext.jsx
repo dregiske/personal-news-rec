@@ -30,7 +30,7 @@ export function AuthProvider({ children }) {
   }
 
   function logout() {
-    // optional: call backend /logout first
+    localStorage.removeItem("access_token");
     setUser(null);
   }
 
