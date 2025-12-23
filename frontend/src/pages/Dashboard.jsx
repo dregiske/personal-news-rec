@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 
 import { fetchForYou } from "../api/for-you";
 import { fetchFeed } from "../api/feed";
+import { fetchUserStats } from "../api/user-stats";
 
 import { recordInteraction } from "../api/interactions";
 
@@ -19,15 +20,16 @@ export default function Dashboard() {
 	async function loadFeed() {
 	  try {
 		setLoading(true);
-		const forYouData = await fetchForYou();
-		const feedData = await fetchFeed();
-		if (isMounted) {
-			if (/* user interactions must be greater than 5 */) {
-				setArticles(forYouData)
-			} else {
-				setArticles(feedData);
-			}
-		}
+
+		const stats = await fetchUserStats();
+
+		const data = stats?.is_personalized
+		  ? await fetchForYou()
+		  : await fetchFeed();
+
+		if (!isMounted) return;
+		setArticles(data);
+
 	  } catch (err) {
 		console.error("Error loading feed:", err);
 		if (isMounted) setError("Failed to load feed. Please try again later.");
