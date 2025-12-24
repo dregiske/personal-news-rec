@@ -108,22 +108,12 @@ Frontend Responsibilities:
 - Keep simple “user metadata” (not secrets)
 - Show different screens depending on login state
 
-## Notes:
+## 6. Todo Next
+- Refresh feed (gives the user a new list of articles)
+- Automatically ingest content
+- Record views (when user clicks link)
+
+## 7. Misc:
 
 ## Demo Run:
 http://127.0.0.1:8000/docs
-
-
-## Issues with x86_64, download requirements under arm64
-1) remove current env
-```
-deactivate 2>/dev/null || true
-rm -rf venv .venv
-```
-2) start new env
-```
-python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install --upgrade pip
-python -m pip install -r requirements.txt
-```
