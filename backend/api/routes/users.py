@@ -14,6 +14,8 @@ from backend.database import get_database
 from backend.models import Interaction, User
 from backend.services.auth import get_current_user
 
+from backend.config import settings
+
 router = APIRouter()
 
 @router.get("/user/{user_id}")
@@ -120,5 +122,5 @@ def get_user_stats(
 	)
 	return {
 		"interaction_count": count,
-		"is_personalized": count >= 5
+		"is_personalized": count >= settings.PERSONALIZATION_THRESHOLD
 	}

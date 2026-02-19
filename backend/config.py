@@ -16,6 +16,7 @@ class Settings(BaseSettings):
 	CORS_ORIGINS: str
 	BACKEND_CORS_ORIGINS: str
 	NEWS_QUERY: str
+	PERSONALIZATION_THRESHOLD: int
 
 	class Config:
 		env_file = ".env"
