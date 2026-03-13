@@ -5,29 +5,29 @@ export default function Home() {
 
       <p style={styles.description}>
         This platform delivers tailored news recommendations based on your
-        reading history, preferences, and trending global topics.  
+        reading history, preferences, and trending global topics.
         Sign up or log in to start receiving personalized content.
       </p>
     </div>
   );
 }
 
-const styles = {
+const styles: Record<string, React.CSSProperties> = {
   container: {
-    marginTop: "100px",
-    textAlign: "center",
-    padding: "0 20px",
+    marginTop: '100px',
+    textAlign: 'center',
+    padding: '0 20px',
   },
   title: {
-    fontSize: "2.4rem",
-    fontWeight: "bold",
-    marginBottom: "15px",
+    fontSize: '2.4rem',
+    fontWeight: 'bold',
+    marginBottom: '15px',
   },
   description: {
-    fontSize: "1.2rem",
-    color: "#555",
-    maxWidth: "700px",
-    margin: "0 auto",
-    marginTop: "10px",
+    fontSize: '1.2rem',
+    color: '#555',
+    maxWidth: '700px',
+    margin: '0 auto',
+    marginTop: '10px',
   },
 };
