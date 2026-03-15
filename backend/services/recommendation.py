@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from backend.models import Article
 from backend.ml.model_registry import ModelRegistry, MODEL_DIRECTORY
 from backend import repositories as repo
+from backend.config import settings
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
@@ -131,9 +132,9 @@ def hybrid_recommend_articles(
 	db: Session,
 	models: ModelRegistry,
 	k: int = 20,
-	alpha: float = 0.7,
-	profile_candidate_cap: int = 500,
-	knn_neighbors_per_seed: int = 10,
+	alpha: float = settings.RECOMMENDATION_ALPHA,
+	profile_candidate_cap: int = settings.RECOMMENDATION_PROFILE_CAP,
+	knn_neighbors_per_seed: int = settings.RECOMMENDATION_KNN_NEIGHBORS,
 ):
 	'''
 	Hybrid recommendation combining content-based and user-based methods.

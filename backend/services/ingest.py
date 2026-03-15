@@ -3,13 +3,17 @@ News ingestion services.
 '''
 
 from datetime import datetime
+import logging
 
 from sqlalchemy.orm import Session
-from backend.models import Article as Article 
+from backend.models import Article as Article
 
 from fastapi import HTTPException
 
 from backend.services.keywords import build_article_keywords
+from backend import repositories as repo
+
+logger = logging.getLogger(__name__)
 
 def fetch_newsapi_articles(api_key, query, page_size):
 	'''
@@ -27,7 +31,7 @@ def fetch_newsapi_articles(api_key, query, page_size):
 		response = requests.get(url, params=params)
 		response.raise_for_status()
 	except requests.RequestException as e:
-		print("NewsAPI request failed:", e, response.text if 'response' in locals() else '')
+		logger.error("NewsAPI request failed: %s %s", e, response.text if 'response' in locals() else '')
 		raise HTTPException(
 			status_code=502,
 			detail="Failed to fetch articles from NewsAPI"
@@ -83,7 +87,7 @@ def upsert_into_database(db: Session, api_key: str, query: str, page_size: int):
 		keywords = build_article_keywords(normalized)
 
 		# check for existing article
-		existing = db.query(Article).filter(Article.url == url).first()
+		existing = repo.article.get_by_url(db, url)
 
 		if existing: # update if exists
 			existing.title = normalized["title"]
