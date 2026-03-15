@@ -5,6 +5,12 @@ Pydantic schemas for uniform HTTP request/response models
 from pydantic import BaseModel, EmailStr, ConfigDict, HttpUrl
 from typing import Optional
 from datetime import datetime
+from enum import Enum
+
+class InteractionType(str, Enum):
+	like = "like"
+	dislike = "dislike"
+	view = "view"
 
 class UserCreate(BaseModel):
 	email: EmailStr
@@ -42,12 +48,12 @@ class ArticleOut(BaseModel):
 
 class InteractionCreate(BaseModel):
 	article_id: int
-	type: str
+	type: InteractionType
 
 class InteractionOut(BaseModel):
 	id: int
 	user_id: int
 	article_id: int
-	type: str
+	type: InteractionType
 	timestamp: datetime
 	model_config = ConfigDict(from_attributes=True)
