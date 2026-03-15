@@ -1,115 +1,56 @@
 '''
-User enpoints
+User endpoints
 '''
 
-from fastapi import APIRouter, Depends, HTTPException, status, Response
-
+from fastapi import APIRouter, Depends, Response
 from sqlalchemy.orm import Session
-from sqlalchemy.exc import IntegrityError
 
 from backend.schemas import UserCreate, UserOut, LoginRequest, LoginResponse
-from backend.services.auth import hash_password, verify_password, create_access_token
-from backend.models import User as UserModel
 from backend.database import get_database
-from backend.models import Interaction, User
+from backend.models import User
 from backend.services.auth import get_current_user
-
+from backend.services import user_service
+from backend import repositories as repo
 from backend.config import settings
 
 router = APIRouter()
 
+
 @router.post("/signup", response_model=UserOut)
-def signup(user: UserCreate, database: Session = Depends(get_database)):
-	'''
-	signup endpoint:
-	- check that email is unique
-	- initialize email / hashed pass
-	- add to database
-	- sends user info back
-	'''
-	normalized_email = user.email.strip().lower()
+def signup(user: UserCreate, db: Session = Depends(get_database)):
+	return user_service.signup(db, email=user.email, password=user.password)
 
-	if database.query(UserModel).filter(UserModel.email == normalized_email).first():
-		raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email already registered")
-	
-	new_user = UserModel(
-		email = normalized_email,
-		hashed_password = hash_password(user.password)
-	)
-
-	database.add(new_user)
-	try:
-		database.commit()
-	except IntegrityError:
-		database.rollback()
-		raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email already registered")
-	
-	database.refresh(new_user)
-	
-	return new_user
 
 @router.post("/login", response_model=LoginResponse)
-def login(
-	user: LoginRequest,
-	response: Response,
-	database: Session = Depends(get_database),
-):
-	'''
-	login endpoint:
-	- checks for user in database
-	- throws error if not found
-	- creates JWT token
-	- send login info back
-	'''
-	database_user = database.query(UserModel).filter(UserModel.email == user.email).first()
-	
-	if not database_user:
-		raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-	if not verify_password(user.password, database_user.hashed_password):
-		raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect password")
-	
-	access_token = create_access_token(data={"sub": str(database_user.id)})
+def login(user: LoginRequest, response: Response, db: Session = Depends(get_database)):
+	db_user, token = user_service.login(db, email=user.email, password=user.password)
 
 	response.set_cookie(
 		key="access_token",
-		value=access_token,
+		value=token,
 		httponly=True,
 		secure=settings.ENVIRONMENT == "production",
 		samesite="lax",
-		path="/"
+		path="/",
 	)
 
 	return {
-		"access_token": access_token,
+		"access_token": token,
 		"token_type": "bearer",
-		"user": {
-			"id": database_user.id,
-			"email": database_user.email
-		}
+		"user": {"id": db_user.id, "email": db_user.email},
 	}
+
 
 @router.post("/logout")
 def logout(response: Response):
-	response.delete_cookie(
-		key="access_token",
-		path="/",
-		samesite="lax"
-	)
-	return {
-		"message": "Logged out successfully."
-	}
+	response.delete_cookie(key="access_token", path="/", samesite="lax")
+	return {"message": "Logged out successfully."}
+
 
 @router.get("/me/stats")
-def get_user_stats(
-	db: Session = Depends(get_database),
-	current_user: User = Depends(get_current_user),
-):
-	count = (
-		db.query(Interaction)
-		.filter(Interaction.user_id == current_user.id)
-		.count()
-	)
+def get_user_stats(db: Session = Depends(get_database), current_user: User = Depends(get_current_user)):
+	count = repo.interaction.count_by_user(db, current_user.id)
 	return {
 		"interaction_count": count,
-		"is_personalized": count >= settings.PERSONALIZATION_THRESHOLD
+		"is_personalized": count >= settings.PERSONALIZATION_THRESHOLD,
 	}
