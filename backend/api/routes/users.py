@@ -18,17 +18,6 @@ from backend.config import settings
 
 router = APIRouter()
 
-@router.get("/user/{user_id}")
-def get_user(user_id: int):
-	return {
-		"user_id": user_id
-	}
-
-@router.get("/users")
-def list_users(database: Session = Depends(get_database)):
-	users = database.query(UserModel).all()
-	return users
-
 @router.post("/signup", response_model=UserOut)
 def signup(user: UserCreate, database: Session = Depends(get_database)):
 	'''
@@ -85,7 +74,7 @@ def login(
 		key="access_token",
 		value=access_token,
 		httponly=True,
-		secure=False,
+		secure=settings.ENVIRONMENT == "production",
 		samesite="lax",
 		path="/"
 	)
