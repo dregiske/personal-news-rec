@@ -1,120 +1,81 @@
-Issues to Fix:
-
 ===== BACKEND =====
 
-Security (High Priority)
-Issue														File				Fix
---------------------------------------------------------------------------------------------------------------------------------
-POST /admin/ingest has no auth — anyone can trigger it		ingest.py			Add admin JWT check
-GET /users exposes all emails, no auth						users.py			Remove or protect
-Cookie secure=False											users.py			Set secure=True in prod
-interaction.type accepts any arbitrary string				interactions.py		Use Literal["like", "dislike", "view"] in schema
-No rate limiting											main.py				Add slowapi or similar
+Tests
+27 passing tests across test_routes.py and test_recommendation.py
 
-Database:
-- Duplicate interactions possible — no unique constraint on (user_id, article_id, type). Add it to models.py.
 
-- interaction.type is String(32) with no enum enforcement at the DB level. Use Enum column type.
+---------- To Do ----------
 
-- SQLite won't scale — fine for local dev, but plan a migration to PostgreSQL before deploying.
-  Your DATABASE_URL in config already allows this, so it's just a swap.
+Database
+Issue                                           File            Fix
+--------------------------------------------------------------------------------------------------------------
 
-ML / Recommendation:
-- Global mutable state in recommendation.py — vectorizer, tfidf_matrix, etc. are module-level globals.
-  This works in single-process uvicorn, but breaks with multiple workers. Move to a singleton/cache pattern or
-  store in app state (app.state).
 
-- No model reload mechanism — after retraining, the old models stay in memory until restart.
-  Add an endpoint or lifespan event to reload.
+Code Quality
+Issue                                           File            Fix
+--------------------------------------------------------------------------------------------------------------
 
-- load_models() will silently crash if joblib files don't exist. Add a proper check and a useful error message.
 
-- Keywords are doubled in the TF-IDF text (recommendation.py:~60) — this is a reasonable weighting trick, but document it.
+Security
+Issue                                           File            Fix
+--------------------------------------------------------------------------------------------------------------
+No rate limiting on auth endpoints              main.py         Add slowapi middleware, limit /login and
+                                                                /signup to ~5 requests/min per IP
 
-Code Quality:
-- No tests — pytest is installed but there are zero test files. Even basic smoke tests on the recommendation service would help.
 
-- print() for logging — switch to Python's logging module so you can control log levels in prod.
+---------- Scalability Path ----------
 
-- Hardcoded hyperparameters (alpha=0.7, profile_candidate_cap=500) — move these to config.py.
+PostgreSQL     → Drop-in swap via DATABASE_URL + pip install psycopg2-binary
+               → Your config.py + SQLAlchemy setup already supports it
 
-- Duplicate config field: CORS_ORIGINS and BACKEND_CORS_ORIGINS both exist in config.py. Pick one.
+Redis caching  → Cache hybrid_recommend_articles() results per user_id
+               → Invalidate on new interaction (TTL ~5 min is fine)
 
-- Several docstring typos: "enpoints", "cadidate" — minor but worth fixing.
+Background     → Move /admin/ingest to a scheduled job (APScheduler or Celery)
+ingestion        instead of an HTTP endpoint triggered manually
 
-Scalability Path:
-- PostgreSQL — drop-in via DATABASE_URL change + psycopg2
+Containerize   → Dockerfile + docker-compose with postgres + backend services
+               → config.py + .env pattern is already 12-factor friendly
 
-- Redis caching — cache recommendation results per user (they don't need to recompute on every request)
+Model serving  → At scale, move ML inference out of the FastAPI process
+               → Dedicated inference service (e.g. TorchServe or a simple FastAPI sidecar)
 
-- Background task for ingestion — move /admin/ingest to a scheduled job (APScheduler or Celery) instead of an HTTP endpoint
-
-- Model serving — at scale, move the ML models out of the FastAPI process into a dedicated inference service
-
-- Containerize — straightforward with Docker; your config.py + .env pattern is already 12-factor friendly
 
 
 ===== FRONTEND =====
 
-Functionality Walkthrough:
-	1. User lands on / (Home) — static marketing page
-	2. Navigates to /login or /signup — form submits to FastAPI, JWT stored in localStorage
-	3. Redirected to /dashboard (protected route) — ProtectedRoute checks auth context
-	4. Dashboard checks /me/stats → if is_personalized is true, calls /feed/for-you, otherwise /feed
-	5. User clicks like/dislike on an article → POST /interactions fires, which trains future recommendations
+---------- To Do ----------
 
-Recommendations:
 Critical
-1. Hardcoded localhost URL
-api/api.jsx has baseURL: "http://localhost:8000" — this will break in production. Fix:
+Issue                               File                Fix
+------------------------------------------------------------------------------------
+User lost on page refresh           AuthContext.tsx     Call /api/v1/me/stats on mount to rehydrate
+                                                        user state from the existing cookie/token
 
-baseURL: import.meta.env.VITE_API_URL || "http://localhost:8000"
-Then set VITE_API_URL=https://your-api.com in your deployment environment.
-
-2. User lost on page refresh
-AuthContext.jsx has a // TODO: fetch /me comment — this is a real bug. On refresh, the token is in
-localStorage but user state is null, so the app thinks you're logged out. Fix: call /me/stats on mount
-to rehydrate the user.
-
-3. Token in localStorage
-localStorage is accessible to any JS on the page (XSS risk). Since your backend already sets an httpOnly
-cookie on login, you could drop the localStorage token entirely and rely on the cookie + withCredentials: true
-(which you already have set). This would be meaningfully more secure.
+Token in localStorage (XSS risk)    AuthContext.tsx     Backend already sets httpOnly cookie on login.
+                                                        Drop localStorage token, rely on cookie +
+                                                        withCredentials: true (already set in api.ts)
 
 Code Quality
-4. Inline styles everywhere
-Every component defines styles as JS objects. This makes it hard to maintain, impossible to use media
-queries/pseudo-selectors/CSS variables inline. You already have main.css — move styles there, or adopt CSS Modules
-(Vite supports them out of the box with *.module.css).
+Issue                               File                Fix
+------------------------------------------------------------------------------------
+Inline styles everywhere            All pages/          Move to CSS Modules (*.module.css) or
+                                    components          centralize in main.css — enables media
+                                                        queries and pseudo-selectors
 
-5. .jsx extension on non-component files
-api/feed.jsx, api/for-you.jsx, etc. are plain JS utility files — no JSX inside them. Rename to .js.
-Only component files containing JSX should be .jsx.
+No client-side input validation     Login/Signup        Add basic checks (password length, email
+                                    pages               format) before the API call
 
-6. No client-side input validation
-Login/signup rely only on required HTML attributes. Add basic checks (password length, email format)
-before the API call — saves a round trip and gives faster feedback.
-
-7. No error boundary
-If the Dashboard crashes (e.g., malformed API response), the whole app goes blank. Add a React ErrorBoundary component
-around the dashboard.
+No error boundary                   App.tsx             Wrap Dashboard in a React ErrorBoundary
+                                                        so a crash doesn't blank the whole app
 
 Architecture
-8. features/ folder is half-finished
-You have features/auth/ but everything else (feed, interactions) is split between pages/ and api/. Either commit to the
-feature-folder pattern (each feature owns its components + API + state) or drop it. Mixing both adds confusion.
-
-9. No TypeScript
-You installed @types/react and @types/react-dom but never set up TS. For a project you plan to scale and deploy,
-adding TypeScript now (before the codebase grows) is much cheaper than later. Vite makes this a one-line config change.
-
-Summary Table:
-Priority				Issue								File
+Issue                               File                Fix
 ------------------------------------------------------------------------------------
-Critical				Hardcoded localhost URL				api.jsx
-Critical				User lost on refresh				AuthContext.jsx
-High					Token in localStorage (XSS)			AuthContext.jsx
-Medium					Inline styles throughout			All page/component files
-Medium					.jsx on non-component API files		api/
-Low						No error boundary					App.jsx
-Low						Incomplete feature-folder pattern	features/
+Incomplete feature-folder pattern   features/ vs        Either move all features into features/
+                                    pages/ + api/       (each owns components + API + state)
+                                                        or drop features/ entirely — mixing both
+                                                        adds confusion
+
+No TypeScript strictness            tsconfig            @types/react already installed. Enable
+                                                        strict mode in tsconfig.json
