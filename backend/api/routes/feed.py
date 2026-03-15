@@ -10,8 +10,8 @@ from backend.database import get_database
 from backend.models import Article, User as UserModel
 from backend.services.auth import get_current_user
 from backend.services.recommendation import hybrid_recommend_articles
-
-from backend.models import Article
+from backend.ml.model_registry import ModelRegistry
+from backend.core.dependencies import get_model_registry
 from backend.schemas import ArticleOut
 
 router = APIRouter()
@@ -27,27 +27,19 @@ def get_feed(limit: int=20, db: Session = Depends(get_database)):
 def get_personalized_feed(
 	limit: int=20,
 	db: Session = Depends(get_database),
-	current_user: UserModel = Depends(get_current_user)
+	models: ModelRegistry = Depends(get_model_registry),
+	current_user: UserModel = Depends(get_current_user),
 ):
-	articles = hybrid_recommend_articles(
+	scored = hybrid_recommend_articles(
 		user_id=current_user.id,
 		db=db,
-		k=limit
+		models=models,
+		k=limit,
 	)
-	if not articles:
+	if not scored:
 		return []
-	
-	id_to_score = {article_id: score for article_id, score in articles}
-	article_ids = list(id_to_score.keys())
-	articles = (
-		db.query(Article)
-			.filter(Article.id.in_(article_ids))
-			.all()
-	)
+
+	article_ids = [article_id for article_id, _ in scored]
+	articles = db.query(Article).filter(Article.id.in_(article_ids)).all()
 	article_by_id = {article.id: article for article in articles}
-	ordered_articles = [
-		article_by_id[article_id]
-		for article_id in article_ids
-		if article_id in article_by_id
-	]
-	return ordered_articles
+	return [article_by_id[aid] for aid in article_ids if aid in article_by_id]
