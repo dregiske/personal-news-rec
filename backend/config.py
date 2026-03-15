@@ -14,10 +14,12 @@ class Settings(BaseSettings):
 	NEWSAPI_KEY: str | None = None
 	DATABASE_URL: str 
 	CORS_ORIGINS: str
-	BACKEND_CORS_ORIGINS: str
 	NEWS_QUERY: str
 	PERSONALIZATION_THRESHOLD: int
 	ENVIRONMENT: str
+	RECOMMENDATION_ALPHA: float = 0.7
+	RECOMMENDATION_PROFILE_CAP: int = 500
+	RECOMMENDATION_KNN_NEIGHBORS: int = 10
 
 	class Config:
 		env_file = ".env"
