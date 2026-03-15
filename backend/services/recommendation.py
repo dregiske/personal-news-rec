@@ -1,7 +1,8 @@
 from sqlalchemy.orm import Session
 
-from backend.models import Article, Interaction
+from backend.models import Article
 from backend.ml.model_registry import ModelRegistry, MODEL_DIRECTORY
+from backend import repositories as repo
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
@@ -100,11 +101,7 @@ def build_user_vector(user_id: int, db: Session, models: ModelRegistry):
 	if not models.is_ready:
 		return None
 
-	interactions = (
-		db.query(Interaction)
-			.filter(Interaction.user_id == user_id)
-			.all()
-	)
+	interactions = repo.interaction.get_by_user(db, user_id)
 	if not interactions:
 		return None
 
@@ -143,22 +140,12 @@ def hybrid_recommend_articles(
 	Falls back to latest articles if models aren't ready or user has no interactions.
 	'''
 	def latest_articles():
-		return [
-			(article.id, 0.0)
-			for article in db.query(Article)
-				.order_by(Article.published_at.desc().nullslast())
-				.limit(k)
-				.all()
-		]
+		return [(a.id, 0.0) for a in repo.article.get_latest(db, limit=k)]
 
 	if not models.is_ready:
 		return latest_articles()
 
-	interactions: list[Interaction] = (
-		db.query(Interaction)
-			.filter(Interaction.user_id == user_id)
-			.all()
-	)
+	interactions = repo.interaction.get_by_user(db, user_id)
 	if not interactions:
 		return latest_articles()
 
