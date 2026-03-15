@@ -42,8 +42,8 @@ app.add_middleware(
 	allow_headers=["*"],
 )
 
-app.include_router(home.router, tags=["home"])
-app.include_router(users.router, tags=["users"])
-app.include_router(ingest_routes.router, tags=["ingest"])
-app.include_router(feed_routes.router, tags=["feed"])
-app.include_router(interactions_routes.router, tags=["interactions"])
+app.include_router(home.router, prefix="/api/v1", tags=["home"])
+app.include_router(users.router, prefix="/api/v1", tags=["users"])
+app.include_router(ingest_routes.router, prefix="/api/v1", tags=["ingest"])
+app.include_router(feed_routes.router, prefix="/api/v1", tags=["feed"])
+app.include_router(interactions_routes.router, prefix="/api/v1", tags=["interactions"])
