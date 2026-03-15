@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 
 from backend.models import Article, Interaction
+from backend.ml.model_registry import ModelRegistry, MODEL_DIRECTORY
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
@@ -13,18 +14,6 @@ import numpy as np
 
 from collections import defaultdict
 
-# ---------- MODEL DIRECTORY ----------
-MODEL_DIRECTORY = os.path.join(os.path.dirname(__file__), "..", "models")
-MODEL_DIRECTORY = os.path.abspath(MODEL_DIRECTORY)
-os.makedirs(MODEL_DIRECTORY, exist_ok=True)
-
-# ---------- GLOBAL MODEL HANDLES ----------
-vectorizer = None
-tfidf_matrix = None
-article_ids = None
-id_to_index = None
-knn = None
-
 # ---------- INTERACTION WEIGHTS ----------
 INTERACTION_WEIGHTS = {
 	"like": 2.0,
@@ -32,21 +21,6 @@ INTERACTION_WEIGHTS = {
 	"view": 1.0,
 }
 
-def load_models():
-	'''
-	Lazily load recommendation models from disk
-	'''
-	global vectorizer, tfidf_matrix, article_ids, id_to_index, knn
-	if vectorizer is None:
-		vectorizer = joblib.load(f"{MODEL_DIRECTORY}/tfidf_vectorizer.joblib")
-	if tfidf_matrix is None:
-		tfidf_matrix = joblib.load(f"{MODEL_DIRECTORY}/tfidf_matrix.joblib")
-	if article_ids is None:
-		article_ids	= joblib.load(f"{MODEL_DIRECTORY}/article_ids.joblib")
-	if id_to_index is None:
-		id_to_index	= joblib.load(f"{MODEL_DIRECTORY}/article_id_to_index.joblib")
-	if knn is None:
-		knn	= joblib.load(f"{MODEL_DIRECTORY}/article_knn.joblib")
 
 def article_to_text(article: Article):
 	'''
@@ -57,15 +31,17 @@ def article_to_text(article: Article):
 		article.title or "",
 		article.content or "",
 		keyword_text,
-		keyword_text
+		keyword_text  # doubled to increase keyword weight in TF-IDF
 	]
 	return " ".join(parts)
 
+
 def build_tfidf_model(articles: list[Article]):
 	'''
-	Builds a TF-IDF model from the given articles
-	Run this function after ingestion to update the model
+	Builds a TF-IDF model from the given articles.
+	Run after ingestion to update the model.
 	'''
+	os.makedirs(MODEL_DIRECTORY, exist_ok=True)
 	corpus = [article_to_text(article) for article in articles]
 	vectorizer = TfidfVectorizer(max_features=5000)
 	tfidf_matrix = vectorizer.fit_transform(corpus)
@@ -73,52 +49,57 @@ def build_tfidf_model(articles: list[Article]):
 	article_ids = [article.id for article in articles]
 	id_to_index = {article_id: i for i, article_id in enumerate(article_ids)}
 
-	joblib.dump(vectorizer,		os.path.join(MODEL_DIRECTORY, "tfidf_vectorizer.joblib"))
-	joblib.dump(tfidf_matrix,	os.path.join(MODEL_DIRECTORY, "tfidf_matrix.joblib"))
-	joblib.dump(article_ids,	os.path.join(MODEL_DIRECTORY, "article_ids.joblib"))
-	joblib.dump(id_to_index,	os.path.join(MODEL_DIRECTORY, "article_id_to_index.joblib"))
+	joblib.dump(vectorizer,    os.path.join(MODEL_DIRECTORY, "tfidf_vectorizer.joblib"))
+	joblib.dump(tfidf_matrix,  os.path.join(MODEL_DIRECTORY, "tfidf_matrix.joblib"))
+	joblib.dump(article_ids,   os.path.join(MODEL_DIRECTORY, "article_ids.joblib"))
+	joblib.dump(id_to_index,   os.path.join(MODEL_DIRECTORY, "article_id_to_index.joblib"))
 
 	return tfidf_matrix
 
+
 def build_knn_index(tfidf_matrix, n_neighbors: int = 10):
 	'''
-	Builds a KNN index from the given TF-IDF matrix
-	Run this function after ingestion to update the index
+	Builds a KNN index from the given TF-IDF matrix.
+	Run after ingestion to update the index.
 	'''
+	os.makedirs(MODEL_DIRECTORY, exist_ok=True)
 	knn = NearestNeighbors(n_neighbors=n_neighbors, metric="cosine")
 	knn.fit(tfidf_matrix)
-
 	joblib.dump(knn, os.path.join(MODEL_DIRECTORY, "article_knn.joblib"))
 
 
-def get_similar_articles(article_id: int, k: int = 10):
+def get_similar_articles(article_id: int, models: ModelRegistry, k: int = 10):
 	'''
-	Uses KNN to find articles similar to the given article_id
+	Uses KNN to find articles similar to the given article_id.
 	'''
-	load_models()
+	if not models.is_ready:
+		return []
 
-	idx = id_to_index.get(article_id)
+	idx = models.id_to_index.get(article_id)
 	if idx is None:
 		return []
-	
-	distances, indicies = knn.kneighbors(
-		tfidf_matrix[idx],
-		n_neighbors=k+1
+
+	distances, indices = models.knn.kneighbors(
+		models.tfidf_matrix[idx],
+		n_neighbors=k + 1
 	)
 	distances = distances[0]
-	indicies = indicies[0]
-	
+	indices = indices[0]
+
 	results = []
-	for dist, ind in zip(distances, indicies):
+	for dist, ind in zip(distances, indices):
 		if ind == idx:
 			continue
-		results.append((article_ids[ind], float(1 - dist)))
+		results.append((models.article_ids[ind], float(1 - dist)))
 		if len(results) == k:
 			break
 	return results
 
-def build_user_vector(user_id: int, db: Session):
-	load_models()
+
+def build_user_vector(user_id: int, db: Session, models: ModelRegistry):
+	if not models.is_ready:
+		return None
+
 	interactions = (
 		db.query(Interaction)
 			.filter(Interaction.user_id == user_id)
@@ -126,156 +107,106 @@ def build_user_vector(user_id: int, db: Session):
 	)
 	if not interactions:
 		return None
-	
+
 	vectors = []
 	weights = []
 
 	for interaction in interactions:
 		w = INTERACTION_WEIGHTS.get(interaction.type, 1.0)
-
-		idx = id_to_index.get(interaction.article_id)
+		idx = models.id_to_index.get(interaction.article_id)
 		if idx is None:
 			continue
-
-		vec = tfidf_matrix[idx].toarray()[0]
+		vec = models.tfidf_matrix[idx].toarray()[0]
 		vectors.append(vec)
 		weights.append(w)
-	
+
 	if not vectors:
 		return None
-	
+
 	vectors = np.array(vectors)
 	weights = np.array(weights)
-
 	user_vec = (weights[:, None] * vectors).sum(axis=0) / weights.sum()
 	return user_vec
 
-def recommend_articles(user_id: int, db: Session, k: int = 20):
-	'''
-	User-based article recommendation function
-	'''
-	load_models()
-	user_vec = build_user_vector(user_id, db)
-	if user_vec is None:
-		return db.query(Article).order_by(Article.published_at.desc().nullslast()).limit(k).all()
-	
-	sims = cosine_similarity(user_vec.reshape(1, -1), tfidf_matrix)[0]
-
-	seen_article_ids = {interaction.article_id for interaction in
-		db.query(Interaction)
-			.filter(Interaction.user_id == user_id)
-			.all()
-	}
-
-	candidates = []
-	for idx, sim in enumerate(sims):
-		article_id = article_ids[idx]
-		if article_id in seen_article_ids:
-			continue
-		candidates.append((article_id, float(sim)))
-
-	candidates.sort(key=lambda x: x[1], reverse=True)
-	return candidates[:k]
 
 def hybrid_recommend_articles(
 	user_id: int,
 	db: Session,
+	models: ModelRegistry,
 	k: int = 20,
 	alpha: float = 0.7,
 	profile_candidate_cap: int = 500,
 	knn_neighbors_per_seed: int = 10,
 ):
 	'''
-	Hybrid recommendation combining content-based and user-based methods
+	Hybrid recommendation combining content-based and user-based methods.
+	Falls back to latest articles if models aren't ready or user has no interactions.
 	'''
-	load_models()
+	def latest_articles():
+		return [
+			(article.id, 0.0)
+			for article in db.query(Article)
+				.order_by(Article.published_at.desc().nullslast())
+				.limit(k)
+				.all()
+		]
 
-	# get interactions
+	if not models.is_ready:
+		return latest_articles()
+
 	interactions: list[Interaction] = (
 		db.query(Interaction)
 			.filter(Interaction.user_id == user_id)
 			.all()
 	)
-	# if no interactions, fallback to latest articles
 	if not interactions:
-		return[
-			(article.id, 0.0)
-			for article in db.query(Article)
-				.order_by(Article.published_at.desc().nullslast())
-				.limit(k)
-				.all()
-		]
-	
-	# build user vector
-	user_vector = build_user_vector(user_id, db)
-	# if user vector cannot be built, fallback to latest articles
-	if user_vector is None:
-		return[
-			(article.id, 0.0)
-			for article in db.query(Article)
-				.order_by(Article.published_at.desc().nullslast())
-				.limit(k)
-				.all()
-		]
+		return latest_articles()
 
-	# compute profile-based similarities to all articles
+	user_vector = build_user_vector(user_id, db, models)
+	if user_vector is None:
+		return latest_articles()
+
 	profile_similarities = cosine_similarity(
 		user_vector.reshape(1, -1),
-		tfidf_matrix
-	)[0] # profile_similarities[i] = similarity of article i to user profile
+		models.tfidf_matrix
+	)[0]
 
 	seen_article_ids = {interaction.article_id for interaction in interactions}
 
-	# apply interaction weights
-	positive_seeds = []
-	for interaction in interactions:
-		if INTERACTION_WEIGHTS.get(interaction.type, 0) > 0:
-			positive_seeds.append(interaction.article_id)
-	
+	positive_seeds = [
+		interaction.article_id
+		for interaction in interactions
+		if INTERACTION_WEIGHTS.get(interaction.type, 0) > 0
+	]
+
 	if not positive_seeds:
-		candidates = []
-		for idx, sim in enumerate(profile_similarities):
-			article_id = article_ids[idx]
-			if article_id in seen_article_ids:
-				continue
-			candidates.append((article_id, float(sim)))
+		candidates = [
+			(models.article_ids[idx], float(sim))
+			for idx, sim in enumerate(profile_similarities)
+			if models.article_ids[idx] not in seen_article_ids
+		]
 		candidates.sort(key=lambda x: x[1], reverse=True)
 		return candidates[:k]
 
 	content_scores = defaultdict(float)
 	for seed_article_id in positive_seeds:
-		similar_articles = get_similar_articles(
-			seed_article_id,
-			k=knn_neighbors_per_seed
-		)
-		for sim_article_id, sim_score in similar_articles:
-			if sim_article_id in seen_article_ids:
-				continue
-			content_scores[sim_article_id] += sim_score
-	
-	# build cadidate  set from 
-	# - top articles by profile similarity
-	# - all KNN expanded neightbors
+		for sim_article_id, sim_score in get_similar_articles(seed_article_id, models, k=knn_neighbors_per_seed):
+			if sim_article_id not in seen_article_ids:
+				content_scores[sim_article_id] += sim_score
+
 	profile_ranked = sorted(
-		[(article_ids[idx], float(sim)) for idx, sim in enumerate(profile_similarities)],
+		[(models.article_ids[idx], float(sim)) for idx, sim in enumerate(profile_similarities)],
 		key=lambda x: x[1],
 		reverse=True
 	)
+	profile_candidate_ids = [aid for aid, _ in profile_ranked[:profile_candidate_cap]]
+	candidate_ids = set(profile_candidate_ids) | set(content_scores.keys())
 
-	profile_candidate_ids = [
-		article_id for article_id, _ in profile_ranked[:profile_candidate_cap]
-	]
-	knn_candidate_ids = list(content_scores.keys())
-	candidate_ids = set(profile_candidate_ids) | set(knn_candidate_ids)
-
-
-	# final = alpha * profile + (1 - alpha) * content
 	final_scores = []
 	for article_id in candidate_ids:
 		if article_id in seen_article_ids:
 			continue
-
-		idx = id_to_index.get(article_id)
+		idx = models.id_to_index.get(article_id)
 		if idx is None:
 			continue
 		profile_score = profile_similarities[idx]
