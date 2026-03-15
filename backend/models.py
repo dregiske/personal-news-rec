@@ -2,11 +2,12 @@
 SQLAlchemy ORM models and DB session
 '''
 
-from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Enum, UniqueConstraint
 
 from datetime import datetime, timezone
 
 from backend.database import Base
+from backend.schemas import InteractionType
 
 class User(Base):
 	__tablename__ 		= "users"
@@ -31,5 +32,9 @@ class Interaction(Base):
 	id 					= Column(Integer, primary_key=True)
 	user_id				= Column(Integer, ForeignKey("users.id"), index=True, nullable=False)
 	article_id 			= Column(Integer, ForeignKey("articles.id"), index=True, nullable=False)
-	type				= Column(String(32), nullable=False)
+	type				= Column(Enum(InteractionType), nullable=False)
 	timestamp			= Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+
+	__table_args__ = (
+		UniqueConstraint("user_id", "article_id", "type", name="uq_user_article_type"),
+	)
