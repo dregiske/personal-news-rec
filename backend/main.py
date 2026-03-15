@@ -10,6 +10,7 @@ from contextlib import asynccontextmanager
 from backend.config import settings
 
 from backend.database import engine, Base
+from backend.ml.model_registry import ModelRegistry
 
 from backend.api.routes import users
 from backend.api.routes import home
@@ -24,6 +25,7 @@ async def lifespan(app: FastAPI):
 	'''
 	# Startup actions
 	Base.metadata.create_all(bind=engine)
+	app.state.models = ModelRegistry()
 
 	yield
 	# Shutdown actions
