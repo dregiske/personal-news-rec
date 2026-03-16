@@ -7,19 +7,25 @@ from pydantic_settings import BaseSettings
 from datetime import timedelta
 
 class Settings(BaseSettings):
-	SECRET_KEY: str
 	ALGORITHM: str
-	ACCESS_TOKEN_EXPIRE_MINUTES: int
-	RSS_SOURCES: str
+	SECRET_KEY: str
+
 	NEWSAPI_KEY: str | None = None
-	DATABASE_URL: str 
+
 	CORS_ORIGINS: str
-	NEWS_QUERY: str
+	
+	NEWSAPI_URL: str
+	DATABASE_URL: str
+
+	RSS_SOURCES: str
 	PERSONALIZATION_THRESHOLD: int
+	ACCESS_TOKEN_EXPIRE_MINUTES: int
+	NEWS_QUERY: str
+	RECOMMENDATION_ALPHA: float
+	RECOMMENDATION_PROFILE_CAP: int
+	RECOMMENDATION_KNN_NEIGHBORS: int
+
 	ENVIRONMENT: str
-	RECOMMENDATION_ALPHA: float = 0.7
-	RECOMMENDATION_PROFILE_CAP: int = 500
-	RECOMMENDATION_KNN_NEIGHBORS: int = 10
 
 	class Config:
 		env_file = ".env"
