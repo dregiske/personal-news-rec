@@ -17,6 +17,7 @@ from backend.database import Base, get_database
 from backend.main import app
 from backend.ml.model_registry import ModelRegistry
 from backend.core.dependencies import get_model_registry
+from backend.core.limiter import limiter
 
 TEST_DB_URL = "sqlite:///:memory:"
 engine = create_engine(
@@ -41,6 +42,7 @@ def make_empty_registry() -> ModelRegistry:
 @pytest.fixture(autouse=True)
 def setup_db():
 	Base.metadata.create_all(bind=engine)
+	limiter.reset()
 	yield
 	Base.metadata.drop_all(bind=engine)
 
