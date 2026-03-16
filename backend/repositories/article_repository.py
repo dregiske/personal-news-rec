@@ -25,3 +25,15 @@ def get_by_ids(db: Session, article_ids: list[int]) -> list[Article]:
 
 def get_by_url(db: Session, url: str) -> Article | None:
 	return db.query(Article).filter(Article.url == url).first()
+
+
+def create(db: Session, data: dict) -> Article:
+	article = Article(**data)
+	db.add(article)
+	return article
+
+
+def update(db: Session, article: Article, data: dict) -> Article:
+	for field, value in data.items():
+		setattr(article, field, value)
+	return article
