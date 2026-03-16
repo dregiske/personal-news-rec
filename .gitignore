@@ -1,10 +1,15 @@
 venv/
 .venv/
+
 __pycache__/
 *.pyc
+
 .env
+.env.*
+*.db
+.gitignore
+
 .pytest_cache/
-app.db
 
 node_modules/
 

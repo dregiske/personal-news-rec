@@ -19,8 +19,6 @@ Issue                                           File            Fix
 Security
 Issue                                           File            Fix
 --------------------------------------------------------------------------------------------------------------
-No rate limiting on auth endpoints              main.py         Add slowapi middleware, limit /login and
-                                                                /signup to ~5 requests/min per IP
 
 
 ---------- Scalability Path ----------
