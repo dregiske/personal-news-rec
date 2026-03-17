@@ -1,0 +1,275 @@
+# In production
+
+The frontend no longer has a running process. vite build compiles everything into frontend/dist/ — a folder of static files (index.html, assets/main-abc123.js, assets/main-abc123.css). These are just files on disk.
+
+The standard deployment setup:
+
+
+User's browser
+       │
+       ▼
+    Nginx                          ← the only thing exposed to the internet (port 80/443)
+       │
+       ├── GET /                   ← serves frontend/dist/index.html  (static file)
+       ├── GET /assets/main.js     ← serves frontend/dist/assets/...  (static file)
+       │
+       └── /api/*  proxy_pass ──► Uvicorn (127.0.0.1:8000)           (internal only)
+                                        │
+                                        └── FastAPI handles the request
+                                              reads/writes app.db (SQLite)
+                                              or PostgreSQL in production
+Nginx does two jobs:
+
+Serves the static frontend files directly from disk — fast, no Python involved
+Reverse proxies any request starting with /api/ to Uvicorn running locally
+Uvicorn is never exposed to the internet — only Nginx talks to it. This is important for security and performance.
+
+## Full request lifecycle in production
+
+### Loading the app (first visit):
+1. Browser → GET https://yournewsapp.com/
+2. Nginx reads frontend/dist/index.html from disk → responds
+3. Browser parses HTML, requests main.js
+4. Nginx reads frontend/dist/assets/main.js from disk → responds
+5. React app boots in the browser
+
+### User logs in:
+1. React → POST https://yournewsapp.com/api/v1/login  { email, password }
+2. Nginx sees /api/* → proxy_pass to 127.0.0.1:8000
+3. Uvicorn → FastAPI → UserService.login() → DB query → JWT
+4. Response travels back through Nginx to browser
+5. React stores the token, sets auth state
+
+### User loads their feed:
+1. React → GET /api/v1/feed/for-you  (Authorization: Bearer <token>)
+2. Nginx → Uvicorn → get_current_user() decodes JWT
+3. hybrid_recommend_articles() runs in memory
+4. DB query for article rows
+5. JSON response → Nginx → browser → React renders cards
+With Docker (the clean way to deploy this)
+You'd have two containers orchestrated with Docker Compose:
+
+
+services:
+  backend:
+    build: ./backend
+    command: uvicorn backend.main:app --host 0.0.0.0 --port 8000
+    env_file: .env
+    # NOT exposed to internet — only nginx can reach it
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./frontend/dist:/usr/share/nginx/html   # built static files
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - backend
+nginx.conf would look like:
+
+
+location / {
+    root /usr/share/nginx/html;
+    try_files $uri $uri/ /index.html;   # React router fallback
+}
+
+location /api/ {
+    proxy_pass http://backend:8000;     # "backend" resolves via Docker DNS
+}
+
+location /health {
+    proxy_pass http://backend:8000;
+}
+The try_files ... /index.html line is critical for React Router — if someone navigates directly to /feed, Nginx can't find a file called feed, so it falls back to index.html and lets React Router handle it client-side.
+
+Where SQLite fits
+SQLite (app.db) lives on the same server as the backend container. It works fine for low-to-medium traffic. When you swap to PostgreSQL, it runs as a third container and the DATABASE_URL in .env just changes — the rest of your code is already written to support it.
+
+# Summary
+Concern					Dev								Production
+---------------------------------------------------------------------------------------
+Frontend served by:		Vite dev server (:5173) 		Nginx (static files from dist/)
+Backend served by:		Uvicorn directly (:8000)		Uvicorn behind Nginx (internal only)
+Routing /api/*			Vite proxy or direct			Nginx proxy_pass
+SSL/HTTPS				None							Nginx + Let's Encrypt (Certbot)
+DB						app.db (SQLite file)			PostgreSQL container or managed DB
+
+> Vite disappears entirely in production (only used in development). Here's the full picture:
+
+The production stack:
+╔══════════════════════════════════════════════════════════════════════════╗
+║                          INTERNET                                        ║
+╚══════════════════════════════════════════════════════════════════════════╝
+                                  │
+                    HTTPS :443 / HTTP :80
+                                  │
+                                  ▼
+╔══════════════════════════════════════════════════════════════════════════╗
+║                        YOUR SERVER / VPS                                 ║
+║                                                                          ║
+║  ┌────────────────────────────────────────────────────────────────────┐  ║
+║  │                          NGINX                                     │  ║
+║  │                                                                    │  ║
+║  │   GET /              → serves /frontend/dist/index.html            │  ║
+║  │   GET /assets/*.js   → serves /frontend/dist/assets/               │  ║
+║  │   GET /assets/*.css  → serves /frontend/dist/assets/               │  ║
+║  │                                                                    │  ║
+║  │   /api/*      ──────────────────────────────► proxy_pass :8000     │  ║
+║  │   /health     ──────────────────────────────► proxy_pass :8000     │  ║
+║  │                                                                    │  ║
+║  │   SSL termination (Let's Encrypt cert lives here)                  │  ║
+║  └────────────────────────────────────────────────────────────────────┘  ║
+║                                  │                                       ║
+║                     internal network only                                ║
+║                                  │                                       ║
+║  ┌───────────────────────────────▼────────────────────────────────────┐  ║
+║  │                    UVICORN  :8000                                  │  ║
+║  │                                                                    │  ║
+║  │   ┌─────────────────────────────────────────────────────────────┐  │  ║
+║  │   │                    FASTAPI APP                              │  │  ║
+║  │   │                                                             │  │  ║
+║  │   │   Middleware stack (CORS, SlowAPI rate limiter)             │  │  ║
+║  │   │                    │                                        │  │  ║
+║  │   │   ┌────────────────▼───────────────────────────────────┐    │  │  ║
+║  │   │   │                  ROUTERS                           │    │  │  ║
+║  │   │   │                                                    │    │  │  ║
+║  │   │   │  /health           home.py    (liveness/readiness) │    │  │  ║
+║  │   │   │  /api/v1/signup    users.py   (rate limited)       │    │  │  ║
+║  │   │   │  /api/v1/login     users.py   (rate limited)       │    │  │  ║
+║  │   │   │  /api/v1/feed      feed.py                         │    │  │  ║
+║  │   │   │  /api/v1/feed/for-you  feed.py  (auth required)    │    │  │  ║
+║  │   │   │  /api/v1/interactions  interactions.py (auth)      │    │  │  ║
+║  │   │   │  /api/v1/admin/*   admin/  (auth required)         │    │  │  ║
+║  │   │   └────────────────┬───────────────────────────────────┘    │  │  ║
+║  │   │                    │                                        │  │  ║
+║  │   │   ┌────────────────▼───────────────────────────────────┐    │  │  ║
+║  │   │   │                 SERVICES                           │    │  │  ║
+║  │   │   │                                                    │    │  │  ║
+║  │   │   │  user_service     auth, signup, login              │    │  │  ║
+║  │   │   │  recommendation   hybrid scoring, vector math      │    │  │  ║
+║  │   │   │  ingest           fetch, normalize, upsert         │    │  │  ║
+║  │   │   │  keywords         keyword extraction               │    │  │  ║
+║  │   │   └────────────────┬───────────────────────────────────┘    │  │  ║
+║  │   │                    │                                        │  │  ║
+║  │   │   ┌────────────────▼───────────────────────────────────┐    │  │  ║
+║  │   │   │               REPOSITORIES                         │    │  │  ║
+║  │   │   │                                                    │    │  │  ║
+║  │   │   │  user_repository          article_repository       │    │  │  ║
+║  │   │   │  interaction_repository                            │    │  │  ║
+║  │   │   └────────────────┬───────────────────────────────────┘    │  │  ║
+║  │   │                    │                                        │  │  ║
+║  │   │   ┌────────────────▼───────────────────────────────────┐    │  │  ║
+║  │   │   │            app.state.models (RAM)                  │    │  │  ║
+║  │   │   │                                                    │    │  │  ║
+║  │   │   │  ModelRegistry — loaded once at startup            │    │  │  ║
+║  │   │   │    vectorizer      TF-IDF vectorizer               │    │  │  ║
+║  │   │   │    tfidf_matrix    article vectors (sparse)        │    │  │  ║
+║  │   │   │    knn             K-nearest neighbors model       │    │  │  ║
+║  │   │   │    id_to_index     article_id → matrix row map     │    │  │  ║
+║  │   │   └────────────────────────────────────────────────────┘    │  │  ║
+║  │   └─────────────────────────────────────────────────────────────┘  │  ║
+║  └────────────────────────────────────────────────────────────────────┘  ║
+║                                  │                                       ║
+║              ┌───────────────────┼───────────────────┐                   ║
+║              │                   │                   │                   ║
+║              ▼                   ▼                   ▼                   ║
+║  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────────┐    ║
+║  │   POSTGRESQL     │  │   MODEL FILES    │  │    FRONTEND DIST     │    ║
+║  │                  │  │   (disk)         │  │    (disk)            │    ║
+║  │  users           │  │                  │  │                      │    ║
+║  │  articles        │  │  vectorizer.pkl  │  │  index.html          │    ║
+║  │  interactions    │  │  tfidf.pkl       │  │  assets/main.js      │    ║
+║  │                  │  │  knn.pkl         │  │  assets/main.css     │    ║
+║  │  (replaces       │  │                  │  │                      │    ║
+║  │   SQLite)        │  │  written by      │  │  built once by:      │    ║
+║  │                  │  │  training script │  │  vite build          │    ║
+║  └──────────────────┘  └──────────────────┘  └──────────────────────┘    ║
+║                                                                          ║
+╚══════════════════════════════════════════════════════════════════════════╝
+
+## Only two things are always running on the server:
+	1. Nginx — handles every inbound connection. For static files (JS, CSS, HTML) it reads from disk and responds in microseconds.
+	   Python is never involved. For anything under /api/ or /health it forwards the request internally to Uvicorn.
+
+	2. Uvicorn — runs your FastAPI app. It is never directly reachable from the internet. Only Nginx can talk to it.
+	   This is intentional — Nginx handles SSL, compression, connection limits, and slow clients so Uvicorn only deals with clean, fast requests.
+
+
+## A full user session traced through every layer:
+
+1. USER OPENS THE APP
+   Browser → GET https://yournewsapp.com/
+   Nginx reads frontend/dist/index.html from disk
+   Browser receives bare HTML shell + <script src="/assets/main.js">
+   Browser → GET /assets/main.js
+   Nginx reads from disk → browser downloads React bundle
+   React boots, renders login page
+
+2. USER LOGS IN
+   React → POST /api/v1/login  { email, password }
+   Nginx → proxy_pass → Uvicorn
+   FastAPI: SlowAPIMiddleware checks rate limit (5/min per IP)
+   FastAPI: UserService.login() → UserRepository → SQL query → PostgreSQL
+   FastAPI: bcrypt verify password → create JWT
+   Response: { access_token, user } + Set-Cookie: access_token=...
+   React stores token in memory, stores user in state
+
+3. USER LOADS THEIR FEED
+   React → GET /api/v1/feed/for-you  Authorization: Bearer <token>
+   Nginx → Uvicorn
+   FastAPI: get_current_user() decodes JWT → UserRepository → load user
+   FastAPI: get_model_registry() returns app.state.models (already in RAM)
+   FastAPI: hybrid_recommend_articles()
+     → InteractionRepository → load user's likes/dislikes/views
+     → build_user_vector() — weighted average of TF-IDF vectors (pure math, no DB)
+     → cosine_similarity() — score all articles (pure math, no DB)
+     → KNN.kneighbors() — find similar articles (pure math, no DB)
+     → merge scores, filter seen articles, return top 20 IDs
+   FastAPI: ArticleRepository → fetch 20 Article rows from PostgreSQL
+   FastAPI: Pydantic serializes to JSON
+   React renders 20 article cards
+
+4. USER LIKES AN ARTICLE
+   React → POST /api/v1/interactions  { article_id: 42, type: "like" }
+   Nginx → Uvicorn
+   FastAPI: auth check → article exists check → UniqueConstraint check
+   FastAPI: InteractionRepository → INSERT into interactions
+   Response: 201 Created
+   (next feed load will now include this signal in the recommendation)
+
+5. INFRASTRUCTURE MONITORS HEALTH
+   Load balancer → GET /health         (every 30s)
+   Nginx → Uvicorn
+   FastAPI: returns { status: ok, uptime_seconds: 3600 }
+
+   Uptime monitor → GET /health/ready  (every 60s)
+   FastAPI: SELECT 1 → PostgreSQL (proves DB is reachable)
+   FastAPI: models.is_ready check
+   Returns 200 if healthy, 503 if DB or models are down
+The training pipeline (runs separately, not on every request)
+
+┌──────────────────────────────────────────────────────────────┐
+│  TRAINING SCRIPT  (runs manually or on a cron job)           │
+│                                                              │
+│  1. Reads all articles from PostgreSQL                       │
+│  2. Builds TF-IDF matrix across all article text             │
+│  3. Fits KNN model on the matrix                             │
+│  4. Writes vectorizer.pkl, tfidf.pkl, knn.pkl to disk        │
+│                                                              │
+│  Then: POST /api/v1/admin/reload-models                      │
+│    → ModelRegistry.reload() reads new .pkl files into RAM    │
+│    → next recommendation request uses the new models         │
+└──────────────────────────────────────────────────────────────┘
+No restart needed — the reload endpoint you built handles this cleanly.
+
+## What changes going from dev → production:
+Component				Development							Production
+------------------------------------------------------------------------------------------------------------------------------
+Frontend				vite dev at :5173					Static files in frontend/dist/, served by Nginx
+Backend					uvicorn --reload at :8000			uvicorn (no reload) behind Nginx
+DB						app.db (SQLite file)				PostgreSQL (swap DATABASE_URL in .env)
+SSL						None (HTTP)							Nginx + Let's Encrypt cert (HTTPS)
+Secret management		.env file							Environment variables injected by host (Railway, Render, etc.)
+ENVIRONMENT setting		"development"						"production" (flips secure=True on cookies)
