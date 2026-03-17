@@ -1,6 +1,6 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
-import { login as loginApi } from './api';
+import { login as loginApi, logout as logoutApi, fetchMe } from './api';
 import type { User } from '../../types';
 
 type LoginResult =
@@ -18,13 +18,20 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);  // true until session check completes
+
+  // Restore session from existing httpOnly cookie on mount
+  useEffect(() => {
+    fetchMe().then((me) => {
+      setUser(me);
+      setLoading(false);
+    });
+  }, []);
 
   async function login(email: string, password: string): Promise<LoginResult> {
     setLoading(true);
     try {
       const data = await loginApi({ email, password });
-      localStorage.setItem('access_token', data.access_token);
       setUser(data.user);
       return { ok: true };
     } catch (err: unknown) {
@@ -37,8 +44,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  function logout() {
-    localStorage.removeItem('access_token');
+  async function logout() {
+    await logoutApi();
     setUser(null);
   }
 

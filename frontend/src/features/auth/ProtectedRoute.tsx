@@ -3,7 +3,9 @@ import { useAuth } from './AuthContext';
 import type { ReactNode } from 'react';
 
 export default function ProtectedRoute({ children }: { children: ReactNode }) {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
+
+  if (loading) return null;  // wait for session check before deciding
 
   if (!user) {
     return <Navigate to="/login" replace />;
