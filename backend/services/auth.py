@@ -9,7 +9,7 @@ login -> verify -> sign JWT (w/ SECRET_KEY + ALGORITHM)
 
 from datetime import datetime, timezone
 
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordBearer
 
 from jose import jwt, JWTError
@@ -42,23 +42,28 @@ def create_access_token(data: dict) -> str:
 	encoded_jwt = jwt.encode(payload, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
 	return encoded_jwt
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login", auto_error=False)
 
 def get_current_user(
-		token: str = Depends(oauth2_scheme),
+		request: Request,
+		token: str | None = Depends(oauth2_scheme),
 		db: Session = Depends(get_database),
 ) -> UserModel:
 	'''
-	- Extract Bearer token from Authorization header
-	- Decode JWT
-	- Load the User from DB
-	- 401 if invalid/missing
+	Reads the JWT from the Authorization header (API clients) or the
+	httpOnly cookie (browser). Header takes priority if both are present.
 	'''
+	token = token or request.cookies.get("access_token")
+
 	credentials_exc = HTTPException(
 		status_code=status.HTTP_401_UNAUTHORIZED,
 		detail="Could not validate credentials",
 		headers={"WWW-Authenticate": "Bearer"},
 	)
+
+	if not token:
+		raise credentials_exc
+
 	try:
 		payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
 		sub = payload.get("sub")
