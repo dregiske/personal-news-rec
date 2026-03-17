@@ -1,5 +1,5 @@
 export interface Article {
-  id: string;
+  id: number;
   title: string;
   url: string;
   source?: string;
@@ -8,7 +8,7 @@ export interface Article {
 }
 
 export interface User {
-  id: string;
+  id: number;
   email: string;
 }
 
@@ -16,7 +16,7 @@ export interface UserStats {
   is_personalized: boolean;
 }
 
-export type InteractionType = 'like' | 'dislike';
+export type InteractionType = 'like' | 'dislike' | 'view';
 
 export interface LoginResponse {
   access_token: string;
