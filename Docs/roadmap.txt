@@ -14,6 +14,9 @@ Issue                                           File            Fix
 Code Quality
 Issue                                           File            Fix
 --------------------------------------------------------------------------------------------------------------
+Missing GET /api/v1/me endpoint                 users.py        Frontend needs this to restore user state
+                                                                on page refresh from existing cookie.
+                                                                Returns current user (id, email) or 401.
 
 
 Security
@@ -44,28 +47,51 @@ Model serving  → At scale, move ML inference out of the FastAPI process
 
 ---------- To Do ----------
 
-Critical
+Critical (correctness + security)
 Issue                               File                Fix
 ------------------------------------------------------------------------------------
-User lost on page refresh           AuthContext.tsx     Call /api/v1/me/stats on mount to rehydrate
-                                                        user state from the existing cookie/token
-
 Token in localStorage (XSS risk)    AuthContext.tsx     Backend already sets httpOnly cookie on login.
-                                                        Drop localStorage token, rely on cookie +
-                                                        withCredentials: true (already set in api.ts)
+                                                        Drop localStorage.setItem/getItem, rely on
+                                                        cookie + withCredentials: true (already set)
+
+User lost on page refresh           AuthContext.tsx     On AuthProvider mount, call GET /api/v1/me
+                                                        (needs backend endpoint) to restore user from
+                                                        existing cookie — fall back to null if 401
+
+Article.id typed as string          types.ts            Backend returns id as int. Change Article.id
+                                                        to number — fixes silent type mismatch in
+                                                        recordInteraction() calls
 
 Code Quality
 Issue                               File                Fix
 ------------------------------------------------------------------------------------
-Inline styles everywhere            All pages/          Move to CSS Modules (*.module.css) or
-                                    components          centralize in main.css — enables media
-                                                        queries and pseudo-selectors
+Dashboard does too much             Dashboard.tsx       Extract useFeed() custom hook for data
+                                                        fetching/loading/error state. Extract
+                                                        ArticleCard component for per-article UI
+
+auth API not co-located with        features/auth/      Move login/signup API calls from
+rest of API layer                   api.ts              features/auth/api.ts → src/api/auth.ts
+                                                        to match feed.ts, stats.ts, interactions.ts
+
+feed.ts and for-you.ts are          api/feed.ts         Merge into one file with two named exports:
+two files for related endpoints     api/for-you.ts      fetchFeed() and fetchForYou()
+
+No feedback on Like/Dislike         Dashboard.tsx       sendInteraction() fires and forgets. Add
+                                                        optimistic UI, catch errors, show confirmation
+
+view interaction never sent         Dashboard.tsx       Backend weights view: 1.0 in recommendations
+                                                        but frontend never records it. Fire on article
+                                                        click / link open
 
 No client-side input validation     Login/Signup        Add basic checks (password length, email
                                     pages               format) before the API call
 
 No error boundary                   App.tsx             Wrap Dashboard in a React ErrorBoundary
                                                         so a crash doesn't blank the whole app
+
+Inline styles everywhere            All pages/          Move to CSS Modules (*.module.css) or
+                                    components          centralize in main.css — enables media
+                                                        queries and pseudo-selectors
 
 Architecture
 Issue                               File                Fix
