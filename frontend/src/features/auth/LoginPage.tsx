@@ -1,6 +1,10 @@
 import { useState } from 'react';
+import type { CSSProperties } from 'react';
 import { useAuth } from './AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import PageLayout from '../../components/PageLayout';
+import { button, card, errorText } from '../../styles/common';
+import { colors, font, spacing } from '../../styles/theme';
 
 export default function LoginPage() {
   const { login, loading } = useAuth();
@@ -23,41 +27,73 @@ export default function LoginPage() {
   }
 
   return (
-    <div style={{ maxWidth: 400, margin: '2rem auto' }}>
-      <h1>Login</h1>
-      <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: '1rem' }}>
-          <label>
-            Email<br />
-            <input
-              type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              required
-              style={{ width: '100%' }}
-            />
-          </label>
-        </div>
+    <PageLayout title="Login">
+      <div style={card}>
+        <form onSubmit={handleSubmit}>
+          <div style={styles.field}>
+            <label style={styles.label}>
+              Email
+              <input
+                type="email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                required
+                style={styles.input}
+              />
+            </label>
+          </div>
 
-        <div style={{ marginBottom: '1rem' }}>
-          <label>
-            Password<br />
-            <input
-              type="password"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              required
-              style={{ width: '100%' }}
-            />
-          </label>
-        </div>
+          <div style={styles.field}>
+            <label style={styles.label}>
+              Password
+              <input
+                type="password"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                required
+                style={styles.input}
+              />
+            </label>
+          </div>
 
-        <button type="submit" disabled={loading}>
-          {loading ? 'Logging in...' : 'Login'}
-        </button>
-      </form>
+          <button type="submit" style={button} disabled={loading}>
+            {loading ? 'Logging in...' : 'Login'}
+          </button>
+        </form>
 
-      {message && <p style={{ marginTop: '1rem' }}>{message}</p>}
-    </div>
+        {message && <p style={errorText}>{message}</p>}
+
+        <p style={styles.switchLink}>
+          Don't have an account? <Link to="/signup">Sign up</Link>
+        </p>
+      </div>
+    </PageLayout>
   );
 }
+
+const styles: Record<string, CSSProperties> = {
+  field: {
+    marginBottom: spacing.md,
+    textAlign: 'left',
+  },
+  label: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: spacing.xs,
+    fontSize: font.base,
+    color: colors.text,
+  },
+  input: {
+    width: '100%',
+    padding: `8px ${spacing.sm}`,
+    fontSize: font.base,
+    border: `1px solid ${colors.border}`,
+    borderRadius: '4px',
+    boxSizing: 'border-box',
+  },
+  switchLink: {
+    marginTop: spacing.md,
+    fontSize: font.sm,
+    color: colors.textFaint,
+  },
+};

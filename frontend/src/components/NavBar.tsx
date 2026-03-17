@@ -1,7 +1,7 @@
 import type { CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../features/auth/AuthContext';
-import { colors, font, spacing } from '../styles/theme';
+import { colors, font, layout, spacing } from '../styles/theme';
 
 export default function NavBar() {
   const { user, logout } = useAuth();
@@ -30,7 +30,7 @@ export default function NavBar() {
 
 const styles: Record<string, CSSProperties> = {
   nav: {
-    height: '60px',
+    height: layout.navHeight,
     padding: `0 ${spacing.lg}`,
     display: 'flex',
     alignItems: 'center',

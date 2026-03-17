@@ -4,7 +4,7 @@ export const API_BASE = '/api/v1';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL ?? 'http://localhost:8000',
-  withCredentials: true,  // sends httpOnly cookie on every request automatically
+  withCredentials: true,
 });
 
 export default api;

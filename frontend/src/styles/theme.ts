@@ -32,3 +32,7 @@ export const radius = {
   sm: '4px',
   md: '8px',
 };
+
+export const layout = {
+  navHeight: '60px',
+};

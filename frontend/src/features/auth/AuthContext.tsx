@@ -18,7 +18,7 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);  // true until session check completes
+  const [loading, setLoading] = useState(true);
 
   // Restore session from existing httpOnly cookie on mount
   useEffect(() => {

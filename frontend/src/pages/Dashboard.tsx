@@ -1,14 +1,16 @@
+import type { CSSProperties } from 'react';
 import { useAuth } from '../features/auth/AuthContext';
 import { useFeed } from '../hooks/useFeed';
 import ArticleCard from '../components/ArticleCard';
 import PageLayout from '../components/PageLayout';
+import { colors, layout } from '../styles/theme';
 
 export default function Dashboard() {
   const { user } = useAuth();
   const { articles, loading, error } = useFeed();
 
-  if (loading) return <p style={{ paddingTop: '60px', textAlign: 'center' }}>Loading your feed...</p>;
-  if (error)   return <p style={{ paddingTop: '60px', textAlign: 'center', color: 'red' }}>{error}</p>;
+  if (loading) return <p style={styles.centered}>Loading your feed...</p>;
+  if (error)   return <p style={{ ...styles.centered, color: colors.danger }}>{error}</p>;
 
   return (
     <PageLayout
@@ -21,3 +23,10 @@ export default function Dashboard() {
     </PageLayout>
   );
 }
+
+const styles: Record<string, CSSProperties> = {
+  centered: {
+    paddingTop: layout.navHeight,
+    textAlign: 'center',
+  },
+};
