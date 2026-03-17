@@ -1,8 +1,8 @@
-import api from './api';
+import api, { API_BASE } from './api';
 import type { InteractionType } from '../types';
 
-export async function recordInteraction(articleId: string, type: InteractionType): Promise<void> {
-  await api.post('/api/v1/interactions/', {
+export async function recordInteraction(articleId: number, type: InteractionType): Promise<void> {
+  await api.post(`${API_BASE}/interactions/`, {
     article_id: articleId,
     type,
   });
