@@ -1,5 +1,7 @@
+import type { CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../features/auth/AuthContext';
+import { colors, font, spacing } from '../styles/theme';
 
 export default function NavBar() {
   const { user, logout } = useAuth();
@@ -26,30 +28,30 @@ export default function NavBar() {
   );
 }
 
-const styles: Record<string, React.CSSProperties> = {
+const styles: Record<string, CSSProperties> = {
   nav: {
     height: '60px',
-    padding: '0 20px',
+    padding: `0 ${spacing.lg}`,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    background: '#111',
+    background: colors.navBg,
     position: 'fixed',
     top: 0,
     width: '100%',
     zIndex: 1000,
   },
   logo: {
-    color: 'white',
+    color: colors.navText,
     margin: 0,
   },
   links: {
     display: 'flex',
-    gap: '20px',
+    gap: spacing.lg,
   },
   link: {
-    color: 'white',
+    color: colors.navText,
     textDecoration: 'none',
-    fontSize: '1rem',
+    fontSize: font.base,
   },
 };
