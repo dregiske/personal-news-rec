@@ -14,9 +14,6 @@ Issue                                           File            Fix
 Code Quality
 Issue                                           File            Fix
 --------------------------------------------------------------------------------------------------------------
-Missing GET /api/v1/me endpoint                 users.py        Frontend needs this to restore user state
-                                                                on page refresh from existing cookie.
-                                                                Returns current user (id, email) or 401.
 
 
 Security
@@ -47,51 +44,14 @@ Model serving  → At scale, move ML inference out of the FastAPI process
 
 ---------- To Do ----------
 
-Critical (correctness + security)
-Issue                               File                Fix
-------------------------------------------------------------------------------------
-Token in localStorage (XSS risk)    AuthContext.tsx     Backend already sets httpOnly cookie on login.
-                                                        Drop localStorage.setItem/getItem, rely on
-                                                        cookie + withCredentials: true (already set)
-
-User lost on page refresh           AuthContext.tsx     On AuthProvider mount, call GET /api/v1/me
-                                                        (needs backend endpoint) to restore user from
-                                                        existing cookie — fall back to null if 401
-
-Article.id typed as string          types.ts            Backend returns id as int. Change Article.id
-                                                        to number — fixes silent type mismatch in
-                                                        recordInteraction() calls
-
 Code Quality
 Issue                               File                Fix
 ------------------------------------------------------------------------------------
-Dashboard does too much             Dashboard.tsx       Extract useFeed() custom hook for data
-                                                        fetching/loading/error state. Extract
-                                                        ArticleCard component for per-article UI
-
-auth API not co-located with        features/auth/      Move login/signup API calls from
-rest of API layer                   api.ts              features/auth/api.ts → src/api/auth.ts
-                                                        to match feed.ts, stats.ts, interactions.ts
-
-feed.ts and for-you.ts are          api/feed.ts         Merge into one file with two named exports:
-two files for related endpoints     api/for-you.ts      fetchFeed() and fetchForYou()
-
-No feedback on Like/Dislike         Dashboard.tsx       sendInteraction() fires and forgets. Add
-                                                        optimistic UI, catch errors, show confirmation
-
-view interaction never sent         Dashboard.tsx       Backend weights view: 1.0 in recommendations
-                                                        but frontend never records it. Fire on article
-                                                        click / link open
-
 No client-side input validation     Login/Signup        Add basic checks (password length, email
                                     pages               format) before the API call
 
 No error boundary                   App.tsx             Wrap Dashboard in a React ErrorBoundary
                                                         so a crash doesn't blank the whole app
-
-Inline styles everywhere            All pages/          Move to CSS Modules (*.module.css) or
-                                    components          centralize in main.css — enables media
-                                                        queries and pseudo-selectors
 
 Architecture
 Issue                               File                Fix
@@ -103,3 +63,33 @@ Incomplete feature-folder pattern   features/ vs        Either move all features
 
 No TypeScript strictness            tsconfig            @types/react already installed. Enable
                                                         strict mode in tsconfig.json
+
+
+---------- Done ----------
+
+Backend
+✓ GET /api/v1/me endpoint           users.py            Restores user from cookie on page refresh
+✓ Cookie-based auth                 auth.py             get_current_user reads from cookie OR
+                                                        Authorization header (auto_error=False)
+
+Frontend
+✓ Token in localStorage removed     AuthContext.tsx     Relies on httpOnly cookie + withCredentials
+✓ Session restore on refresh        AuthContext.tsx     fetchMe() on mount — falls back to null
+✓ ProtectedRoute flash fix          ProtectedRoute.tsx  Returns null while session check is in flight
+✓ Article.id type fixed             types.ts            string → number, matches backend int
+✓ InteractionType includes view     types.ts            Added 'view' to match all backend types
+✓ useFeed hook extracted            hooks/useFeed.ts    Data fetching isolated from Dashboard UI
+✓ ArticleCard component             components/         Per-article rendering, interaction state,
+                                    ArticleCard.tsx     view recording, Like/Dislike feedback
+✓ Dashboard slimmed down            Dashboard.tsx       Pure layout — 20 lines, no fetch logic
+✓ feed.ts + for-you.ts merged       api/feed.ts         One file, two named exports
+✓ for-you.ts deleted                —                   Redundant file removed
+✓ view interaction recorded         ArticleCard.tsx     Fires on "Read more" click (best-effort)
+✓ Like/Dislike feedback             ArticleCard.tsx     Visual state + error message on failure
+✓ API_BASE defined once             api/api.ts          All endpoints import and use API_BASE
+✓ Shared styles system              styles/theme.ts     Design tokens: colors, spacing, font, radius
+                                    styles/common.ts    Reusable style objects built from tokens
+✓ PageLayout component              components/         Template wrapper: title, subtitle, children
+                                    PageLayout.tsx
+✓ NavBar + ArticleCard updated      components/         Pull from theme.ts and common.ts
+✓ 404 Not Found page                pages/NotFound.tsx  Catch-all route path="*" in App.tsx
