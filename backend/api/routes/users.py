@@ -50,6 +50,11 @@ def logout(response: Response):
 	return {"message": "Logged out successfully."}
 
 
+@router.get("/me", response_model=UserOut)
+def get_current_user_info(current_user: User = Depends(get_current_user)):
+	return current_user
+
+
 @router.get("/me/stats")
 def get_user_stats(db: Session = Depends(get_database), current_user: User = Depends(get_current_user)):
 	count = repo.interaction.count_by_user(db, current_user.id)
