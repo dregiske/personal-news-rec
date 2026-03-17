@@ -20,9 +20,10 @@ from backend.ml.model_registry import ModelRegistry
 
 from backend.api.routes import users
 from backend.api.routes import home
-from backend.api.routes import ingest as ingest_routes
 from backend.api.routes import feed as feed_routes
 from backend.api.routes import interactions as interactions_routes
+from backend.api.routes.admin import ingest as admin_ingest
+from backend.api.routes.admin import models as admin_models
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -51,8 +52,9 @@ app.add_middleware(
 	allow_headers=["*"],
 )
 
-app.include_router(home.router, prefix="/api/v1", tags=["home"])
+app.include_router(home.router, tags=["health"])
 app.include_router(users.router, prefix="/api/v1", tags=["users"])
-app.include_router(ingest_routes.router, prefix="/api/v1", tags=["ingest"])
 app.include_router(feed_routes.router, prefix="/api/v1", tags=["feed"])
 app.include_router(interactions_routes.router, prefix="/api/v1", tags=["interactions"])
+app.include_router(admin_ingest.router, prefix="/api/v1", tags=["admin"])
+app.include_router(admin_models.router, prefix="/api/v1", tags=["admin"])
