@@ -3,7 +3,6 @@
 Tests
 27 passing tests across test_routes.py and test_recommendation.py
 
-
 ---------- To Do ----------
 
 Database
@@ -60,36 +59,3 @@ Incomplete feature-folder pattern   features/ vs        Either move all features
                                     pages/ + api/       (each owns components + API + state)
                                                         or drop features/ entirely — mixing both
                                                         adds confusion
-
-No TypeScript strictness            tsconfig            @types/react already installed. Enable
-                                                        strict mode in tsconfig.json
-
-
----------- Done ----------
-
-Backend
-✓ GET /api/v1/me endpoint           users.py            Restores user from cookie on page refresh
-✓ Cookie-based auth                 auth.py             get_current_user reads from cookie OR
-                                                        Authorization header (auto_error=False)
-
-Frontend
-✓ Token in localStorage removed     AuthContext.tsx     Relies on httpOnly cookie + withCredentials
-✓ Session restore on refresh        AuthContext.tsx     fetchMe() on mount — falls back to null
-✓ ProtectedRoute flash fix          ProtectedRoute.tsx  Returns null while session check is in flight
-✓ Article.id type fixed             types.ts            string → number, matches backend int
-✓ InteractionType includes view     types.ts            Added 'view' to match all backend types
-✓ useFeed hook extracted            hooks/useFeed.ts    Data fetching isolated from Dashboard UI
-✓ ArticleCard component             components/         Per-article rendering, interaction state,
-                                    ArticleCard.tsx     view recording, Like/Dislike feedback
-✓ Dashboard slimmed down            Dashboard.tsx       Pure layout — 20 lines, no fetch logic
-✓ feed.ts + for-you.ts merged       api/feed.ts         One file, two named exports
-✓ for-you.ts deleted                —                   Redundant file removed
-✓ view interaction recorded         ArticleCard.tsx     Fires on "Read more" click (best-effort)
-✓ Like/Dislike feedback             ArticleCard.tsx     Visual state + error message on failure
-✓ API_BASE defined once             api/api.ts          All endpoints import and use API_BASE
-✓ Shared styles system              styles/theme.ts     Design tokens: colors, spacing, font, radius
-                                    styles/common.ts    Reusable style objects built from tokens
-✓ PageLayout component              components/         Template wrapper: title, subtitle, children
-                                    PageLayout.tsx
-✓ NavBar + ArticleCard updated      components/         Pull from theme.ts and common.ts
-✓ 404 Not Found page                pages/NotFound.tsx  Catch-all route path="*" in App.tsx
