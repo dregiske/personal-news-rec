@@ -1,0 +1,29 @@
+import ArticleCard from './ArticleCard';
+import type { Article } from '../types';
+
+interface Props {
+  articles: Article[];
+}
+
+export default function TodaySection({ articles }: Props) {
+  if (!articles.length) return null;
+
+  return (
+    <section className="w-full">
+      <div className="flex items-center gap-4 mb-6">
+        <h2 className="text-lg font-semibold uppercase tracking-widest text-fray-text">
+          Today on the News
+        </h2>
+        <div className="flex-1 h-px bg-fray-border" />
+      </div>
+
+      <div className="flex flex-col gap-px bg-fray-border">
+        {articles.map((article) => (
+          <div key={article.id} className="bg-fray-bg">
+            <ArticleCard article={article} variant="list" />
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}

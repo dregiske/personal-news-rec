@@ -1,32 +1,30 @@
-import type { CSSProperties } from 'react';
 import { useAuth } from '../features/auth/AuthContext';
 import { useFeed } from '../hooks/useFeed';
-import ArticleCard from '../components/ArticleCard';
 import PageLayout from '../components/PageLayout';
-import { colors, layout } from '../styles/theme';
+import HeroSection from '../components/HeroSection';
+import TodaySection from '../components/TodaySection';
 
 export default function Dashboard() {
   const { user } = useAuth();
   const { articles, loading, error } = useFeed();
 
-  if (loading) return <p style={styles.centered}>Loading your feed...</p>;
-  if (error)   return <p style={{ ...styles.centered, color: colors.danger }}>{error}</p>;
+  if (loading) return (
+    <p className="pt-15 text-center text-fray-text-light mt-16">Loading your feed...</p>
+  );
+  if (error) return (
+    <p className="pt-15 text-center text-fray-danger mt-16">{error}</p>
+  );
+
+  const heroArticles = articles.slice(0, 4);
+  const todayArticles = articles.slice(4);
 
   return (
     <PageLayout
       title={user ? `Welcome, ${user.email}` : 'Welcome to your dashboard'}
       subtitle="Here's what we found for you today."
     >
-      {articles.map((article) => (
-        <ArticleCard key={article.id} article={article} />
-      ))}
+      <HeroSection articles={heroArticles} />
+      <TodaySection articles={todayArticles} />
     </PageLayout>
   );
 }
-
-const styles: Record<string, CSSProperties> = {
-  centered: {
-    paddingTop: layout.navHeight,
-    textAlign: 'center',
-  },
-};

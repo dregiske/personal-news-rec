@@ -1,57 +1,42 @@
-import type { CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../features/auth/AuthContext';
-import { colors, font, layout, spacing } from '../styles/theme';
 
 export default function NavBar() {
   const { user, logout } = useAuth();
 
   return (
-    <nav style={styles.nav}>
-      <h2 style={styles.logo}>The News Rec</h2>
+    <nav className="fixed top-0 left-0 w-full z-50 h-15 px-8 flex items-center justify-between border-b border-fray-border backdrop-blur-md bg-fray-nav-bg">
+      <Link to="/" className="font-bold text-xl tracking-tight text-fray-text hover:text-fray-primary transition-colors duration-200">
+        The Fray
+      </Link>
 
-      <div style={styles.links}>
+      <div className="flex items-center gap-6">
         {user ? (
           <>
-            <Link to="/dashboard" style={styles.link}>Dashboard</Link>
-            <Link to="/login" style={styles.link} onClick={logout}>Logout</Link>
+            <button
+              onClick={logout}
+              className="text-sm text-fray-text-light hover:text-fray-primary transition-colors duration-200 cursor-pointer bg-transparent border-none"
+            >
+              Logout
+            </button>
+            <Link to="/dashboard" className="text-sm font-semibold px-4 py-1.5 border border-fray-primary text-fray-primary hover:bg-fray-primary hover:text-fray-ink transition-colors duration-200">
+              Dashboard
+            </Link>
           </>
         ) : (
           <>
-            <Link to="/" style={styles.link}>Home</Link>
-            <Link to="/login" style={styles.link}>Login</Link>
-            <Link to="/signup" style={styles.link}>Signup</Link>
+            <Link to="/login" className="text-sm text-fray-text-light hover:text-fray-text transition-colors duration-200">
+              Login
+            </Link>
+            <Link to="/signup" className="text-sm text-fray-text-light hover:text-fray-text transition-colors duration-200">
+              Sign Up
+            </Link>
+            <Link to="/" className="text-sm font-semibold px-4 py-1.5 border border-fray-primary text-fray-primary hover:bg-fray-primary hover:text-fray-ink transition-colors duration-200">
+              Home
+            </Link>
           </>
         )}
       </div>
     </nav>
   );
 }
-
-const styles: Record<string, CSSProperties> = {
-  nav: {
-    height: layout.navHeight,
-    padding: `0 ${spacing.lg}`,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    background: colors.navBg,
-    position: 'fixed',
-    top: 0,
-    width: '100%',
-    zIndex: 1000,
-  },
-  logo: {
-    color: colors.navText,
-    margin: 0,
-  },
-  links: {
-    display: 'flex',
-    gap: spacing.lg,
-  },
-  link: {
-    color: colors.navText,
-    textDecoration: 'none',
-    fontSize: font.base,
-  },
-};

@@ -1,11 +1,7 @@
 import { useState } from 'react';
-import type { CSSProperties } from 'react';
 import { signup } from './api';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from './AuthContext';
-import PageLayout from '../../components/PageLayout';
-import { button, card, errorText } from '../../styles/common';
-import { colors, font, spacing } from '../../styles/theme';
 
 export default function SignupPage() {
   const navigate = useNavigate();
@@ -40,76 +36,59 @@ export default function SignupPage() {
   }
 
   return (
-    <PageLayout title="Sign Up">
-      <div style={card}>
-        <form onSubmit={handleSubmit}>
-          <div style={styles.field}>
-            <label style={styles.label}>
-              Email
+    <div className="mt-15 min-h-[calc(100vh-60px)] flex items-center justify-center px-4">
+      <div className="w-full max-w-sm">
+        <h1 className="text-3xl font-bold text-fray-text mb-1">Join the Fray.</h1>
+        <p className="text-sm text-fray-text-faint mb-8">Create your account to get started.</p>
+
+        <div className="bg-fray-glass border border-fray-border backdrop-blur-md p-8">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+            <label className="flex flex-col gap-1.5">
+              <span className="text-xs font-semibold uppercase tracking-widest text-fray-text-faint">Email</span>
               <input
                 type="email"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 required
-                style={styles.input}
+                className="bg-fray-input-bg border border-fray-border text-fray-text text-sm px-4 py-2.5 outline-none focus:border-fray-primary transition-colors duration-200 placeholder:text-fray-text-faint"
+                placeholder="you@example.com"
               />
             </label>
-          </div>
 
-          <div style={styles.field}>
-            <label style={styles.label}>
-              Password
+            <label className="flex flex-col gap-1.5">
+              <span className="text-xs font-semibold uppercase tracking-widest text-fray-text-faint">Password</span>
               <input
                 type="password"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 required
-                style={styles.input}
+                className="bg-fray-input-bg border border-fray-border text-fray-text text-sm px-4 py-2.5 outline-none focus:border-fray-primary transition-colors duration-200 placeholder:text-fray-text-faint"
+                placeholder="••••••••"
               />
             </label>
-          </div>
 
-          <button type="submit" style={button}>Create Account</button>
-        </form>
+            <button
+              type="submit"
+              className="mt-2 px-4 py-2.5 bg-fray-primary text-fray-ink text-sm font-semibold hover:bg-fray-primary-hover transition-colors duration-200"
+            >
+              Create Account
+            </button>
+          </form>
 
-        {message && <p style={isError ? errorText : styles.info}>{message}</p>}
+          {message && (
+            <p className={`text-xs mt-4 ${isError ? 'text-fray-danger' : 'text-fray-text-faint'}`}>
+              {message}
+            </p>
+          )}
 
-        <p style={styles.switchLink}>
-          Already have an account? <Link to="/login">Log in</Link>
-        </p>
+          <p className="text-xs text-fray-text-faint mt-6">
+            Already have an account?{' '}
+            <Link to="/login" className="text-fray-primary hover:text-fray-text transition-colors duration-200">
+              Log in
+            </Link>
+          </p>
+        </div>
       </div>
-    </PageLayout>
+    </div>
   );
 }
-
-const styles: Record<string, CSSProperties> = {
-  field: {
-    marginBottom: spacing.md,
-    textAlign: 'left',
-  },
-  label: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: spacing.xs,
-    fontSize: font.base,
-    color: colors.text,
-  },
-  input: {
-    width: '100%',
-    padding: `8px ${spacing.sm}`,
-    fontSize: font.base,
-    border: `1px solid ${colors.border}`,
-    borderRadius: '4px',
-    boxSizing: 'border-box',
-  },
-  info: {
-    marginTop: spacing.sm,
-    fontSize: font.sm,
-    color: colors.muted,
-  },
-  switchLink: {
-    marginTop: spacing.md,
-    fontSize: font.sm,
-    color: colors.textFaint,
-  },
-};
