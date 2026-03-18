@@ -1,14 +1,24 @@
+// Mirror of @theme tokens in main.css — keep in sync.
+// Use these only where JS-level color values are required (e.g. dynamic styles).
+// All static Tailwind classes should use the named tokens (e.g. text-fray-primary).
 export const colors = {
-  primary:     '#007BFF',
-  success:     '#28a745',
-  muted:       '#6c757d',
-  danger:      'red',
-  text:        '#333',
-  textLight:   '#555',
-  textFaint:   '#888',
-  border:      '#ddd',
-  navBg:       '#111',
-  navText:     'white',
+  primary:        '#e8621a',
+  primaryHover:   '#cf5115',
+  ink:            '#0d0c0b',
+  text:           '#f5f0eb',
+  textLight:      '#c4b8ac',
+  textFaint:      '#7a6e66',
+  muted:          '#6b5f57',
+  success:        '#7dab6e',
+  danger:         '#c0392b',
+  bg:             '#111010',
+  glass:          'rgba(232, 98, 26, 0.06)',
+  overlay:        'rgba(20, 14, 10, 0.95)',
+  inputBg:        'rgba(255, 255, 255, 0.04)',
+  navBg:          'rgba(15, 13, 12, 0.85)',
+  border:         'rgba(232, 98, 26, 0.18)',
+  borderHover:    'rgba(232, 98, 26, 0.40)',
+  borderSubtle:   'rgba(232, 98, 26, 0.12)',
 };
 
 export const spacing = {
@@ -29,8 +39,9 @@ export const font = {
 };
 
 export const radius = {
-  sm: '4px',
-  md: '8px',
+  sm:  '6px',
+  md:  '12px',
+  lg:  '20px',
 };
 
 export const layout = {
