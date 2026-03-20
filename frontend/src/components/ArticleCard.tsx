@@ -78,8 +78,8 @@ export default function ArticleCard({ article, variant = 'list' }: Props) {
         </div>
 
         {/* Hover reveal */}
-        <div className="absolute inset-0 p-4 flex flex-col justify-between opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-fray-overlay">
-          <p className="text-xs text-fray-text-light leading-relaxed line-clamp-4">
+        <div className="absolute inset-0 p-4 flex flex-col justify-between opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-fray-overlay overflow-hidden">
+          <p className="text-xs text-fray-text-light leading-relaxed line-clamp-5 overflow-hidden">
             {article.content ?? article.title}
           </p>
           <div className="flex items-center justify-between mt-2">

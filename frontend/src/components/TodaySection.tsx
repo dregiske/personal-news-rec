@@ -19,7 +19,7 @@ export default function TodaySection({ articles }: Props) {
 
       <div className="flex flex-col gap-px bg-fray-border">
         {articles.map((article) => (
-          <div key={article.id} className="bg-fray-bg">
+          <div key={article.id} className="min-h-20 bg-fray-bg">
             <ArticleCard article={article} variant="list" />
           </div>
         ))}

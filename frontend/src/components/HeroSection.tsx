@@ -25,7 +25,7 @@ export default function HeroSection({ articles }: Props) {
         {/* Top picks — right, stacked */}
         <div className="lg:col-span-2 flex flex-col gap-px bg-fray-border">
           {topPicks.slice(0, 3).map((article) => (
-            <div key={article.id} className="flex-1 bg-fray-bg">
+            <div key={article.id} className="flex-1 min-h-40 bg-fray-bg">
               <ArticleCard article={article} variant="compact" />
             </div>
           ))}
