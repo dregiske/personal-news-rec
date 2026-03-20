@@ -30,13 +30,10 @@ async def lifespan(app: FastAPI):
 	'''
 	Startup / shutdown events
 	'''
-	# Startup actions
 	Base.metadata.create_all(bind=engine)
 	app.state.models = ModelRegistry()
 
 	yield
-	# Shutdown actions
-	# (none)
 
 app = FastAPI(lifespan=lifespan)
 app.state.limiter = limiter
@@ -46,7 +43,7 @@ app.add_middleware(SlowAPIMiddleware)
 origins = [o.strip() for o in settings.CORS_ORIGINS.split(",") if o.strip()]
 app.add_middleware(
 	CORSMiddleware,
-	allow_origins=origins or ["*"],
+	allow_origins=origins,
 	allow_credentials=True,
 	allow_methods=["*"],
 	allow_headers=["*"],
