@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { login as loginApi, logout as logoutApi, fetchMe } from './api';
 import type { User } from '../../types';
 
@@ -19,6 +20,7 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   // Restore session from existing httpOnly cookie on mount
   useEffect(() => {
@@ -47,6 +49,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   async function logout() {
     await logoutApi();
     setUser(null);
+    navigate('/');
   }
 
   return (

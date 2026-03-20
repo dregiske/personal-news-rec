@@ -1,6 +1,6 @@
-import { Navigate } from 'react-router-dom';
 import { useAuth } from './AuthContext';
 import type { ReactNode } from 'react';
+import Unauthorized from '../../pages/errors/Unauthorized';
 
 export default function ProtectedRoute({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
@@ -8,7 +8,7 @@ export default function ProtectedRoute({ children }: { children: ReactNode }) {
   if (loading) return null;  // wait for session check before deciding
 
   if (!user) {
-    return <Navigate to="/login" replace />;
+    return <Unauthorized />;
   }
 
   return children;
