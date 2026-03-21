@@ -29,7 +29,7 @@ export default function SignupPage() {
     } catch (err: unknown) {
       console.error(err);
       const msg =
-        (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ?? 'Signup failed';
+        (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ?? 'Something went wrong. Please try again.';
       setIsError(true);
       setMessage(msg);
     }
