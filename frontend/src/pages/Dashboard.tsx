@@ -1,12 +1,15 @@
+import { useState } from 'react';
 import { useAuth } from '../features/auth/AuthContext';
 import { useFeed } from '../hooks/useFeed';
 import PageLayout from '../components/PageLayout';
 import HeroSection from '../components/HeroSection';
 import TodaySection from '../components/TodaySection';
+import TopicFilter from '../components/TopicFilter';
 
 export default function Dashboard() {
   const { user } = useAuth();
-  const { articles, loading, error } = useFeed();
+  const [activeTopic, setActiveTopic] = useState<string | null>(null);
+  const { articles, savedIds, loading, error } = useFeed(activeTopic ?? undefined);
 
   if (loading) return (
     <p className="pt-15 text-center text-fray-text-light mt-16">Loading your feed...</p>
@@ -20,11 +23,21 @@ export default function Dashboard() {
 
   return (
     <PageLayout
-      title={user ? `Welcome, ${user.email}` : 'Welcome to your dashboard'}
+      title={user ? `Welcome, ${user.username ?? user.email}` : 'Welcome to your dashboard'}
       subtitle="Here's what we found for you today."
     >
-      <HeroSection articles={heroArticles} />
-      <TodaySection articles={todayArticles} />
+      <TopicFilter active={activeTopic} onChange={setActiveTopic} />
+
+      {articles.length === 0 ? (
+        <p className="text-sm text-fray-text-faint mt-8">
+          No articles available right now. Check back soon.
+        </p>
+      ) : (
+        <>
+          <HeroSection articles={heroArticles} savedIds={savedIds} />
+          <TodaySection articles={todayArticles} savedIds={savedIds} />
+        </>
+      )}
     </PageLayout>
   );
 }
