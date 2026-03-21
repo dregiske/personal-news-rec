@@ -5,16 +5,17 @@ from fastapi.responses import JSONResponse
 
 from sqlalchemy import text
 from backend.database import engine
+from backend.schemas import HealthResponse
 
 router = APIRouter()
 
 START_TIME = time.time()
 
 
-@router.get("/health")
+@router.get("/health", response_model=HealthResponse)
 def liveness():
 	'''Is the server running?'''
-	return {"status": "ok", "uptime_seconds": round(time.time() - START_TIME)}
+	return HealthResponse(status="ok", uptime_seconds=round(time.time() - START_TIME))
 
 
 @router.get("/health/ready")
