@@ -2,6 +2,7 @@
 Article repository — all DB queries for the Article model live here.
 '''
 
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 from backend.models import Article
 
@@ -37,3 +38,30 @@ def update(db: Session, article: Article, data: dict) -> Article:
 	for field, value in data.items():
 		setattr(article, field, value)
 	return article
+
+
+def increment_view_count(db: Session, article_id: int) -> None:
+	db.query(Article).filter(Article.id == article_id).update(
+		{Article.view_count: Article.view_count + 1}
+	)
+	db.commit()
+
+
+def get_by_topics(db: Session, topics: list[str], limit: int = 20) -> list[Article]:
+	'''Returns the most recent articles matching any of the given topics.'''
+	return (
+		db.query(Article)
+		.filter(or_(*[Article.topics.ilike(f'%{t}%') for t in topics]))
+		.order_by(Article.published_at.desc().nullslast())
+		.limit(limit)
+		.all()
+	)
+
+
+def get_most_viewed(db: Session, limit: int = 20) -> list[Article]:
+	return (
+		db.query(Article)
+		.order_by(Article.view_count.desc())
+		.limit(limit)
+		.all()
+	)

@@ -2,9 +2,10 @@
 Feed endpoints
 '''
 
-from fastapi import APIRouter, Depends
+from typing import List, Optional
+
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
-from typing import List
 
 from backend.database import get_database
 from backend.models import User as UserModel
@@ -21,6 +22,16 @@ router = APIRouter()
 @router.get("/feed", response_model=List[ArticleOut])
 def get_feed(limit: int = 20, db: Session = Depends(get_database)):
 	return repo.article.get_latest(db, limit=limit)
+
+
+@router.get("/feed/topics/{topic}", response_model=List[ArticleOut])
+def get_feed_by_topic(
+	topic: str,
+	limit: int = 20,
+	db: Session = Depends(get_database),
+):
+	topics = [t.strip().lower() for t in topic.split(',') if t.strip()]
+	return repo.article.get_by_topics(db, topics=topics, limit=limit)
 
 
 @router.get("/feed/for-you", response_model=List[ArticleOut])
