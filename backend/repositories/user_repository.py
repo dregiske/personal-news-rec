@@ -20,3 +20,11 @@ def create(db: Session, email: str, hashed_password: str) -> User:
 	db.commit()
 	db.refresh(user)
 	return user
+
+
+def update(db: Session, user: User, data: dict) -> User:
+	for field, value in data.items():
+		setattr(user, field, value)
+	db.commit()
+	db.refresh(user)
+	return user
