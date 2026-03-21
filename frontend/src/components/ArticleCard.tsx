@@ -1,16 +1,19 @@
 import { useState } from 'react';
 import { recordInteraction } from '../api/interactions';
+import { saveArticle, unsaveArticle } from '../api/saved';
 import type { Article } from '../types';
 
 interface Props {
   article: Article;
   variant?: 'featured' | 'compact' | 'list';
+  isSaved?: boolean;
 }
 
 type InteractionState = 'idle' | 'liked' | 'disliked';
 
-export default function ArticleCard({ article, variant = 'list' }: Props) {
+export default function ArticleCard({ article, variant = 'list', isSaved = false }: Props) {
   const [interaction, setInteraction] = useState<InteractionState>('idle');
+  const [saved, setSaved] = useState(isSaved);
   const [error, setError] = useState('');
 
   async function handleInteraction(type: 'like' | 'dislike') {
@@ -20,6 +23,20 @@ export default function ArticleCard({ article, variant = 'list' }: Props) {
       setError('');
     } catch {
       setError('Could not save your reaction. Try again.');
+    }
+  }
+
+  async function handleSave() {
+    try {
+      if (saved) {
+        await unsaveArticle(article.id);
+        setSaved(false);
+      } else {
+        await saveArticle(article.id);
+        setSaved(true);
+      }
+    } catch {
+      setError('Could not update saved status. Try again.');
     }
   }
 
@@ -55,7 +72,10 @@ export default function ArticleCard({ article, variant = 'list' }: Props) {
           >
             Read more →
           </a>
-          <InteractionButtons interaction={interaction} onInteract={handleInteraction} />
+          <div className="flex items-center gap-3">
+            <SaveButton saved={saved} onSave={handleSave} />
+            <InteractionButtons interaction={interaction} onInteract={handleInteraction} />
+          </div>
         </div>
         {error && <p className="text-xs text-fray-danger mt-2">{error}</p>}
       </article>
@@ -92,7 +112,10 @@ export default function ArticleCard({ article, variant = 'list' }: Props) {
             >
               Read more →
             </a>
-            <InteractionButtons interaction={interaction} onInteract={handleInteraction} small />
+            <div className="flex items-center gap-2">
+              <SaveButton saved={saved} onSave={handleSave} small />
+              <InteractionButtons interaction={interaction} onInteract={handleInteraction} small />
+            </div>
           </div>
         </div>
       </article>
@@ -118,11 +141,18 @@ export default function ArticleCard({ article, variant = 'list' }: Props) {
             </p>
           )}
         </div>
-        {article.published_at && (
-          <p className="text-xs text-fray-text-faint whitespace-nowrap mt-1">
-            {new Date(article.published_at).toLocaleDateString()}
-          </p>
-        )}
+        <div className="flex flex-col items-end gap-1 shrink-0">
+          {article.published_at && (
+            <p className="text-xs text-fray-text-faint whitespace-nowrap">
+              {new Date(article.published_at).toLocaleDateString()}
+            </p>
+          )}
+          {article.view_count != null && article.view_count > 0 && (
+            <p className="text-xs text-fray-text-faint whitespace-nowrap">
+              {article.view_count.toLocaleString()} views
+            </p>
+          )}
+        </div>
       </div>
       <div className="flex items-center justify-between pt-2 border-t border-fray-border-subtle">
         <a
@@ -134,10 +164,38 @@ export default function ArticleCard({ article, variant = 'list' }: Props) {
         >
           Read more →
         </a>
-        <InteractionButtons interaction={interaction} onInteract={handleInteraction} small />
+        <div className="flex items-center gap-2">
+          <SaveButton saved={saved} onSave={handleSave} small />
+          <InteractionButtons interaction={interaction} onInteract={handleInteraction} small />
+        </div>
       </div>
       {error && <p className="text-xs text-fray-danger">{error}</p>}
     </article>
+  );
+}
+
+interface SaveButtonProps {
+  saved: boolean;
+  onSave: () => void;
+  small?: boolean;
+}
+
+function SaveButton({ saved, onSave, small = false }: SaveButtonProps) {
+  const base = small
+    ? 'text-xs px-2 py-1 border font-medium transition-colors duration-200'
+    : 'text-sm px-3 py-1.5 border font-medium transition-colors duration-200';
+
+  return (
+    <button
+      className={`${base} ${
+        saved
+          ? 'border-fray-primary text-fray-primary'
+          : 'border-fray-border text-fray-text-light hover:border-fray-primary hover:text-fray-primary'
+      }`}
+      onClick={onSave}
+    >
+      {saved ? 'Saved ✓' : 'Save'}
+    </button>
   );
 }
 
