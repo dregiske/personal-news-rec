@@ -22,6 +22,7 @@ from backend.api.routes import users
 from backend.api.routes import home
 from backend.api.routes import feed as feed_routes
 from backend.api.routes import interactions as interactions_routes
+from backend.api.routes import saved as saved_routes
 from backend.api.routes.admin import ingest as admin_ingest
 from backend.api.routes.admin import models as admin_models
 
@@ -49,9 +50,12 @@ app.add_middleware(
 	allow_headers=["*"],
 )
 
+prefix = settings.API_PREFIX
+
 app.include_router(home.router, tags=["health"])
-app.include_router(users.router, prefix="/api/v1", tags=["users"])
-app.include_router(feed_routes.router, prefix="/api/v1", tags=["feed"])
-app.include_router(interactions_routes.router, prefix="/api/v1", tags=["interactions"])
-app.include_router(admin_ingest.router, prefix="/api/v1", tags=["admin"])
-app.include_router(admin_models.router, prefix="/api/v1", tags=["admin"])
+app.include_router(users.router, prefix=prefix, tags=["users"])
+app.include_router(feed_routes.router, prefix=prefix, tags=["feed"])
+app.include_router(interactions_routes.router, prefix=prefix, tags=["interactions"])
+app.include_router(saved_routes.router, prefix=prefix, tags=["saved"])
+app.include_router(admin_ingest.router, prefix=prefix, tags=["admin"])
+app.include_router(admin_models.router, prefix=prefix, tags=["admin"])
