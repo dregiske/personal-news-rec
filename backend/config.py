@@ -13,6 +13,7 @@ class Settings(BaseSettings):
 	NEWSAPI_KEY: str | None = None
 
 	CORS_ORIGINS: str
+	API_PREFIX: str
 	
 	NEWSAPI_URL: str
 	DATABASE_URL: str
