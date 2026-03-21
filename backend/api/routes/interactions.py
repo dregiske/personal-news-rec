@@ -23,6 +23,9 @@ def record_interaction(
 	if not repo.article.get_by_id(db, interaction.article_id):
 		raise HTTPException(status_code=404, detail="Article not found")
 
+	if interaction.type.value == "view":
+		repo.article.increment_view_count(db, interaction.article_id)
+
 	return repo.interaction.create(
 		db,
 		user_id=current_user.id,

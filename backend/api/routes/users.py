@@ -5,7 +5,7 @@ User endpoints
 from fastapi import APIRouter, Depends, Response, Request
 from sqlalchemy.orm import Session
 
-from backend.schemas import UserCreate, UserOut, LoginRequest, LoginResponse
+from backend.schemas import UserCreate, UserOut, UserUpdate, LoginRequest, LoginResponse, UserStats
 from backend.database import get_database
 from backend.models import User
 from backend.services.auth import get_current_user
@@ -40,7 +40,7 @@ def login(request: Request, user: LoginRequest, response: Response, db: Session 
 	return {
 		"access_token": token,
 		"token_type": "bearer",
-		"user": {"id": db_user.id, "email": db_user.email},
+		"user": db_user,
 	}
 
 
@@ -55,10 +55,19 @@ def get_current_user_info(current_user: User = Depends(get_current_user)):
 	return current_user
 
 
-@router.get("/me/stats")
+@router.patch("/me", response_model=UserOut)
+def update_profile(
+	data: UserUpdate,
+	db: Session = Depends(get_database),
+	current_user: User = Depends(get_current_user),
+):
+	return user_service.update_profile(db, current_user, data)
+
+
+@router.get("/me/stats", response_model=UserStats)
 def get_user_stats(db: Session = Depends(get_database), current_user: User = Depends(get_current_user)):
 	count = repo.interaction.count_by_user(db, current_user.id)
-	return {
-		"interaction_count": count,
-		"is_personalized": count >= settings.PERSONALIZATION_THRESHOLD,
-	}
+	return UserStats(
+		interaction_count=count,
+		is_personalized=count >= settings.PERSONALIZATION_THRESHOLD,
+	)
