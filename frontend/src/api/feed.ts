@@ -6,6 +6,13 @@ export async function fetchFeed(): Promise<Article[]> {
   return result.data;
 }
 
+export async function fetchFeedByTopic(topic: string, limit = 20): Promise<Article[]> {
+  const result = await api.get<Article[]>(`${API_BASE}/feed/topics/${topic}`, {
+    params: { limit },
+  });
+  return result.data;
+}
+
 export async function fetchForYou(limit = 20): Promise<Article[]> {
   const result = await api.get<Article[]>(`${API_BASE}/feed/for-you`, {
     params: { limit },
