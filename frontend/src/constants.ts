@@ -1,3 +1,5 @@
+export const FEED_DEFAULT_LIMIT = 20;
+
 export const TOPICS = [
   'Technology',
   'Politics',

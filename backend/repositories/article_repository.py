@@ -1,13 +1,16 @@
 '''
-Article repository — all DB queries for the Article model live here.
+Article repository — all DB queries for the Article model.
 '''
 
 from sqlalchemy import or_
 from sqlalchemy.orm import Session
 from backend.models import Article
+from backend.config import settings
+
+_LIMIT = settings.FEED_DEFAULT_LIMIT
 
 
-def get_latest(db: Session, limit: int = 20) -> list[Article]:
+def get_latest(db: Session, limit: int = _LIMIT) -> list[Article]:
 	return (
 		db.query(Article)
 		.order_by(Article.published_at.desc().nullslast())
@@ -47,7 +50,7 @@ def increment_view_count(db: Session, article_id: int) -> None:
 	db.commit()
 
 
-def get_by_topics(db: Session, topics: list[str], limit: int = 20) -> list[Article]:
+def get_by_topics(db: Session, topics: list[str], limit: int = _LIMIT) -> list[Article]:
 	'''Returns the most recent articles matching any of the given topics.'''
 	return (
 		db.query(Article)
@@ -58,7 +61,7 @@ def get_by_topics(db: Session, topics: list[str], limit: int = 20) -> list[Artic
 	)
 
 
-def get_most_viewed(db: Session, limit: int = 20) -> list[Article]:
+def get_most_viewed(db: Session, limit: int = _LIMIT) -> list[Article]:
 	return (
 		db.query(Article)
 		.order_by(Article.view_count.desc())

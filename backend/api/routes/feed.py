@@ -15,19 +15,22 @@ from backend.ml.model_registry import ModelRegistry
 from backend.core.dependencies import get_model_registry
 from backend.schemas import ArticleOut
 from backend import repositories as repo
+from backend.config import settings
+
+_LIMIT = settings.FEED_DEFAULT_LIMIT
 
 router = APIRouter()
 
 
 @router.get("/feed", response_model=List[ArticleOut])
-def get_feed(limit: int = 20, db: Session = Depends(get_database)):
+def get_feed(limit: int = _LIMIT, db: Session = Depends(get_database)):
 	return repo.article.get_latest(db, limit=limit)
 
 
 @router.get("/feed/topics/{topic}", response_model=List[ArticleOut])
 def get_feed_by_topic(
 	topic: str,
-	limit: int = 20,
+	limit: int = _LIMIT,
 	db: Session = Depends(get_database),
 ):
 	topics = [t.strip().lower() for t in topic.split(',') if t.strip()]
@@ -36,7 +39,7 @@ def get_feed_by_topic(
 
 @router.get("/feed/for-you", response_model=List[ArticleOut])
 def get_personalized_feed(
-	limit: int = 20,
+	limit: int = _LIMIT,
 	db: Session = Depends(get_database),
 	models: ModelRegistry = Depends(get_model_registry),
 	current_user: UserModel = Depends(get_current_user),
