@@ -7,11 +7,27 @@ from typing import Optional
 from datetime import datetime
 from enum import Enum
 
+
+# ---------- INTERATION ----------
 class InteractionType(str, Enum):
 	like = "like"
 	dislike = "dislike"
 	view = "view"
 
+class InteractionCreate(BaseModel):
+	article_id: int
+	type: InteractionType
+
+class InteractionOut(BaseModel):
+	id: int
+	user_id: int
+	article_id: int
+	type: InteractionType
+	timestamp: datetime
+	model_config = ConfigDict(from_attributes=True)
+
+
+# ---------- USER ----------
 class UserCreate(BaseModel):
 	email: EmailStr
 	password: str
@@ -35,6 +51,12 @@ class UserUpdate(BaseModel):
 	preferred_topics: Optional[str] = None
 	language: Optional[str] = None
 
+class UserStats(BaseModel):
+	interaction_count: int
+	is_personalized: bool
+
+
+# ---------- AUTH ----------
 class LoginRequest(BaseModel):
 	email: EmailStr
 	password: str
@@ -44,6 +66,8 @@ class LoginResponse(BaseModel):
 	token_type: str
 	user: UserOut
 
+
+# ---------- ARTICLE ----------
 class ArticleCreate(BaseModel):
 	title: str
 	url: HttpUrl
@@ -71,10 +95,8 @@ class SavedArticleOut(BaseModel):
 	saved_at: datetime
 	model_config = ConfigDict(from_attributes=True)
 
-class UserStats(BaseModel):
-	interaction_count: int
-	is_personalized: bool
 
+# ---------- ADMIN ----------
 class HealthResponse(BaseModel):
 	status: str
 	uptime_seconds: int
@@ -85,15 +107,3 @@ class IngestResponse(BaseModel):
 class ModelReloadResponse(BaseModel):
 	status: str
 	ready: bool
-
-class InteractionCreate(BaseModel):
-	article_id: int
-	type: InteractionType
-
-class InteractionOut(BaseModel):
-	id: int
-	user_id: int
-	article_id: int
-	type: InteractionType
-	timestamp: datetime
-	model_config = ConfigDict(from_attributes=True)
