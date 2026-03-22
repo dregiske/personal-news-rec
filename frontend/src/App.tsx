@@ -10,6 +10,7 @@ import ServiceUnavailable from './pages/errors/ServiceUnavailable';
 import LoginPage from './features/auth/LoginPage';
 import SignupPage from './features/auth/SignupPage';
 import ProtectedRoute from './features/auth/ProtectedRoute';
+import SavedPage from './pages/Saved';
 
 export default function App() {
   return (
@@ -25,6 +26,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/saved"
+            element={
+              <ProtectedRoute>
+                <SavedPage />
               </ProtectedRoute>
             }
           />
