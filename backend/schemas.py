@@ -1,7 +1,3 @@
-'''
-Pydantic schemas for uniform HTTP request/response models
-'''
-
 from pydantic import BaseModel, EmailStr, ConfigDict, HttpUrl
 from typing import Optional
 from datetime import datetime
@@ -9,6 +5,7 @@ from enum import Enum
 
 
 # ---------- INTERATION ----------
+
 class InteractionType(str, Enum):
 	like = "like"
 	dislike = "dislike"
@@ -28,6 +25,7 @@ class InteractionOut(BaseModel):
 
 
 # ---------- USER ----------
+
 class UserCreate(BaseModel):
 	email: EmailStr
 	password: str
@@ -57,6 +55,7 @@ class UserStats(BaseModel):
 
 
 # ---------- AUTH ----------
+
 class LoginRequest(BaseModel):
 	email: EmailStr
 	password: str
@@ -66,12 +65,24 @@ class LoginResponse(BaseModel):
 	token_type: str
 	user: UserOut
 
+class TokenData(BaseModel):
+	sub: str
+
+class TokenPayload(TokenData):
+	iat: int
+	exp: int
+
+
 
 # ---------- ARTICLE ----------
+
 class ArticleCreate(BaseModel):
 	title: str
 	url: HttpUrl
+	description: Optional[str] = None
 	content: Optional[str] = None
+	author: Optional[str] = None
+	image_url: Optional[str] = None
 	source: Optional[str] = None
 	published_at: Optional[datetime] = None
 	keywords: Optional[str] = None
@@ -81,7 +92,10 @@ class ArticleOut(BaseModel):
 	id: int
 	title: str
 	url: HttpUrl
+	description: Optional[str] = None
 	content: Optional[str] = None
+	author: Optional[str] = None
+	image_url: Optional[str] = None
 	source: Optional[str] = None
 	published_at: Optional[datetime] = None
 	topics: Optional[str] = None
@@ -92,8 +106,21 @@ class SavedArticleOut(BaseModel):
 	id: int
 	user_id: int
 	article_id: int
+	article: ArticleOut
 	saved_at: datetime
 	model_config = ConfigDict(from_attributes=True)
+
+class NormalizedArticle(BaseModel):
+	title: str
+	description: Optional[str] = None
+	content: Optional[str] = None
+	author: Optional[str] = None
+	image_url: Optional[str] = None
+	source: Optional[str] = None
+	url: str
+	published_at: Optional[datetime] = None
+	keywords: Optional[str] = None
+	topics: Optional[str] = None
 
 
 # ---------- ADMIN ----------
@@ -103,6 +130,13 @@ class HealthResponse(BaseModel):
 
 class IngestResponse(BaseModel):
 	ingested_updated: int
+
+class NewsAPIParams(BaseModel):
+	q: str
+	pageSize: int
+	apiKey: str
+	language: Optional[str] = None
+	sortBy: Optional[str] = None
 
 class ModelReloadResponse(BaseModel):
 	status: str
