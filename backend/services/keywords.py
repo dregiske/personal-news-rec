@@ -1,9 +1,6 @@
-'''
-Keyword extraction service
-'''
-
 import re
 from collections import Counter
+from backend.config import settings
 
 STOP_WORDS = {
 	"a", "about", "above", "after", "again", "against", "all", "am", "an", "and",
@@ -22,7 +19,7 @@ STOP_WORDS = {
 	"this", "those", "through", "to", "too", "under", "until", "up", "ve", "very", "was", "wasn't",
 }
 
-def extract_keywords(text: str, max_keywords: int = 10) -> list[str]:
+def extract_keywords(text: str, max_keywords: int) -> list[str]:
 	'''
 	Extracts keywords from the given text by removing 
 	stop words and selecting the most common words.
@@ -55,5 +52,5 @@ def build_article_keywords(article) -> str:
 		text_parts.append(content)
 
 	combined_text = " ".join(text_parts)
-	keywords = extract_keywords(combined_text, max_keywords=10)
+	keywords = extract_keywords(combined_text, settings.MAX_KEYWORDS)
 	return ", ".join(keywords)

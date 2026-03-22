@@ -27,6 +27,7 @@ class Settings(BaseSettings):
 	RECOMMENDATION_KNN_NEIGHBORS: int
 	PAGE_SIZE: int
 	FEED_DEFAULT_LIMIT: int
+	MAX_KEYWORDS: int
 
 	ENVIRONMENT: str
 
