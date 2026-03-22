@@ -23,6 +23,9 @@ def hash_password(password: str) -> str:
 def verify_password(plain_password: str, hashed_password: str) -> bool:
 	return pwd_context.verify(plain_password, hashed_password)
 
+def normalize_email(email: str) -> str:
+	return email.strip().lower()
+
 def create_access_token(data: TokenData) -> str:
 	now = datetime.now(timezone.utc)
 	exp = now + access_token_expiry()
