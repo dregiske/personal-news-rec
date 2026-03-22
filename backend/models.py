@@ -1,8 +1,5 @@
-'''
-SQLAlchemy ORM models and DB session
-'''
-
 from sqlalchemy import Boolean, Column, Integer, String, Text, DateTime, ForeignKey, Enum, UniqueConstraint
+from sqlalchemy.orm import relationship
 
 from datetime import datetime, timezone
 
@@ -27,16 +24,19 @@ class User(Base):
 
 
 class Article(Base):
-	__tablename__ 		= "articles"
-	id 					= Column(Integer, primary_key=True)
-	title 				= Column(String(512), nullable=False, index=True)
-	content				= Column(Text, nullable=True)
-	source				= Column(String(255), nullable=True, index=True)
-	url					= Column(String(1024), unique=True, nullable=False)
-	published_at 		= Column(DateTime(timezone=True), index=True, nullable=True)
-	keywords			= Column(String(512), nullable=True)
-	topics				= Column(String(256), nullable=True, index=True)
-	view_count			= Column(Integer, default=0, nullable=False, server_default="0")
+	__tablename__  = "articles"
+	id 			   = Column(Integer, primary_key=True)
+	title 		   = Column(String(512), nullable=False, index=True)
+	description	   = Column(String(1024), nullable=True)
+	content		   = Column(Text, nullable=True)
+	author		   = Column(String(255), nullable=True)
+	image_url	   = Column(String(1024), nullable=True)
+	source		   = Column(String(255), nullable=True, index=True)
+	url			   = Column(String(1024), unique=True, nullable=False)
+	published_at   = Column(DateTime(timezone=True), index=True, nullable=True)
+	keywords	   = Column(String(512), nullable=True)
+	topics		   = Column(String(256), nullable=True, index=True)
+	view_count	   = Column(Integer, default=0, nullable=False, server_default="0")
 
 class SavedArticle(Base):
 	__tablename__  = "saved_articles"
@@ -44,6 +44,7 @@ class SavedArticle(Base):
 	user_id		   = Column(Integer, ForeignKey("users.id"), index=True, nullable=False)
 	article_id	   = Column(Integer, ForeignKey("articles.id"), index=True, nullable=False)
 	saved_at	   = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+	article		   = relationship("Article", lazy="joined")
 
 	__table_args__ = (
 		UniqueConstraint("user_id", "article_id", name="uq_user_saved_article"),
@@ -51,12 +52,12 @@ class SavedArticle(Base):
 
 
 class Interaction(Base):
-	__tablename__ 		= "interactions"
-	id 					= Column(Integer, primary_key=True)
-	user_id				= Column(Integer, ForeignKey("users.id"), index=True, nullable=False)
-	article_id 			= Column(Integer, ForeignKey("articles.id"), index=True, nullable=False)
-	type				= Column(Enum(InteractionType), nullable=False)
-	timestamp			= Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+	__tablename__  = "interactions"
+	id 			   = Column(Integer, primary_key=True)
+	user_id		   = Column(Integer, ForeignKey("users.id"), index=True, nullable=False)
+	article_id 	   = Column(Integer, ForeignKey("articles.id"), index=True, nullable=False)
+	type		   = Column(Enum(InteractionType), nullable=False)
+	timestamp	   = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
 	__table_args__ = (
 		UniqueConstraint("user_id", "article_id", "type", name="uq_user_article_type"),
