@@ -2,9 +2,12 @@ export interface Article {
   id: number;
   title: string;
   url: string;
-  source?: string;
-  content?: string;
-  published_at?: string;
+  description?: string | null;
+  content?: string | null;
+  author?: string | null;
+  image_url?: string | null;
+  source?: string | null;
+  published_at?: string | null;
   topics?: string | null;
   view_count?: number;
 }
@@ -26,6 +29,7 @@ export interface SavedArticle {
   id: number;
   user_id: number;
   article_id: number;
+  article: Article;
   saved_at: string;
 }
 
