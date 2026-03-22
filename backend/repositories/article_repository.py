@@ -1,7 +1,3 @@
-'''
-Article repository — all DB queries for the Article model.
-'''
-
 from sqlalchemy import or_
 from sqlalchemy.orm import Session
 from backend.models import Article
@@ -31,6 +27,16 @@ def get_by_url(db: Session, url: str) -> Article | None:
 	return db.query(Article).filter(Article.url == url).first()
 
 
+def get_by_topics(db: Session, topics: list[str], limit: int = _LIMIT) -> list[Article]:
+	return (
+		db.query(Article)
+		.filter(or_(*[Article.topics.ilike(f'%{t}%') for t in topics]))
+		.order_by(Article.published_at.desc().nullslast())
+		.limit(limit)
+		.all()
+	)
+
+
 def create(db: Session, data: dict) -> Article:
 	article = Article(**data)
 	db.add(article)
@@ -48,17 +54,6 @@ def increment_view_count(db: Session, article_id: int) -> None:
 		{Article.view_count: Article.view_count + 1}
 	)
 	db.commit()
-
-
-def get_by_topics(db: Session, topics: list[str], limit: int = _LIMIT) -> list[Article]:
-	'''Returns the most recent articles matching any of the given topics.'''
-	return (
-		db.query(Article)
-		.filter(or_(*[Article.topics.ilike(f'%{t}%') for t in topics]))
-		.order_by(Article.published_at.desc().nullslast())
-		.limit(limit)
-		.all()
-	)
 
 
 def get_most_viewed(db: Session, limit: int = _LIMIT) -> list[Article]:

@@ -1,7 +1,3 @@
-'''
-Interaction repository — all DB queries for the Interaction model live here.
-'''
-
 from sqlalchemy.orm import Session
 from backend.models import Interaction
 

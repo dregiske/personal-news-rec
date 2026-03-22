@@ -1,7 +1,3 @@
-'''
-SavedArticle repository — all DB queries for the SavedArticle model live here.
-'''
-
 from sqlalchemy.orm import Session
 from backend.models import SavedArticle
 
@@ -27,8 +23,7 @@ def create(db: Session, user_id: int, article_id: int) -> SavedArticle:
 	saved = SavedArticle(user_id=user_id, article_id=article_id)
 	db.add(saved)
 	db.commit()
-	db.refresh(saved)
-	return saved
+	return get_by_user_and_article(db, user_id, article_id)
 
 
 def delete(db: Session, saved: SavedArticle) -> None:

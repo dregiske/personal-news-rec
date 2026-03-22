@@ -1,7 +1,3 @@
-'''
-User repository — all DB queries for the User model live here.
-'''
-
 from sqlalchemy.orm import Session
 from backend.models import User
 
