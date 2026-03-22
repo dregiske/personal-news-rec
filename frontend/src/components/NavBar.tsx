@@ -19,6 +19,9 @@ export default function NavBar() {
             >
               Logout
             </button>
+            <Link to="/saved" className="text-sm text-fray-text-light hover:text-fray-text transition-colors duration-200">
+              Saved
+            </Link>
             <Link to="/dashboard" className="text-sm font-semibold px-4 py-1.5 border border-fray-primary text-fray-primary hover:bg-fray-primary hover:text-fray-ink transition-colors duration-200">
               Dashboard
             </Link>
