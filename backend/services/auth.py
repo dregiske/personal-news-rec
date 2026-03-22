@@ -1,12 +1,3 @@
-'''
-Passwords are hashed using passlib (bcrypt), hash_password(), and verify_password()
-Tokens are created using create_access_token(), uses timezone and emits JWT's
-Reads secrets from settings, ensure no hardcoded info
-
-FLOW:
-login -> verify -> sign JWT (w/ SECRET_KEY + ALGORITHM)
-'''
-
 from datetime import datetime, timezone
 
 from fastapi import Depends, HTTPException, Request, status
@@ -21,6 +12,8 @@ from sqlalchemy.orm import Session
 from backend.config import settings, access_token_expiry
 from backend.database import get_database
 from backend.models import User as UserModel
+from backend.schemas import TokenData, TokenPayload
+
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -30,17 +23,16 @@ def hash_password(password: str) -> str:
 def verify_password(plain_password: str, hashed_password: str) -> bool:
 	return pwd_context.verify(plain_password, hashed_password)
 
-def create_access_token(data: dict) -> str:
+def create_access_token(data: TokenData) -> str:
 	now = datetime.now(timezone.utc)
 	exp = now + access_token_expiry()
-	
-	payload = {
-		**data,
-		"iat": int(now.timestamp()),
-		"exp": int(exp.timestamp()),
-	}
-	encoded_jwt = jwt.encode(payload, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
-	return encoded_jwt
+
+	payload = TokenPayload(
+		sub=data.sub,
+		iat=int(now.timestamp()),
+		exp=int(exp.timestamp()),
+	)
+	return jwt.encode(payload.model_dump(), settings.SECRET_KEY, algorithm=settings.ALGORITHM)
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login", auto_error=False)
 
@@ -65,12 +57,10 @@ def get_current_user(
 		raise credentials_exc
 
 	try:
-		payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
-		sub = payload.get("sub")
-		if sub is None:
-			raise credentials_exc
-		user_id = int(sub)
-	except (JWTError, ValueError):
+		raw = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+		token_payload = TokenPayload(**raw)
+		user_id = int(token_payload.sub)
+	except (JWTError, ValueError, TypeError):
 		raise credentials_exc
 
 	user = db.query(UserModel).filter(UserModel.id == user_id).first()
