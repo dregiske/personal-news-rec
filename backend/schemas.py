@@ -124,6 +124,7 @@ class NormalizedArticle(BaseModel):
 
 
 # ---------- ADMIN ----------
+
 class HealthResponse(BaseModel):
 	status: str
 	uptime_seconds: int
