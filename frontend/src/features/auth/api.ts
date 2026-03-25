@@ -5,6 +5,13 @@ export async function signup({ email, password }: { email: string; password: str
   await api.post(`${API_BASE}/signup`, { email, password });
 }
 
+export async function uploadAvatar(file: File): Promise<User> {
+  const form = new FormData();
+  form.append('file', file);
+  const res = await api.post<User>(`${API_BASE}/me/avatar`, form);
+  return res.data;
+}
+
 export async function login({ email, password }: { email: string; password: string }): Promise<LoginResponse> {
   const res = await api.post<LoginResponse>(`${API_BASE}/login`, { email, password });
   return res.data;
