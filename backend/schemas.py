@@ -1,7 +1,12 @@
-from pydantic import BaseModel, EmailStr, ConfigDict, HttpUrl
+import re
+
+from pydantic import BaseModel, EmailStr, ConfigDict, HttpUrl, field_validator
 from typing import Optional
 from datetime import datetime
 from enum import Enum
+
+_USERNAME_RE = re.compile(r'^[a-z0-9][a-z0-9_-]{1,30}[a-z0-9]$')
+_CONSECUTIVE_SPECIAL_RE = re.compile(r'[_-]{2,}')
 
 
 # ---------- INTERATION ----------
@@ -48,6 +53,22 @@ class UserUpdate(BaseModel):
 	avatar_url: Optional[str] = None
 	preferred_topics: Optional[str] = None
 	language: Optional[str] = None
+
+	@field_validator('username', mode='before')
+	@classmethod
+	def validate_username(cls, v: object) -> object:
+		if v is None:
+			return v
+		v = str(v).strip().lower()
+		if len(v) < 3:
+			raise ValueError('Username must be at least 3 characters')
+		if len(v) > 32:
+			raise ValueError('Username must be 32 characters or fewer')
+		if _CONSECUTIVE_SPECIAL_RE.search(v):
+			raise ValueError('Username cannot contain consecutive underscores or hyphens')
+		if not _USERNAME_RE.match(v):
+			raise ValueError('Username may only contain letters, numbers, underscores, and hyphens, and must start and end with a letter or number')
+		return v
 
 class UserStats(BaseModel):
 	interaction_count: int
