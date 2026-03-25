@@ -2,6 +2,8 @@
 User service — business logic for auth and user management.
 '''
 
+import random
+import string
 from datetime import datetime, timezone
 
 from fastapi import HTTPException, status
@@ -13,13 +15,24 @@ from backend.services.auth import hash_password, verify_password, create_access_
 from backend import repositories as repo
 
 
+def _generate_unique_username(db: Session) -> str:
+	'''Generate a random username that does not already exist in the database.'''
+	for _ in range(10):
+		suffix = ''.join(random.choices(string.ascii_lowercase + string.digits, k=6))
+		username = f'user_{suffix}'
+		if not repo.user.get_by_username(db, username):
+			return username
+	raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Could not generate a unique username")
+
+
 def signup(db: Session, email: str, password: str) -> User:
 	normalized_email = normalize_email(email)
 
 	if repo.user.get_by_email(db, normalized_email):
 		raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email already registered")
 
-	return repo.user.create(db, email=normalized_email, hashed_password=hash_password(password))
+	username = _generate_unique_username(db)
+	return repo.user.create(db, email=normalized_email, hashed_password=hash_password(password), username=username)
 
 
 def login(db: Session, email: str, password: str) -> tuple[User, str]:
