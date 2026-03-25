@@ -123,7 +123,10 @@ def build_user_vector(user_id: int, db: Session, models: ModelRegistry):
 
 	vectors = np.array(vectors)
 	weights = np.array(weights)
-	user_vec = (weights[:, None] * vectors).sum(axis=0) / weights.sum()
+	total_weight = weights.sum()
+	if total_weight == 0:
+		return None
+	user_vec = (weights[:, None] * vectors).sum(axis=0) / total_weight
 	return user_vec
 
 
