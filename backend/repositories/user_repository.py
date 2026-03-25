@@ -10,8 +10,12 @@ def get_by_email(db: Session, email: str) -> User | None:
 	return db.query(User).filter(User.email == email).first()
 
 
-def create(db: Session, email: str, hashed_password: str) -> User:
-	user = User(email=email, hashed_password=hashed_password)
+def get_by_username(db: Session, username: str) -> User | None:
+	return db.query(User).filter(User.username == username).first()
+
+
+def create(db: Session, email: str, hashed_password: str, username: str) -> User:
+	user = User(email=email, hashed_password=hashed_password, username=username)
 	db.add(user)
 	db.commit()
 	db.refresh(user)
