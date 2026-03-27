@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from backend.models import Article
 from backend.ml.model_registry import ModelRegistry, MODEL_DIRECTORY
 from backend import repositories as repo
-from backend.config import settings
+from backend.constants import RECOMMENDATION_ALPHA, RECOMMENDATION_KNN_NEIGHBORS, RECOMMENDATION_PROFILE_CAP, INTERACTION_WEIGHTS, FEED_DEFAULT_LIMIT
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
@@ -15,13 +15,6 @@ import os
 import numpy as np
 
 from collections import defaultdict
-
-# ---------- INTERACTION WEIGHTS ----------
-INTERACTION_WEIGHTS = {
-	"like": 2.0,
-	"dislike": -1.5,
-	"view": 1.0,
-}
 
 
 def article_to_text(article: Article):
@@ -59,7 +52,7 @@ def build_tfidf_model(articles: list[Article]):
 	return tfidf_matrix
 
 
-def build_knn_index(tfidf_matrix, n_neighbors: int = 10):
+def build_knn_index(tfidf_matrix, n_neighbors: int = RECOMMENDATION_KNN_NEIGHBORS):
 	'''
 	Builds a KNN index from the given TF-IDF matrix.
 	Run after ingestion to update the index.
@@ -134,10 +127,10 @@ def hybrid_recommend_articles(
 	user_id: int,
 	db: Session,
 	models: ModelRegistry,
-	k: int = 20,
-	alpha: float = settings.RECOMMENDATION_ALPHA,
-	profile_candidate_cap: int = settings.RECOMMENDATION_PROFILE_CAP,
-	knn_neighbors_per_seed: int = settings.RECOMMENDATION_KNN_NEIGHBORS,
+	k: int = FEED_DEFAULT_LIMIT,
+	alpha: float = RECOMMENDATION_ALPHA,
+	profile_candidate_cap: int = RECOMMENDATION_PROFILE_CAP,
+	knn_neighbors_per_seed: int = RECOMMENDATION_KNN_NEIGHBORS,
 ):
 	'''
 	Hybrid recommendation combining content-based and user-based methods.
