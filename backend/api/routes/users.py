@@ -11,13 +11,13 @@ from backend.services.auth import get_current_user
 from backend.services import user_service
 from backend import repositories as repo
 from backend.config import settings
+from backend.constants import PERSONALIZATION_THRESHOLD
+from backend.constants import MAX_AVATAR_BYTES, ALLOWED_IMAGE_TYPES
 from backend.core.limiter import limiter
 
 router = APIRouter()
 
 AVATAR_DIR = os.path.join(os.path.dirname(__file__), '..', '..', '..', 'static', 'avatars')
-ALLOWED_IMAGE_TYPES = {'image/jpeg', 'image/png', 'image/webp', 'image/gif'}
-MAX_AVATAR_BYTES = 5 * 1024 * 1024  # 5 MB
 
 
 @router.post("/signup", response_model=UserOut)
@@ -65,11 +65,11 @@ def login(request: Request, user: LoginRequest, response: Response, db: Session 
 		path="/",
 	)
 
-	return {
-		"access_token": token,
-		"token_type": "bearer",
-		"user": db_user,
-	}
+	return LoginResponse(
+		access_token=token,
+		token_type="bearer",
+		user=db_user,
+	)
 
 
 @router.post("/logout")
@@ -97,5 +97,5 @@ def get_user_stats(db: Session = Depends(get_database), current_user: User = Dep
 	count = repo.interaction.count_by_user(db, current_user.id)
 	return UserStats(
 		interaction_count=count,
-		is_personalized=count >= settings.PERSONALIZATION_THRESHOLD,
+		is_personalized=count >= PERSONALIZATION_THRESHOLD,
 	)
