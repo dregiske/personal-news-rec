@@ -265,7 +265,7 @@ function InteractionButtons({ interaction, onInteract, small = false }: Interact
             : 'border-fray-border text-fray-text-light hover:border-fray-success hover:text-fray-success'
         }`}
         onClick={() => onInteract('like')}
-        disabled={interaction !== 'idle'}
+        disabled={interaction === 'liked'}
       >
         {interaction === 'liked' ? 'Liked ✓' : 'Like'}
       </button>
@@ -276,7 +276,7 @@ function InteractionButtons({ interaction, onInteract, small = false }: Interact
             : 'border-fray-border text-fray-text-light hover:border-fray-muted hover:text-fray-muted'
         }`}
         onClick={() => onInteract('dislike')}
-        disabled={interaction !== 'idle'}
+        disabled={interaction === 'disliked'}
       >
         {interaction === 'disliked' ? 'Disliked ✓' : 'Dislike'}
       </button>
