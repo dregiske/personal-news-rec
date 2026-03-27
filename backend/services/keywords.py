@@ -1,7 +1,6 @@
 import re
 from collections import Counter
-from backend.config import settings
-from backend.constants import STOP_WORDS
+from backend.constants import STOP_WORDS, MAX_KEYWORDS
 
 
 def extract_keywords(text: str, max_keywords: int) -> list[str]:
@@ -33,5 +32,5 @@ def build_article_keywords(article) -> str:
 		text_parts.append(content)
 
 	combined_text = " ".join(text_parts)
-	keywords = extract_keywords(combined_text, settings.MAX_KEYWORDS)
+	keywords = extract_keywords(combined_text, MAX_KEYWORDS)
 	return ", ".join(keywords)
