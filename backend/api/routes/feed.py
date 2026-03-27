@@ -1,6 +1,6 @@
-from typing import List, Optional
+from typing import List
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from backend.database import get_database
@@ -12,7 +12,6 @@ from backend.core.dependencies import get_model_registry
 from backend.schemas import ArticleOut
 from backend import repositories as repo
 from backend.constants import FEED_DEFAULT_LIMIT
-
 
 router = APIRouter()
 
