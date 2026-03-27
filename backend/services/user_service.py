@@ -1,7 +1,3 @@
-'''
-User service — business logic for auth and user management.
-'''
-
 import random
 import string
 from datetime import datetime, timezone
@@ -27,17 +23,16 @@ def _generate_unique_username(db: Session) -> str:
 
 def signup(db: Session, email: str, password: str) -> User:
 	normalized_email = normalize_email(email)
-
 	if repo.user.get_by_email(db, normalized_email):
 		raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email already registered")
 
 	username = _generate_unique_username(db)
-	return repo.user.create(db, email=normalized_email, hashed_password=hash_password(password), username=username)
+	hashed_password = hash_password(password)
+	return repo.user.create(db, email=normalized_email, hashed_password=hashed_password, username=username)
 
 
 def login(db: Session, email: str, password: str) -> tuple[User, str]:
 	user = repo.user.get_by_email(db, email)
-
 	if not user:
 		raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 	if not verify_password(password, user.hashed_password):
