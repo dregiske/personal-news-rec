@@ -13,9 +13,17 @@ from backend.config import settings, access_token_expiry
 from backend.database import get_database
 from backend.models import User as UserModel
 from backend.schemas import TokenData, TokenPayload
+import backend.repositories as repo
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+CREDENTIALS_EXCEPTION_ERROR = HTTPException(
+	status_code=status.HTTP_401_UNAUTHORIZED,
+	detail="Could not validate credentials",
+	headers={"WWW-Authenticate": "Bearer"},
+)
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login", auto_error=False)
+
 
 def hash_password(password: str) -> str:
 	return pwd_context.hash(password)
@@ -23,8 +31,10 @@ def hash_password(password: str) -> str:
 def verify_password(plain_password: str, hashed_password: str) -> bool:
 	return pwd_context.verify(plain_password, hashed_password)
 
+
 def normalize_email(email: str) -> str:
 	return email.strip().lower()
+
 
 def create_access_token(data: TokenData) -> str:
 	now = datetime.now(timezone.utc)
@@ -37,7 +47,6 @@ def create_access_token(data: TokenData) -> str:
 	)
 	return jwt.encode(payload.model_dump(), settings.SECRET_KEY, algorithm=settings.ALGORITHM)
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login", auto_error=False)
 
 def get_current_user(
 		request: Request,
@@ -50,23 +59,17 @@ def get_current_user(
 	'''
 	token = token or request.cookies.get("access_token")
 
-	credentials_exc = HTTPException(
-		status_code=status.HTTP_401_UNAUTHORIZED,
-		detail="Could not validate credentials",
-		headers={"WWW-Authenticate": "Bearer"},
-	)
-
 	if not token:
-		raise credentials_exc
+		raise CREDENTIALS_EXCEPTION_ERROR
 
 	try:
 		raw = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
 		token_payload = TokenPayload(**raw)
 		user_id = int(token_payload.sub)
 	except (JWTError, ValueError, TypeError):
-		raise credentials_exc
+		raise CREDENTIALS_EXCEPTION_ERROR
 
-	user = db.query(UserModel).filter(UserModel.id == user_id).first()
+	user = repo.user.get_by_id(db, user_id)
 	if not user:
-		raise credentials_exc
+		raise CREDENTIALS_EXCEPTION_ERROR
 	return user
