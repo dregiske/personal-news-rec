@@ -1,13 +1,14 @@
 venv/
 .venv/
 
+static/
+
 __pycache__/
 *.pyc
 
 .env
 .env.*
 *.db
-.gitignore
 
 .pytest_cache/
 
