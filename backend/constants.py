@@ -14,3 +14,27 @@ STOP_WORDS = {
 	"them", "themselves", "then", "there", "there's", "these", "they", "they'd", "they'll", "they're", "they've",
 	"this", "those", "through", "to", "too", "under", "until", "up", "ve", "very", "was", "wasn't",
 }
+
+MAX_AVATAR_BYTES = 5 * 1024 * 1024 # same as 5MB
+
+ALLOWED_IMAGE_TYPES = {'image/jpeg', 'image/png', 'image/webp', 'image/gif'}
+
+PERSONALIZATION_THRESHOLD = 5
+
+MAX_KEYWORDS = 10
+
+NEWS_QUERY = "technology OR science OR innovation OR politics OR health OR environment OR education OR economy OR culture OR sports OR entertainment OR world"
+
+PAGE_SIZE = 100
+
+FEED_DEFAULT_LIMIT = 20
+
+INTERACTION_WEIGHTS = {
+	"like": 2.0,
+	"dislike": -1.5,
+	"view": 1.0,
+}
+
+RECOMMENDATION_ALPHA = 0.7
+RECOMMENDATION_PROFILE_CAP = 500
+RECOMMENDATION_KNN_NEIGHBORS = 10
