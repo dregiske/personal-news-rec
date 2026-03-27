@@ -1,7 +1,3 @@
-'''
-Interaction endpoints
-'''
-
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -22,6 +18,10 @@ def record_interaction(
 ):
 	if not repo.article.get_by_id(db, interaction.article_id):
 		raise HTTPException(status_code=404, detail="Article not found")
+
+	existing = repo.interaction.get_existing(db, current_user.id, interaction.article_id, interaction.type)
+	if existing:
+		return existing
 
 	if interaction.type.value == "view":
 		repo.article.increment_view_count(db, interaction.article_id)
