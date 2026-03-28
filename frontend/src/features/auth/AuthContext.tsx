@@ -1,12 +1,10 @@
-import { createContext, useContext, useState, useEffect } from 'react';
-import type { ReactNode } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { login as loginApi, logout as logoutApi, fetchMe } from './api';
-import type { User } from '../../types';
+import { createContext, useContext, useState, useEffect } from "react";
+import type { ReactNode } from "react";
+import { useNavigate } from "react-router-dom";
+import { login as loginApi, logout as logoutApi, fetchMe } from "./api";
+import type { User } from "../../types";
 
-type LoginResult =
-  | { ok: true }
-  | { ok: false; error: string };
+type LoginResult = { ok: true } | { ok: false; error: string };
 
 interface AuthContextType {
   user: User | null;
@@ -40,7 +38,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (err: unknown) {
       console.error(err);
       const message =
-        (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ?? 'Login failed';
+        (err as { response?: { data?: { detail?: string } } })?.response?.data
+          ?.detail ?? "Login failed";
       return { ok: false, error: message };
     } finally {
       setLoading(false);
@@ -50,7 +49,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   async function logout() {
     await logoutApi();
     setUser(null);
-    navigate('/');
+    navigate("/");
   }
 
   return (
@@ -61,9 +60,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 }
 
 export function useAuth(): AuthContextType {
-  const ctx = useContext(AuthContext);
-  if (!ctx) {
-    throw new Error('useAuth must be used within an AuthProvider');
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth must be used within an AuthProvider");
   }
-  return ctx;
+  return context;
 }
