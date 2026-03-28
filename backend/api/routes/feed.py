@@ -11,34 +11,32 @@ from backend.ml.model_registry import ModelRegistry
 from backend.core.dependencies import get_model_registry
 from backend.schemas import ArticleOut
 from backend import repositories as repo
-from backend.constants import FEED_DEFAULT_LIMIT
+
 
 router = APIRouter()
 
 
 @router.get("/feed", response_model=List[ArticleOut])
-def get_feed(limit: int = FEED_DEFAULT_LIMIT, db: Session = Depends(get_database)):
-	return repo.article.get_latest(db, limit=limit)
+def get_feed(db: Session = Depends(get_database)):
+	return repo.article.get_latest(db)
 
 
 @router.get("/feed/topics/{topic}", response_model=List[ArticleOut])
 def get_feed_by_topic(
 	topic: str,
-	limit: int = FEED_DEFAULT_LIMIT,
 	db: Session = Depends(get_database),
 ):
 	topics = [t.strip().lower() for t in topic.split(',') if t.strip()]
-	return repo.article.get_by_topics(db, topics=topics, limit=limit)
+	return repo.article.get_by_topics(db, topics=topics)
 
 
 @router.get("/feed/for-you", response_model=List[ArticleOut])
 def get_personalized_feed(
-	limit: int = FEED_DEFAULT_LIMIT,
 	db: Session = Depends(get_database),
 	models: ModelRegistry = Depends(get_model_registry),
 	current_user: UserModel = Depends(get_current_user),
 ):
-	scored = hybrid_recommend_articles(user_id=current_user.id, db=db, models=models, k=limit)
+	scored = hybrid_recommend_articles(user_id=current_user.id, db=db, models=models)
 	if not scored:
 		return []
 

@@ -137,7 +137,7 @@ def hybrid_recommend_articles(
 	Falls back to latest articles if models aren't ready or user has no interactions.
 	'''
 	def latest_articles():
-		return [(a.id, 0.0) for a in repo.article.get_latest(db, limit=k)]
+		return [(a.id, 0.0) for a in repo.article.get_latest(db)]
 
 	if not models.is_ready:
 		return latest_articles()

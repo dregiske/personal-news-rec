@@ -4,11 +4,11 @@ from backend.models import Article
 from backend.constants import FEED_DEFAULT_LIMIT
 
 
-def get_latest(db: Session, limit: int = FEED_DEFAULT_LIMIT) -> list[Article]:
+def get_latest(db: Session) -> list[Article]:
 	return (
 		db.query(Article)
 		.order_by(Article.published_at.desc().nullslast())
-		.limit(limit)
+		.limit(FEED_DEFAULT_LIMIT)
 		.all()
 	)
 
@@ -25,12 +25,12 @@ def get_by_url(db: Session, url: str) -> Article | None:
 	return db.query(Article).filter(Article.url == url).first()
 
 
-def get_by_topics(db: Session, topics: list[str], limit: int = FEED_DEFAULT_LIMIT) -> list[Article]:
+def get_by_topics(db: Session, topics: list[str]) -> list[Article]:
 	return (
 		db.query(Article)
 		.filter(or_(*[Article.topics.ilike(f'%{t}%') for t in topics]))
 		.order_by(Article.published_at.desc().nullslast())
-		.limit(limit)
+		.limit(FEED_DEFAULT_LIMIT)
 		.all()
 	)
 
@@ -54,10 +54,10 @@ def increment_view_count(db: Session, article_id: int) -> None:
 	db.commit()
 
 
-def get_most_viewed(db: Session, limit: int = FEED_DEFAULT_LIMIT) -> list[Article]:
+def get_most_viewed(db: Session) -> list[Article]:
 	return (
 		db.query(Article)
 		.order_by(Article.view_count.desc())
-		.limit(limit)
+		.limit(FEED_DEFAULT_LIMIT)
 		.all()
 	)
