@@ -15,6 +15,7 @@ from backend.constants import PERSONALIZATION_THRESHOLD
 from backend.constants import MAX_AVATAR_BYTES, ALLOWED_IMAGE_TYPES, AUTH_LIMITER
 from backend.core.limiter import limiter
 
+
 router = APIRouter()
 
 AVATAR_DIR = os.path.join(os.path.dirname(__file__), '..', '..', '..', 'static', 'avatars')
@@ -22,7 +23,11 @@ AVATAR_DIR = os.path.join(os.path.dirname(__file__), '..', '..', '..', 'static',
 
 @router.post("/signup", response_model=UserOut)
 @limiter.limit(AUTH_LIMITER)
-def signup(request: Request, user: UserCreate, db: Session = Depends(get_database)):
+def signup(
+	request: Request,
+	user: UserCreate,
+	db: Session = Depends(get_database)
+):
 	return user_service.signup(db, email=user.email, password=user.password)
 
 
@@ -53,7 +58,12 @@ async def upload_avatar(
 
 @router.post("/login", response_model=LoginResponse)
 @limiter.limit(AUTH_LIMITER)
-def login(request: Request, user: LoginRequest, response: Response, db: Session = Depends(get_database)):
+def login(
+	request: Request,
+	user: LoginRequest,
+	response: Response,
+	db: Session = Depends(get_database)
+):
 	db_user, token = user_service.login(db, email=user.email, password=user.password)
 
 	response.set_cookie(
@@ -93,7 +103,10 @@ def update_profile(
 
 
 @router.get("/me/stats", response_model=UserStats)
-def get_user_stats(db: Session = Depends(get_database), current_user: User = Depends(get_current_user)):
+def get_user_stats(
+	db: Session = Depends(get_database),
+	current_user: User = Depends(get_current_user)
+):
 	count = repo.interaction.count_by_user(db, current_user.id)
 	return UserStats(
 		interaction_count=count,
