@@ -7,6 +7,7 @@ from sqlalchemy import text
 from backend.database import engine
 from backend.schemas import HealthResponse
 
+
 router = APIRouter()
 
 START_TIME = time.time()
@@ -14,16 +15,14 @@ START_TIME = time.time()
 
 @router.get("/health", response_model=HealthResponse)
 def liveness():
-	'''Is the server running?'''
 	return HealthResponse(status="ok", uptime_seconds=round(time.time() - START_TIME))
 
 
 @router.get("/health/ready")
 def readiness(request: Request):
-	'''Are all dependencies healthy and ready to serve traffic?'''
 	issues = []
 
-	# DB check — one lightweight query
+	# DB check (one lightweight query)
 	try:
 		with engine.connect() as conn:
 			conn.execute(text("SELECT 1"))
