@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useAuth } from '../features/auth/AuthContext';
-import { useFeed } from '../hooks/useFeed';
+import { useSavedIds } from '../hooks/useSavedIds';
+import { useTopicFeed } from '../hooks/useTopicFeed';
+import { usePersonalizedFeed } from '../hooks/usePersonalizedFeed';
 import PageLayout from '../components/PageLayout';
 import HeroSection from '../components/HeroSection';
 import TodaySection from '../components/TodaySection';
@@ -9,7 +11,12 @@ import TopicFilter from '../components/TopicFilter';
 export default function Dashboard() {
   const { user } = useAuth();
   const [activeTopic, setActiveTopic] = useState<string | null>(null);
-  const { articles, savedIds, loading, error } = useFeed(activeTopic ?? undefined);
+
+  const { savedIds } = useSavedIds();
+  const topicFeed = useTopicFeed(activeTopic);
+  const personalizedFeed = usePersonalizedFeed(activeTopic);
+
+  const { articles, loading, error } = activeTopic ? topicFeed : personalizedFeed;
 
   if (loading) return (
     <p className="pt-15 text-center text-fray-text-light mt-16">Loading your feed...</p>
