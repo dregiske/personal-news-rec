@@ -1,7 +1,3 @@
-'''
-Saved article endpoints
-'''
-
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -10,6 +6,7 @@ from backend.schemas import SavedArticleOut
 from backend.services.auth import get_current_user
 from backend.models import User
 from backend import repositories as repo
+
 
 router = APIRouter()
 
