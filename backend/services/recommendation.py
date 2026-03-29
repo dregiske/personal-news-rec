@@ -1,20 +1,17 @@
+import os
+from collections import defaultdict
+
+import joblib
+import numpy as np
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.neighbors import NearestNeighbors
 from sqlalchemy.orm import Session
 
 from backend.models import Article
 from backend.ml.model_registry import ModelRegistry, MODEL_DIRECTORY
 from backend import repositories as repo
 from backend.constants import RECOMMENDATION_ALPHA, RECOMMENDATION_KNN_NEIGHBORS, RECOMMENDATION_PROFILE_CAP, INTERACTION_WEIGHTS, FEED_DEFAULT_LIMIT
-
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
-from sklearn.neighbors import NearestNeighbors
-
-import joblib
-import os
-
-import numpy as np
-
-from collections import defaultdict
 
 
 def article_to_text(article: Article):
@@ -57,7 +54,6 @@ def build_knn_index(tfidf_matrix, n_neighbors: int = RECOMMENDATION_KNN_NEIGHBOR
 	Builds a KNN index from the given TF-IDF matrix.
 	Run after ingestion to update the index.
 	'''
-	os.makedirs(MODEL_DIRECTORY, exist_ok=True)
 	knn = NearestNeighbors(n_neighbors=n_neighbors, metric="cosine")
 	knn.fit(tfidf_matrix)
 	joblib.dump(knn, os.path.join(MODEL_DIRECTORY, "article_knn.joblib"))
@@ -81,46 +77,75 @@ def get_similar_articles(article_id: int, models: ModelRegistry, k: int = 10):
 	distances = distances[0]
 	indices = indices[0]
 
-	results = []
-	for dist, ind in zip(distances, indices):
-		if ind == idx:
-			continue
-		results.append((models.article_ids[ind], float(1 - dist)))
-		if len(results) == k:
-			break
-	return results
+	return [
+		(models.article_ids[ind], float(1 - dist))
+		for dist, ind in zip(distances, indices)
+		if ind != idx
+	][:k]
 
 
-def build_user_vector(user_id: int, db: Session, models: ModelRegistry):
+def build_user_vector(interactions: list, models: ModelRegistry):
 	if not models.is_ready:
 		return None
 
-	interactions = repo.interaction.get_by_user(db, user_id)
 	if not interactions:
 		return None
 
-	vectors = []
+	indices = []
 	weights = []
 
 	for interaction in interactions:
-		w = INTERACTION_WEIGHTS.get(interaction.type, 1.0)
 		idx = models.id_to_index.get(interaction.article_id)
 		if idx is None:
 			continue
-		vec = models.tfidf_matrix[idx].toarray()[0]
-		vectors.append(vec)
-		weights.append(w)
+		indices.append(idx)
+		weights.append(INTERACTION_WEIGHTS.get(interaction.type, 1.0))
 
-	if not vectors:
+	if not indices:
 		return None
 
-	vectors = np.array(vectors)
+	vectors = models.tfidf_matrix[indices].toarray()
 	weights = np.array(weights)
 	total_weight = weights.sum()
 	if total_weight == 0:
 		return None
 	user_vec = (weights[:, None] * vectors).sum(axis=0) / total_weight
 	return user_vec
+
+
+def _build_content_scores(
+	positive_seeds: list[int],
+	seen_article_ids: set[int],
+	models: ModelRegistry,
+	knn_neighbors: int,
+) -> defaultdict:
+	content_scores = defaultdict(float)
+	for seed_article_id in positive_seeds:
+		for sim_article_id, sim_score in get_similar_articles(seed_article_id, models, k=knn_neighbors):
+			if sim_article_id not in seen_article_ids:
+				content_scores[sim_article_id] += sim_score
+	return content_scores
+
+
+def _rank_candidates(
+	candidate_ids: set[int],
+	seen_article_ids: set[int],
+	profile_similarities,
+	content_scores: defaultdict,
+	models: ModelRegistry,
+	alpha: float,
+) -> list[tuple[int, float]]:
+	scores = []
+	for article_id in candidate_ids:
+		if article_id in seen_article_ids:
+			continue
+		idx = models.id_to_index.get(article_id)
+		if idx is None:
+			continue
+		combined = alpha * profile_similarities[idx] + (1.0 - alpha) * content_scores.get(article_id, 0.0)
+		scores.append((article_id, combined))
+	scores.sort(key=lambda x: x[1], reverse=True)
+	return scores
 
 
 def hybrid_recommend_articles(
@@ -136,19 +161,16 @@ def hybrid_recommend_articles(
 	Hybrid recommendation combining content-based and user-based methods.
 	Falls back to latest articles if models aren't ready or user has no interactions.
 	'''
-	def latest_articles():
-		return [(a.id, 0.0) for a in repo.article.get_latest(db)]
-
 	if not models.is_ready:
-		return latest_articles()
+		return [(a.id, 0.0) for a in repo.article.get_latest(db)]
 
 	interactions = repo.interaction.get_by_user(db, user_id)
 	if not interactions:
-		return latest_articles()
+		return [(a.id, 0.0) for a in repo.article.get_latest(db)]
 
-	user_vector = build_user_vector(user_id, db, models)
+	user_vector = build_user_vector(interactions, models)
 	if user_vector is None:
-		return latest_articles()
+		return [(a.id, 0.0) for a in repo.article.get_latest(db)]
 
 	profile_similarities = cosine_similarity(
 		user_vector.reshape(1, -1),
@@ -164,39 +186,16 @@ def hybrid_recommend_articles(
 	]
 
 	if not positive_seeds:
-		candidates = [
-			(models.article_ids[idx], float(sim))
-			for idx, sim in enumerate(profile_similarities)
-			if models.article_ids[idx] not in seen_article_ids
-		]
-		candidates.sort(key=lambda x: x[1], reverse=True)
-		return candidates[:k]
+		return [
+			(models.article_ids[i], float(profile_similarities[i]))
+			for i in np.argsort(profile_similarities)[::-1]
+			if models.article_ids[i] not in seen_article_ids
+		][:k]
 
-	content_scores = defaultdict(float)
-	for seed_article_id in positive_seeds:
-		for sim_article_id, sim_score in get_similar_articles(seed_article_id, models, k=knn_neighbors_per_seed):
-			if sim_article_id not in seen_article_ids:
-				content_scores[sim_article_id] += sim_score
+	content_scores = _build_content_scores(positive_seeds, seen_article_ids, models, knn_neighbors_per_seed)
 
-	profile_ranked = sorted(
-		[(models.article_ids[idx], float(sim)) for idx, sim in enumerate(profile_similarities)],
-		key=lambda x: x[1],
-		reverse=True
-	)
-	profile_candidate_ids = [aid for aid, _ in profile_ranked[:profile_candidate_cap]]
-	candidate_ids = set(profile_candidate_ids) | set(content_scores.keys())
+	cap = min(profile_candidate_cap, len(profile_similarities))
+	top_indices = np.argpartition(profile_similarities, -cap)[-cap:]
+	candidate_ids = {models.article_ids[i] for i in top_indices} | set(content_scores.keys())
 
-	final_scores = []
-	for article_id in candidate_ids:
-		if article_id in seen_article_ids:
-			continue
-		idx = models.id_to_index.get(article_id)
-		if idx is None:
-			continue
-		profile_score = profile_similarities[idx]
-		content_score = content_scores.get(article_id, 0.0)
-		combined = alpha * profile_score + (1.0 - alpha) * content_score
-		final_scores.append((article_id, combined))
-
-	final_scores.sort(key=lambda x: x[1], reverse=True)
-	return final_scores[:k]
+	return _rank_candidates(candidate_ids, seen_article_ids, profile_similarities, content_scores, models, alpha)[:k]
