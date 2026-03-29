@@ -1,4 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from backend.database import get_database
@@ -6,6 +8,7 @@ from backend.schemas import InteractionCreate, InteractionOut
 from backend.services.auth import get_current_user
 from backend.models import User
 from backend import repositories as repo
+
 
 router = APIRouter()
 
@@ -19,22 +22,28 @@ def record_interaction(
 	if not repo.article.get_by_id(db, interaction.article_id):
 		raise HTTPException(status_code=404, detail="Article not found")
 
-	if interaction.type.value in ("like", "dislike"):
+	if interaction.type.value == "view":
+		existing = repo.interaction.get_existing(db, current_user.id, interaction.article_id, interaction.type.value)
+		if existing:
+			return existing
+		repo.article.increment_view_count(db, interaction.article_id)
+
+	else:
 		existing = repo.interaction.get_existing_reaction(db, current_user.id, interaction.article_id)
 		if existing:
 			if existing.type == interaction.type.value:
 				return existing
 			return repo.interaction.update_type(db, existing, interaction.type.value)
 
-	if interaction.type.value == "view":
-		existing = repo.interaction.get_existing(db, current_user.id, interaction.article_id, interaction.type)
-		if existing:
-			return existing
-		repo.article.increment_view_count(db, interaction.article_id)
-
-	return repo.interaction.create(
-		db,
-		user_id=current_user.id,
-		article_id=interaction.article_id,
-		interaction_type=interaction.type,
-	)
+	try:
+		return repo.interaction.create(
+			db,
+			user_id=current_user.id,
+			article_id=interaction.article_id,
+			interaction_type=interaction.type.value,
+		)
+	except IntegrityError:
+		db.rollback()
+		return repo.interaction.get_existing(
+			db, current_user.id, interaction.article_id, interaction.type.value
+		)
