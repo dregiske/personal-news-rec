@@ -26,6 +26,11 @@ def get_existing_reaction(db: Session, user_id: int, article_id: int) -> Interac
 	).first()
 
 
+def delete(db: Session, interaction: Interaction) -> None:
+	db.delete(interaction)
+	db.commit()
+
+
 def update_type(db: Session, interaction: Interaction, new_type: str) -> Interaction:
 	interaction.type = new_type
 	db.commit()

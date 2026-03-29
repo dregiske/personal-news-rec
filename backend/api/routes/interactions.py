@@ -47,3 +47,15 @@ def record_interaction(
 		return repo.interaction.get_existing(
 			db, current_user.id, interaction.article_id, interaction.type.value
 		)
+
+
+@router.delete("/interactions/{article_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_interaction(
+	article_id: int,
+	db: Session = Depends(get_database),
+	current_user: User = Depends(get_current_user),
+):
+	existing = repo.interaction.get_existing_reaction(db, current_user.id, article_id)
+	if not existing:
+		raise HTTPException(status_code=404, detail="Interaction not found")
+	repo.interaction.delete(db, existing)
