@@ -10,3 +10,7 @@ export async function recordInteraction(
     type,
   });
 }
+
+export async function deleteInteraction(articleId: number): Promise<void> {
+  await api.delete(`${API_BASE}/interactions/${articleId}`);
+}

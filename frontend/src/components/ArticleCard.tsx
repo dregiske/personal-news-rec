@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { recordInteraction } from '../api/interactions';
+import { recordInteraction, deleteInteraction } from '../api/interactions';
 import { saveArticle, unsaveArticle } from '../api/saved';
 import type { Article } from '../types';
 
@@ -17,9 +17,15 @@ export default function ArticleCard({ article, variant = 'list', isSaved = false
   const [error, setError] = useState('');
 
   async function handleInteraction(type: 'like' | 'dislike') {
+    const newState = type === 'like' ? 'liked' : 'disliked';
     try {
-      await recordInteraction(article.id, type);
-      setInteraction(type === 'like' ? 'liked' : 'disliked');
+      if (interaction === newState) {
+        await deleteInteraction(article.id);
+        setInteraction('idle');
+      } else {
+        await recordInteraction(article.id, type);
+        setInteraction(newState);
+      }
       setError('');
     } catch {
       setError('Could not save your reaction. Try again.');
@@ -253,8 +259,8 @@ interface InteractionButtonsProps {
 
 function InteractionButtons({ interaction, onInteract, small = false }: InteractionButtonsProps) {
   const base = small
-    ? 'text-xs px-2 py-1 border font-medium transition-colors duration-200 disabled:opacity-50'
-    : 'text-sm px-3 py-1.5 border font-medium transition-colors duration-200 disabled:opacity-50';
+    ? 'text-xs px-2 py-1 border font-medium transition-colors duration-200'
+    : 'text-sm px-3 py-1.5 border font-medium transition-colors duration-200';
 
   return (
     <div className="flex gap-2">
@@ -265,7 +271,6 @@ function InteractionButtons({ interaction, onInteract, small = false }: Interact
             : 'border-fray-border text-fray-text-light hover:border-fray-success hover:text-fray-success'
         }`}
         onClick={() => onInteract('like')}
-        disabled={interaction === 'liked'}
       >
         {interaction === 'liked' ? 'Liked ✓' : 'Like'}
       </button>
@@ -276,7 +281,6 @@ function InteractionButtons({ interaction, onInteract, small = false }: Interact
             : 'border-fray-border text-fray-text-light hover:border-fray-muted hover:text-fray-muted'
         }`}
         onClick={() => onInteract('dislike')}
-        disabled={interaction === 'disliked'}
       >
         {interaction === 'disliked' ? 'Disliked ✓' : 'Dislike'}
       </button>
