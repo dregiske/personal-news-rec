@@ -9,7 +9,7 @@ _USERNAME_RE = re.compile(r'^[a-z0-9][a-z0-9_-]{1,30}[a-z0-9]$')
 _CONSECUTIVE_SPECIAL_RE = re.compile(r'[_-]{2,}')
 
 
-# ---------- INTERATION ----------
+# ---------- INTERACTION ----------
 
 class InteractionType(str, Enum):
 	like = "like"
