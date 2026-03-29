@@ -51,7 +51,6 @@ def increment_view_count(db: Session, article_id: int) -> None:
 	db.query(Article).filter(Article.id == article_id).update(
 		{Article.view_count: Article.view_count + 1}
 	)
-	db.commit()
 
 
 def get_most_viewed(db: Session) -> list[Article]:
