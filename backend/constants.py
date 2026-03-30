@@ -1,3 +1,5 @@
+import os
+
 STOP_WORDS = {
 	"a", "about", "above", "after", "again", "against", "all", "am", "an", "and",
 	"any", "are", "aren't", "as", "at", "be", "because", "been", "before", "being",
@@ -18,6 +20,8 @@ STOP_WORDS = {
 MAX_AVATAR_BYTES = 5 * 1024 * 1024 # same as 5MB
 
 ALLOWED_IMAGE_TYPES = {'image/jpeg', 'image/png', 'image/webp', 'image/gif'}
+
+AVATAR_DIR = os.path.join(os.path.dirname(__file__), '..', 'static', 'avatars')
 
 PERSONALIZATION_THRESHOLD = 5
 
