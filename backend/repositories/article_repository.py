@@ -1,4 +1,3 @@
-from sqlalchemy import or_
 from sqlalchemy.orm import Session
 from backend.models import Article
 from backend.constants import FEED_DEFAULT_LIMIT
@@ -25,10 +24,10 @@ def get_by_url(db: Session, url: str) -> Article | None:
 	return db.query(Article).filter(Article.url == url).first()
 
 
-def get_by_topics(db: Session, topics: list[str]) -> list[Article]:
+def get_by_topic(db: Session, topic: str) -> list[Article]:
 	return (
 		db.query(Article)
-		.filter(or_(*[Article.topics.ilike(f'%{t}%') for t in topics]))
+		.filter(Article.topics.ilike(f'%{topic}%'))
 		.order_by(Article.published_at.desc().nullslast())
 		.limit(FEED_DEFAULT_LIMIT)
 		.all()
