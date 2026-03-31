@@ -12,6 +12,7 @@ from backend.services.keywords import build_article_keywords
 from backend.services.topics import infer_topics
 from backend import repositories as repo
 
+
 logger = logging.getLogger(__name__)
 
 
@@ -30,10 +31,6 @@ def fetch_newsapi_articles(params: NewsAPIParams) -> list[dict]:
 
 
 def normalize_article(raw: dict) -> NormalizedArticle | None:
-	'''
-	Normalize a raw NewsAPI article dict into our Article schema fields.
-	Returns None if the article lacks a URL (unpublishable/removed articles).
-	'''
 	url = raw.get("url")
 	if not url:
 		return None
@@ -70,10 +67,10 @@ def ingestion_service(db: Session, api_key: str, query: str, page_size: int) -> 
 	'''Ingest news articles into the database.
 
 	Sets params > fetches from NewsAPI > for each article:
-	normalize, extract keywords, infer topics, upsert into DB.
+		normalize, extract keywords, infer topics, upsert into DB.
 	Returns count of upserted articles.
 	'''
-	params = NewsAPIParams(q=query, pageSize=page_size, apiKey=api_key)
+	params = NewsAPIParams(query=query, pageSize=page_size, apiKey=api_key)
 	raw_articles = fetch_newsapi_articles(params)
 
 	upserted = 0
