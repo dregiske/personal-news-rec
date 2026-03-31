@@ -50,6 +50,8 @@ def update_profile(db: Session, user: User, data: UserUpdate) -> User:
     updates = {key: value for key, value in data.model_dump().items() if value is not None}
     if not updates:
         return user
+    if "username" in updates and repo.user.get_by_username(db, updates["username"]):
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Username already taken")
     return repo.user.update(db, user, updates)
 
 
