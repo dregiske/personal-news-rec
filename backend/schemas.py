@@ -94,7 +94,6 @@ class TokenPayload(TokenData):
 	exp: int
 
 
-
 # ---------- ARTICLE ----------
 
 class ArticleCreate(BaseModel):
@@ -154,7 +153,7 @@ class IngestResponse(BaseModel):
 	ingested_updated: int
 
 class NewsAPIParams(BaseModel):
-	q: str
+	query: str
 	pageSize: int
 	apiKey: str
 	language: Optional[str] = None
