@@ -15,7 +15,7 @@ from backend.schemas import ArticleOut
 router = APIRouter()
 
 
-@router.get("/feed", response_model=List[ArticleOut])
+@router.get("/feed/latest", response_model=List[ArticleOut])
 def get_feed(db: Session = Depends(get_database)):
 	return feed_service.get_latest_feed(db)
 

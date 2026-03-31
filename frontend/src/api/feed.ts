@@ -2,7 +2,7 @@ import api, { API_BASE } from "./api";
 import type { Article } from "../types";
 
 export async function fetchFeed(): Promise<Article[]> {
-  const result = await api.get<Article[]>(`${API_BASE}/feed`);
+  const result = await api.get<Article[]>(`${API_BASE}/feed/latest`);
   return result.data;
 }
 
