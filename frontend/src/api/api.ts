@@ -8,3 +8,9 @@ const api = axios.create({
 });
 
 export default api;
+
+export function extractError(err: unknown, fallback: string): string {
+  return (
+    (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ?? fallback
+  );
+}
