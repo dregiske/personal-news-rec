@@ -43,14 +43,7 @@ Model serving  → At scale, move ML inference out of the FastAPI process
 
 ---------- To Do ----------
 
-- refactor topicsFilter.tsx & code
-- Avatar display and profile editing (settings page / profile page)
 - user_service "sub" misalignment
-- Refactor signup buisness logic, defined parameters inside files etc.
-- Prompt users for preferred topics in signup page
-
-- Hooks can be abstracted and each feed type inherits the abstraction
-
 
 Code Quality
 Issue                               File                Fix
@@ -60,11 +53,3 @@ No client-side input validation     Login/Signup        Add basic checks (passwo
 
 No error boundary                   App.tsx             Wrap Dashboard in a React ErrorBoundary
                                                         so a crash doesn't blank the whole app
-
-Architecture
-Issue                               File                Fix
-------------------------------------------------------------------------------------
-Incomplete feature-folder pattern   features/ vs        Either move all features into features/
-                                    pages/ + api/       (each owns components + API + state)
-                                                        or drop features/ entirely — mixing both
-                                                        adds confusion
