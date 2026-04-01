@@ -1,13 +1,7 @@
 import { useState } from 'react';
 import { TOPICS, SUPPORTED_LANGUAGES } from '../../../constants';
 import { extractError } from '../../../api/api';
-
-export interface FieldConfig {
-  key: string;
-  label: string;
-  type: 'text' | 'password' | 'topics' | 'select';
-  placeholder?: string;
-}
+import type { FieldConfig } from '../../../types';
 
 interface Props {
   title: string;

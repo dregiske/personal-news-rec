@@ -39,6 +39,13 @@ export interface UserStats {
 
 export type InteractionType = 'like' | 'dislike' | 'view';
 
+export interface FieldConfig {
+  key: string;
+  label: string;
+  type: 'text' | 'password' | 'topics' | 'select';
+  placeholder?: string;
+}
+
 export interface LoginResponse {
   access_token: string;
   user: User;

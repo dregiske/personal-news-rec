@@ -1,5 +1,8 @@
 export const FEED_DEFAULT_LIMIT = 20;
 
+export const USERNAME_CONSECUTIVE_SPECIAL = /[_-]{2,}/;
+export const USERNAME_VALID = /^[a-z0-9][a-z0-9_-]{1,30}[a-z0-9]$/;
+
 export const SUPPORTED_LANGUAGES = [
   'en', 'es', 'fr', 'de', 'it', 'pt', 'nl', 'ru', 'zh', 'ar', 'ja', 'ko',
 ] as const;

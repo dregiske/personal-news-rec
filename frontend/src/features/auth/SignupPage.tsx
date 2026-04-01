@@ -5,9 +5,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "./AuthContext";
 import api, { API_BASE, extractError } from "../../api/api";
 import AvatarUploader from "../profile/components/AvatarUploader";
-
-const CONSECUTIVE_SPECIAL = /[_-]{2,}/;
-const VALID_USERNAME = /^[a-z0-9][a-z0-9_-]{1,30}[a-z0-9]$/;
+import { USERNAME_CONSECUTIVE_SPECIAL, USERNAME_VALID } from "../../constants";
 
 function sanitizeUsername(raw: string): string {
   return raw.toLowerCase().replace(/[^a-z0-9_-]/g, "");
@@ -17,9 +15,9 @@ function validateUsername(value: string): string | null {
   if (value.length === 0) return null; // optional field — blank is fine
   if (value.length < 3) return "Username must be at least 3 characters";
   if (value.length > 32) return "Username must be 32 characters or fewer";
-  if (CONSECUTIVE_SPECIAL.test(value))
+  if (USERNAME_CONSECUTIVE_SPECIAL.test(value))
     return "No consecutive underscores or hyphens";
-  if (!VALID_USERNAME.test(value))
+  if (!USERNAME_VALID.test(value))
     return "Must start and end with a letter or number";
   return null;
 }

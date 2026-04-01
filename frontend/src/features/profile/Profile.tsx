@@ -4,8 +4,8 @@ import { updateProfile, changePassword, uploadAvatar, deleteAvatar } from './api
 import { extractError } from '../../api/api';
 import PageLayout from '../../components/PageLayout';
 import AvatarUploader from './components/AvatarUploader';
-import EditPrompt, { type FieldConfig } from './components/EditPrompt';
-import type { User } from '../../types';
+import EditPrompt from './components/EditPrompt';
+import type { User, FieldConfig } from '../../types';
 
 interface ProfileRow {
   key: string;
