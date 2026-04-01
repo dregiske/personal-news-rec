@@ -1,17 +1,18 @@
-import { Routes, Route } from 'react-router-dom';
-import NavBar from './components/NavBar';
-import Home from './pages/Home';
-import Dashboard from './features/articles/Dashboard';
-import NotFound from './pages/errors/NotFound';
-import Unauthorized from './pages/errors/Unauthorized';
-import Forbidden from './pages/errors/Forbidden';
-import ServerError from './pages/errors/ServerError';
-import ServiceUnavailable from './pages/errors/ServiceUnavailable';
-import LoginPage from './features/auth/LoginPage';
-import SignupPage from './features/auth/SignupPage';
-import ProtectedRoute from './features/auth/ProtectedRoute';
-import SavedPage from './features/saved/Saved';
-import ProfilePage from './features/profile/Profile';
+import { Routes, Route } from "react-router-dom";
+import NavBar from "./components/NavBar";
+import Footer from "./components/Footer";
+import Home from "./pages/Home";
+import Dashboard from "./features/articles/Dashboard";
+import NotFound from "./pages/errors/NotFound";
+import Unauthorized from "./pages/errors/Unauthorized";
+import Forbidden from "./pages/errors/Forbidden";
+import ServerError from "./pages/errors/ServerError";
+import ServiceUnavailable from "./pages/errors/ServiceUnavailable";
+import LoginPage from "./features/auth/LoginPage";
+import SignupPage from "./features/auth/SignupPage";
+import ProtectedRoute from "./features/auth/ProtectedRoute";
+import SavedPage from "./features/saved/Saved";
+import ProfilePage from "./features/profile/Profile";
 
 export default function App() {
   return (
@@ -52,6 +53,7 @@ export default function App() {
           <Route path="/503" element={<ServiceUnavailable />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
+        <Footer />
       </div>
     </>
   );
