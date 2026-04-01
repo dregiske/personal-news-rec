@@ -185,7 +185,7 @@ class IngestResponse(BaseModel):
 	ingested_updated: int
 
 class NewsAPIParams(BaseModel):
-	query: str
+	q: str
 	pageSize: int
 	apiKey: str
 	language: Optional[str] = None
