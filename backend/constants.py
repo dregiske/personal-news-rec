@@ -46,3 +46,12 @@ RECOMMENDATION_KNN_NEIGHBORS = 10
 MODEL_DIRECTORY = os.path.abspath(os.path.join(os.path.dirname(__file__), "models"))
 
 AUTH_LIMITER = "5/minute" # 5 req per minute
+
+VALID_TOPICS = {
+	"technology", "politics", "business", "health",
+	"sports", "entertainment", "science", "world",
+}
+
+SUPPORTED_LANGUAGES = {
+	"en", "es", "fr", "de", "it", "pt", "nl", "ru", "zh", "ar", "ja", "ko",
+}
