@@ -61,7 +61,7 @@ export default function LoginPage() {
             disabled={loading}
             className={`mt-2 w-full ${btnPrimary}`}
           >
-            {loading ? "Signing in..." : "Sign In"}
+            {loading ? "Logging in..." : "Log In"}
           </button>
         </form>
 
