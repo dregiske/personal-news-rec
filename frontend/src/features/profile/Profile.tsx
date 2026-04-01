@@ -11,6 +11,7 @@ import PageLayout from "../../components/PageLayout";
 import AvatarUploader from "./components/AvatarUploader";
 import EditPrompt from "./components/EditPrompt";
 import type { User, FieldConfig } from "../../types";
+import { card, sectionLabel, metaText, btnGhost, divider } from "../../styles";
 
 interface ProfileRow {
   key: string;
@@ -128,7 +129,7 @@ export default function Profile() {
 
   return (
     <PageLayout title="Profile" subtitle="Manage your account details.">
-      <div className="flex flex-col md:flex-row gap-12 mt-4">
+      <div className="flex flex-col md:flex-row gap-8 mt-4">
         {/* Avatar column */}
         <div className="shrink-0">
           <AvatarUploader
@@ -142,36 +143,30 @@ export default function Profile() {
         </div>
 
         {/* Details column */}
-        <div className="flex-1 flex flex-col divide-y divide-fray-border border border-fray-border">
+        <div className={`flex-1 ${card} p-0 overflow-hidden`}>
           {/* Email — read only */}
           <div className="flex items-center justify-between px-6 py-4">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-widest text-fray-text-faint mb-1">
-                Email
-              </p>
+              <p className={`${sectionLabel} mb-1`}>Email</p>
               <p className="text-sm text-fray-text">{user.email}</p>
             </div>
           </div>
 
           {PROFILE_ROWS.map((row) => (
-            <div
-              key={row.key}
-              className="flex items-center justify-between px-6 py-4"
-            >
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-widest text-fray-text-faint mb-1">
-                  {row.label}
-                </p>
-                <p className="text-sm text-fray-text">
-                  {row.displayValue(user)}
-                </p>
+            <div key={row.key}>
+              <div className={`mx-6 ${divider}`} />
+              <div className="flex items-center justify-between px-6 py-4">
+                <div>
+                  <p className={`${sectionLabel} mb-1`}>{row.label}</p>
+                  <p className={metaText}>{row.displayValue(user)}</p>
+                </div>
+                <button
+                  onClick={() => setActiveField(row.key)}
+                  className={`${btnGhost} shrink-0 ml-4`}
+                >
+                  Edit
+                </button>
               </div>
-              <button
-                onClick={() => setActiveField(row.key)}
-                className="text-xs font-semibold uppercase tracking-widest px-4 py-1.5 border border-fray-border text-fray-text-faint hover:border-fray-primary hover:text-fray-primary transition-colors duration-200 shrink-0 ml-4"
-              >
-                Edit
-              </button>
             </div>
           ))}
         </div>
