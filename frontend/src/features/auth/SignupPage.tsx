@@ -5,22 +5,10 @@ import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "./AuthContext";
 import api, { API_BASE, extractError } from "../../api/api";
 import AvatarUploader from "../profile/components/AvatarUploader";
-import { USERNAME_CONSECUTIVE_SPECIAL, USERNAME_VALID } from "../../constants";
-
-function sanitizeUsername(raw: string): string {
-  return raw.toLowerCase().replace(/[^a-z0-9_-]/g, "");
-}
-
-function validateUsername(value: string): string | null {
-  if (value.length === 0) return null; // optional field — blank is fine
-  if (value.length < 3) return "Username must be at least 3 characters";
-  if (value.length > 32) return "Username must be 32 characters or fewer";
-  if (USERNAME_CONSECUTIVE_SPECIAL.test(value))
-    return "No consecutive underscores or hyphens";
-  if (!USERNAME_VALID.test(value))
-    return "Must start and end with a letter or number";
-  return null;
-}
+import TopicToggler from "../../components/TopicToggler";
+import PromptCard from "../../components/PromptCard";
+import { formInput, formLabel, formError, btnPrimary, btnSecondary } from "../../styles/common";
+import { sanitizeUsername, validateUsername } from "../../utils/validation";
 
 export default function SignupPage() {
   const navigate = useNavigate();
@@ -35,6 +23,7 @@ export default function SignupPage() {
   const [usernameError, setUsernameError] = useState<string | null>(null);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [topics, setTopics] = useState("");
 
   const [step, setStep] = useState<1 | 2>(1);
   const [message, setMessage] = useState("");
@@ -86,15 +75,21 @@ export default function SignupPage() {
         await uploadAvatar(avatarFile);
       }
 
-      if (username.trim()) {
-        await api.patch(`${API_BASE}/me`, { username: username.trim() });
+      const patch: Record<string, string> = {};
+      if (username.trim()) patch.username = username.trim();
+      if (topics.trim()) patch.preferred_topics = topics.trim();
+      if (Object.keys(patch).length > 0) {
+        await api.patch(`${API_BASE}/me`, patch);
       }
 
       await refreshUser();
 
       navigate("/dashboard");
     } catch (err: unknown) {
-      const msg = extractError(err, "Could not save customizations. You can update these later in your profile.");
+      const msg = extractError(
+        err,
+        "Could not save customizations. You can update these later in your profile.",
+      );
       setIsError(true);
       setMessage(msg);
     } finally {
@@ -109,148 +104,103 @@ export default function SignupPage() {
 
   return (
     <div className="mt-15 min-h-[calc(100vh-60px)] flex items-center justify-center px-4">
-      <div className="w-full max-w-sm">
-        {step === 1 && (
-          <>
-            <h1 className="text-3xl font-bold text-fray-text mb-1">
-              Join the Fray.
-            </h1>
-            <p className="text-sm text-fray-text-faint mb-8">
-              Create your account to get started.
+      {step === 1 && (
+        <PromptCard title="Join the Fray." subtitle="Create your account to get started.">
+          <form onSubmit={handleStep1} className="flex flex-col gap-5">
+            <label className="flex flex-col gap-1.5">
+              <span className={formLabel}>Email</span>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                disabled={isLoading}
+                className={formInput}
+                placeholder="you@example.com"
+              />
+            </label>
+
+            <label className="flex flex-col gap-1.5">
+              <span className={formLabel}>Password</span>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                disabled={isLoading}
+                className={formInput}
+                placeholder="••••••••"
+              />
+            </label>
+
+            <button type="submit" disabled={isLoading} className={`mt-2 ${btnPrimary}`}>
+              {isLoading ? "Creating..." : "Create Account"}
+            </button>
+          </form>
+
+          {message && (
+            <p className={`${formError} mt-4 ${isError ? "" : "text-fray-text-faint!"}`}>
+              {message}
             </p>
+          )}
 
-            <div className="bg-fray-glass border border-fray-border backdrop-blur-md p-8">
-              <form onSubmit={handleStep1} className="flex flex-col gap-5">
-                <label className="flex flex-col gap-1.5">
-                  <span className="text-xs font-semibold uppercase tracking-widest text-fray-text-faint">
-                    Email
-                  </span>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    disabled={isLoading}
-                    className="bg-fray-input-bg border border-fray-border text-fray-text text-sm px-4 py-2.5 outline-none focus:border-fray-primary transition-colors duration-200 placeholder:text-fray-text-faint disabled:opacity-50"
-                    placeholder="you@example.com"
-                  />
-                </label>
+          <p className="text-xs text-fray-text-faint mt-6">
+            Already have an account?{" "}
+            <Link to="/login" className="text-fray-primary hover:text-fray-text transition-colors duration-200">
+              Log in
+            </Link>
+          </p>
+        </PromptCard>
+      )}
 
-                <label className="flex flex-col gap-1.5">
-                  <span className="text-xs font-semibold uppercase tracking-widest text-fray-text-faint">
-                    Password
-                  </span>
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    disabled={isLoading}
-                    className="bg-fray-input-bg border border-fray-border text-fray-text text-sm px-4 py-2.5 outline-none focus:border-fray-primary transition-colors duration-200 placeholder:text-fray-text-faint disabled:opacity-50"
-                    placeholder="••••••••"
-                  />
-                </label>
+      {step === 2 && (
+        <PromptCard title="Make it yours." subtitle="Customize your profile. You can always change these later.">
+          <form onSubmit={handleStep2} className="flex flex-col gap-5">
+            <AvatarUploader
+              currentUrl={avatarPreview}
+              onFileSelect={handleAvatarChange}
+              size={64}
+            />
 
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="mt-2 px-4 py-2.5 bg-fray-primary text-fray-ink text-sm font-semibold hover:bg-fray-primary-hover transition-colors duration-200 disabled:opacity-50"
-                >
-                  {isLoading ? "Creating..." : "Create Account"}
-                </button>
-              </form>
-
-              {message && (
-                <p
-                  className={`text-xs mt-4 ${isError ? "text-fray-danger" : "text-fray-text-faint"}`}
-                >
-                  {message}
-                </p>
-              )}
-
-              <p className="text-xs text-fray-text-faint mt-6">
-                Already have an account?{" "}
-                <Link
-                  to="/login"
-                  className="text-fray-primary hover:text-fray-text transition-colors duration-200"
-                >
-                  Log in
-                </Link>
-              </p>
+            <div className="flex flex-col gap-1.5">
+              <span className={formLabel}>Username</span>
+              <input
+                type="text"
+                value={username}
+                onChange={(e) => {
+                  const sanitized = sanitizeUsername(e.target.value);
+                  setUsername(sanitized);
+                  setUsernameError(validateUsername(sanitized));
+                }}
+                disabled={isLoading}
+                className={`${formInput} ${usernameError ? "border-fray-danger!" : ""}`}
+                placeholder="(Optional)"
+              />
+              {usernameError && <p className={formError}>{usernameError}</p>}
             </div>
-          </>
-        )}
 
-        {step === 2 && (
-          <>
-            <h1 className="text-3xl font-bold text-fray-text mb-1">
-              Make it yours.
-            </h1>
-            <p className="text-sm text-fray-text-faint mb-8">
-              Add a username and avatar. You can always change these later.
+            <div className="flex flex-col gap-1.5">
+              <span className={formLabel}>Topics</span>
+              <TopicToggler value={topics} onChange={setTopics} />
+            </div>
+
+            <div className="flex gap-3 mt-2">
+              <button type="submit" disabled={isLoading || !!usernameError} className={`flex-1 ${btnPrimary}`}>
+                {isLoading ? "Saving..." : "Finish"}
+              </button>
+              <button type="button" onClick={handleSkip} disabled={isLoading} className={btnSecondary}>
+                Skip
+              </button>
+            </div>
+          </form>
+
+          {message && (
+            <p className={`${formError} mt-4 ${isError ? "" : "text-fray-text-faint!"}`}>
+              {message}
             </p>
-
-            <div className="bg-fray-glass border border-fray-border backdrop-blur-md p-8">
-              <form onSubmit={handleStep2} className="flex flex-col gap-5">
-                {/* Avatar picker */}
-                <AvatarUploader
-                  currentUrl={avatarPreview}
-                  onFileSelect={handleAvatarChange}
-                  size={64}
-                />
-
-                {/* Username */}
-                <div className="flex flex-col gap-1.5">
-                  <span className="text-xs font-semibold uppercase tracking-widest text-fray-text-faint">
-                    Username
-                  </span>
-                  <input
-                    type="text"
-                    value={username}
-                    onChange={(e) => {
-                      const sanitized = sanitizeUsername(e.target.value);
-                      setUsername(sanitized);
-                      setUsernameError(validateUsername(sanitized));
-                    }}
-                    disabled={isLoading}
-                    className={`bg-fray-input-bg border text-fray-text text-sm px-4 py-2.5 outline-none focus:border-fray-primary transition-colors duration-200 placeholder:text-fray-text-faint disabled:opacity-50 ${usernameError ? "border-fray-danger" : "border-fray-border"}`}
-                    placeholder="(Optional)"
-                  />
-                  {usernameError && (
-                    <p className="text-xs text-fray-danger">{usernameError}</p>
-                  )}
-                </div>
-
-                <div className="flex gap-3 mt-2">
-                  <button
-                    type="submit"
-                    disabled={isLoading || !!usernameError}
-                    className="flex-1 px-4 py-2.5 bg-fray-primary text-fray-ink text-sm font-semibold hover:bg-fray-primary-hover transition-colors duration-200 disabled:opacity-50"
-                  >
-                    {isLoading ? "Saving..." : "Finish"}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleSkip}
-                    disabled={isLoading}
-                    className="px-4 py-2.5 border border-fray-border text-fray-text-faint text-sm font-semibold hover:text-fray-text hover:border-fray-text transition-colors duration-200 disabled:opacity-50"
-                  >
-                    Skip
-                  </button>
-                </div>
-              </form>
-
-              {message && (
-                <p
-                  className={`text-xs mt-4 ${isError ? "text-fray-danger" : "text-fray-text-faint"}`}
-                >
-                  {message}
-                </p>
-              )}
-            </div>
-          </>
-        )}
-      </div>
+          )}
+        </PromptCard>
+      )}
     </div>
   );
 }
