@@ -1,5 +1,6 @@
 import { useRef } from 'react';
 import UserAvatar from './UserAvatar';
+import { btnGhost, btnDanger, metaText, formError } from '../../../styles';
 
 interface Props {
   currentUrl?: string | null;
@@ -51,7 +52,7 @@ export default function AvatarUploader({
           type="button"
           onClick={() => fileInputRef.current?.click()}
           disabled={loading}
-          className="text-xs font-semibold uppercase tracking-widest px-4 py-1.5 border border-fray-border text-fray-text-light hover:border-fray-primary hover:text-fray-primary transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          className={btnGhost}
         >
           {loading ? 'Saving...' : 'Change Avatar'}
         </button>
@@ -61,15 +62,15 @@ export default function AvatarUploader({
             type="button"
             onClick={onRemove}
             disabled={loading}
-            className="text-xs font-semibold uppercase tracking-widest px-4 py-1.5 border border-fray-border text-fray-text-faint hover:border-fray-danger hover:text-fray-danger transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            className={btnDanger}
           >
             Remove Avatar
           </button>
         )}
 
-        <p className="text-xs text-fray-text-faint">JPEG, PNG, WebP or GIF · Max 5 MB</p>
+        <p className={metaText}>JPEG, PNG, WebP or GIF · Max 5 MB</p>
 
-        {error && <p className="text-xs text-fray-danger text-center">{error}</p>}
+        {error && <p className={`${formError} text-center`}>{error}</p>}
       </div>
     </div>
   );

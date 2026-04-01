@@ -4,7 +4,7 @@ import { extractError } from '../../../api/api';
 import type { FieldConfig } from '../../../types';
 import TopicToggler from '../../../components/TopicToggler';
 import PromptCard from '../../../components/PromptCard';
-import { formInput, formLabel, formError, btnPrimary, btnSecondary } from '../../../styles/common';
+import { formInput, formLabel, formError, btnPrimary, btnSecondary, modalOverlay } from '../../../styles';
 
 interface Props {
   title: string;
@@ -40,10 +40,10 @@ export default function EditPrompt({ title, fields, onSubmit, onClose }: Props) 
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-fray-overlay px-4"
+      className={modalOverlay}
       onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <PromptCard title={title} onClose={onClose}>
+      <PromptCard title={title} titleClassName="text-3xl font-bold text-fray-ink" onClose={onClose}>
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
           {fields.map((field) =>
             field.type === 'topics' ? (

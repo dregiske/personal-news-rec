@@ -9,7 +9,7 @@ export default function UserAvatar({ avatarUrl, size = 32 }: Props) {
       <img
         src={avatarUrl}
         alt="Avatar"
-        className="rounded-full object-cover border border-fray-border shrink-0"
+        className="rounded-full object-cover shrink-0"
         style={{ width: size, height: size }}
       />
     );
@@ -17,7 +17,7 @@ export default function UserAvatar({ avatarUrl, size = 32 }: Props) {
 
   return (
     <div
-      className="rounded-full border border-fray-border bg-fray-input-bg flex items-center justify-center shrink-0"
+      className="rounded-full bg-fray-surface-alt flex items-center justify-center shrink-0"
       style={{ width: size, height: size }}
     >
       <svg
