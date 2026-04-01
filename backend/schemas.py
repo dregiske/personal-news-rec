@@ -1,6 +1,7 @@
 import re
 
 from pydantic import BaseModel, EmailStr, ConfigDict, HttpUrl, field_validator
+from backend.constants import VALID_TOPICS, SUPPORTED_LANGUAGES
 from typing import Optional
 from datetime import datetime
 from enum import Enum
@@ -50,7 +51,6 @@ class UserOut(BaseModel):
 
 class UserUpdate(BaseModel):
 	username: Optional[str] = None
-	avatar_url: Optional[str] = None
 	preferred_topics: Optional[str] = None
 	language: Optional[str] = None
 
@@ -70,9 +70,41 @@ class UserUpdate(BaseModel):
 			raise ValueError('Username may only contain letters, numbers, underscores, and hyphens, and must start and end with a letter or number')
 		return v
 
+	@field_validator('preferred_topics', mode='before')
+	@classmethod
+	def validate_preferred_topics(cls, v: object) -> object:
+		if v is None:
+			return v
+		topics = [t.strip().lower() for t in str(v).split(',') if t.strip()]
+		invalid = [t for t in topics if t not in VALID_TOPICS]
+		if invalid:
+			raise ValueError(f"Invalid topics: {', '.join(invalid)}. Must be one of: {', '.join(sorted(VALID_TOPICS))}")
+		return ','.join(topics)
+
+	@field_validator('language', mode='before')
+	@classmethod
+	def validate_language(cls, v: object) -> object:
+		if v is None:
+			return v
+		v = str(v).strip().lower()
+		if v not in SUPPORTED_LANGUAGES:
+			raise ValueError(f"Unsupported language '{v}'. Must be one of: {', '.join(sorted(SUPPORTED_LANGUAGES))}")
+		return v
+
 class UserStats(BaseModel):
 	interaction_count: int
 	is_personalized: bool
+
+class PasswordChange(BaseModel):
+	current_password: str
+	new_password: str
+
+	@field_validator('new_password', mode='before')
+	@classmethod
+	def validate_new_password(cls, v: object) -> object:
+		if len(str(v)) < 8:
+			raise ValueError('Password must be at least 8 characters')
+		return v
 
 
 # ---------- AUTH ----------
