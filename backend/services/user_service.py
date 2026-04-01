@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 
 from backend.models import User
 from backend.schemas import UserUpdate, TokenData, UserStats
-from backend.services.auth import hash_password, verify_password, create_access_token, normalize_email
+from backend.services.auth_service import hash_password, verify_password, create_access_token, normalize_email
 from backend.constants import PERSONALIZATION_THRESHOLD, MAX_AVATAR_BYTES, ALLOWED_IMAGE_TYPES, AVATAR_DIR
 from backend import repositories as repo
 

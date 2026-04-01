@@ -43,6 +43,15 @@ Model serving  → At scale, move ML inference out of the FastAPI process
 
 ---------- To Do ----------
 
+- refactor topicsFilter.tsx & code
+- Avatar display and profile editing (settings page / profile page)
+- user_service "sub" misalignment
+- Refactor signup buisness logic, defined parameters inside files etc.
+- Prompt users for preferred topics in signup page
+
+- Hooks can be abstracted and each feed type inherits the abstraction
+
+
 Code Quality
 Issue                               File                Fix
 ------------------------------------------------------------------------------------

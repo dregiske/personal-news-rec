@@ -1,8 +1,8 @@
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from backend.database import get_database
-from backend.services.ingest import ingestion_service
-from backend.services.auth import get_current_user
+from backend.services.ingest_service import ingestion_service
+from backend.services.auth_service import get_current_user
 from backend.models import User
 from backend.schemas import IngestResponse
 from backend.constants import NEWS_QUERY, PAGE_SIZE

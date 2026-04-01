@@ -9,9 +9,9 @@ from sklearn.neighbors import NearestNeighbors
 from sqlalchemy.orm import Session
 
 from backend.models import Article
-from backend.ml.model_registry import ModelRegistry, MODEL_DIRECTORY
+from backend.ml.model_registry import ModelRegistry
 from backend import repositories as repo
-from backend.constants import RECOMMENDATION_ALPHA, RECOMMENDATION_KNN_NEIGHBORS, RECOMMENDATION_PROFILE_CAP, INTERACTION_WEIGHTS, FEED_DEFAULT_LIMIT
+from backend.constants import RECOMMENDATION_ALPHA, RECOMMENDATION_KNN_NEIGHBORS, RECOMMENDATION_PROFILE_CAP, INTERACTION_WEIGHTS, FEED_DEFAULT_LIMIT, MODEL_DIRECTORY
 
 
 def article_to_text(article: Article):

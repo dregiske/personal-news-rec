@@ -6,7 +6,7 @@ Focuses on fallback behavior since we don't require trained model files to run t
 from datetime import datetime, timezone
 from backend.models import Article
 from backend.ml.model_registry import ModelRegistry
-from backend.services.recommendation import hybrid_recommend_articles
+from backend.services.recommendation_service import hybrid_recommend_articles
 
 
 def make_empty_registry() -> ModelRegistry:

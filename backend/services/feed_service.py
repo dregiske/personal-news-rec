@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 
 from backend.ml.model_registry import ModelRegistry
 from backend.models import Article
-from backend.services.recommendation import hybrid_recommend_articles
+from backend.services.recommendation_service import hybrid_recommend_articles
 from backend import repositories as repo
 
 

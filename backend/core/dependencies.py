@@ -1,7 +1,3 @@
-'''
-Shared FastAPI dependencies
-'''
-
 from fastapi import Request
 from backend.ml.model_registry import ModelRegistry
 

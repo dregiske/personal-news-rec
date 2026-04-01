@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from backend.schemas import UserCreate, UserOut, UserUpdate, LoginRequest, LoginResponse, UserStats
 from backend.database import get_database
 from backend.models import User
-from backend.services.auth import get_current_user
+from backend.services.auth_service import get_current_user
 from backend.services import user_service
 from backend.config import settings
 from backend.constants import AUTH_LIMITER

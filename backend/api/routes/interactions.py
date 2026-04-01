@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from backend.database import get_database
 from backend.schemas import InteractionCreate, InteractionOut
-from backend.services.auth import get_current_user
+from backend.services.auth_service import get_current_user
 from backend.services import interaction_service
 from backend.models import User
 

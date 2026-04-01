@@ -7,9 +7,9 @@ import os
 import joblib
 import logging
 
-logger = logging.getLogger(__name__)
+from backend.constants import MODEL_DIRECTORY
 
-MODEL_DIRECTORY = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "models"))
+logger = logging.getLogger(__name__)
 
 
 class ModelRegistry:

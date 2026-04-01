@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from backend.models import Article
 from backend.database import SessionLocal
-from backend.services.recommendation import build_tfidf_model, build_knn_index
+from backend.services.recommendation_service import build_tfidf_model, build_knn_index
 
 
 def main():

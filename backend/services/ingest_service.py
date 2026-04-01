@@ -8,8 +8,8 @@ from fastapi import HTTPException
 
 from backend.config import settings
 from backend.schemas import NewsAPIParams, NormalizedArticle
-from backend.services.keywords import build_article_keywords
-from backend.services.topics import infer_topics
+from backend.services.keywords_service import build_article_keywords
+from backend.services.topics_service import infer_topics
 from backend import repositories as repo
 
 

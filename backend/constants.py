@@ -43,4 +43,6 @@ RECOMMENDATION_ALPHA = 0.7
 RECOMMENDATION_PROFILE_CAP = 500
 RECOMMENDATION_KNN_NEIGHBORS = 10
 
+MODEL_DIRECTORY = os.path.abspath(os.path.join(os.path.dirname(__file__), "models"))
+
 AUTH_LIMITER = "5/minute" # 5 req per minute

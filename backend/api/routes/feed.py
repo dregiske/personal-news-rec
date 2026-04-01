@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from backend.database import get_database
 from backend.models import User as UserModel
-from backend.services.auth import get_current_user
+from backend.services.auth_service import get_current_user
 from backend.services import feed_service
 from backend.ml.model_registry import ModelRegistry
 from backend.core.dependencies import get_model_registry
