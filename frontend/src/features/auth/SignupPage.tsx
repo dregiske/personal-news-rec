@@ -7,7 +7,13 @@ import api, { API_BASE, extractError } from "../../api/api";
 import AvatarUploader from "../profile/components/AvatarUploader";
 import TopicToggler from "../../components/TopicToggler";
 import PromptCard from "../../components/PromptCard";
-import { formInput, formLabel, formError, btnPrimary, btnSecondary } from "../../styles/common";
+import {
+  formInput,
+  formLabel,
+  formError,
+  btnPrimary,
+  btnSecondary,
+} from "../../styles";
 import { sanitizeUsername, validateUsername } from "../../utils/validation";
 
 export default function SignupPage() {
@@ -105,7 +111,10 @@ export default function SignupPage() {
   return (
     <div className="mt-15 min-h-[calc(100vh-60px)] flex items-center justify-center px-4">
       {step === 1 && (
-        <PromptCard title="Join the Fray." subtitle="Create your account to get started.">
+        <PromptCard
+          title="Join the Fray."
+          subtitle="Create your account to get started."
+        >
           <form onSubmit={handleStep1} className="flex flex-col gap-5">
             <label className="flex flex-col gap-1.5">
               <span className={formLabel}>Email</span>
@@ -133,20 +142,29 @@ export default function SignupPage() {
               />
             </label>
 
-            <button type="submit" disabled={isLoading} className={`mt-2 ${btnPrimary}`}>
+            <button
+              type="submit"
+              disabled={isLoading}
+              className={`mt-2 w-full ${btnPrimary}`}
+            >
               {isLoading ? "Creating..." : "Create Account"}
             </button>
           </form>
 
           {message && (
-            <p className={`${formError} mt-4 ${isError ? "" : "text-fray-text-faint!"}`}>
+            <p
+              className={`${isError ? formError : "text-xs text-fray-text-faint"} mt-4`}
+            >
               {message}
             </p>
           )}
 
           <p className="text-xs text-fray-text-faint mt-6">
             Already have an account?{" "}
-            <Link to="/login" className="text-fray-primary hover:text-fray-text transition-colors duration-200">
+            <Link
+              to="/login"
+              className="text-fray-primary hover:text-fray-primary-hover transition-colors duration-200"
+            >
               Log in
             </Link>
           </p>
@@ -154,7 +172,10 @@ export default function SignupPage() {
       )}
 
       {step === 2 && (
-        <PromptCard title="Make it yours." subtitle="Customize your profile. You can always change these later.">
+        <PromptCard
+          title="Make it yours."
+          subtitle="Customize your profile. You can always change these later."
+        >
           <form onSubmit={handleStep2} className="flex flex-col gap-5">
             <AvatarUploader
               currentUrl={avatarPreview}
@@ -173,29 +194,40 @@ export default function SignupPage() {
                   setUsernameError(validateUsername(sanitized));
                 }}
                 disabled={isLoading}
-                className={`${formInput} ${usernameError ? "border-fray-danger!" : ""}`}
+                className={`${formInput} ${usernameError ? "ring-2 ring-fray-danger!" : ""}`}
                 placeholder="(Optional)"
               />
               {usernameError && <p className={formError}>{usernameError}</p>}
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <span className={formLabel}>Topics</span>
+              <span className={formLabel}>Pick some topics you like</span>
               <TopicToggler value={topics} onChange={setTopics} />
             </div>
 
             <div className="flex gap-3 mt-2">
-              <button type="submit" disabled={isLoading || !!usernameError} className={`flex-1 ${btnPrimary}`}>
+              <button
+                type="submit"
+                disabled={isLoading || !!usernameError}
+                className={`flex-1 ${btnPrimary}`}
+              >
                 {isLoading ? "Saving..." : "Finish"}
               </button>
-              <button type="button" onClick={handleSkip} disabled={isLoading} className={btnSecondary}>
+              <button
+                type="button"
+                onClick={handleSkip}
+                disabled={isLoading}
+                className={btnSecondary}
+              >
                 Skip
               </button>
             </div>
           </form>
 
           {message && (
-            <p className={`${formError} mt-4 ${isError ? "" : "text-fray-text-faint!"}`}>
+            <p
+              className={`${isError ? formError : "text-xs text-fray-text-faint"} mt-4`}
+            >
               {message}
             </p>
           )}

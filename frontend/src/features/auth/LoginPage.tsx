@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useAuth } from './AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import PromptCard from '../../components/PromptCard';
-import { formInput, formLabel, formError, btnPrimary } from '../../styles/common';
+import { formInput, formLabel, formError, btnPrimary } from '../../styles';
 
 export default function LoginPage() {
   const { login, loading } = useAuth();
@@ -52,7 +52,7 @@ export default function LoginPage() {
             />
           </label>
 
-          <button type="submit" disabled={loading} className={`mt-2 ${btnPrimary}`}>
+          <button type="submit" disabled={loading} className={`mt-2 w-full ${btnPrimary}`}>
             {loading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
@@ -61,7 +61,7 @@ export default function LoginPage() {
 
         <p className="text-xs text-fray-text-faint mt-6">
           Don't have an account?{' '}
-          <Link to="/signup" className="text-fray-primary hover:text-fray-text transition-colors duration-200">
+          <Link to="/signup" className="text-fray-primary hover:text-fray-primary-hover transition-colors duration-200">
             Sign up
           </Link>
         </p>
