@@ -7,10 +7,12 @@
 @utility fray-lift {
   position: relative;
   isolation: isolate;
-  transition: transform 200ms ease, box-shadow 200ms ease;
+  transition:
+    transform 200ms ease,
+    box-shadow 200ms ease;
 
   &::before {
-    content: '';
+    content: "";
     position: absolute;
     left: 5px;
     right: 5px;
@@ -34,15 +36,29 @@
 }
 
 @keyframes fray-slide-up {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @utility fray-slide-up {
   animation: fray-slide-up 350ms ease forwards;
 }
 
-@keyframes fray-progress {
-  from { width: 0%; }
-  to   { width: 100%; }
+/*
+  fray-ticker — infinite horizontal scroll for the carousel.
+  Animates from 0 to -50% so a duplicated track loops seamlessly.
+*/
+@keyframes fray-ticker {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
 }
