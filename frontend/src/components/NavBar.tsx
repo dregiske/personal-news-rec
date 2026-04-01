@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "../features/auth/AuthContext";
 import UserMenu from "../features/profile/components/UserMenu";
+import BrandName from "./BrandName";
 import { navLink, btnPrimary } from "../styles";
 
 export default function NavBar() {
@@ -12,7 +13,7 @@ export default function NavBar() {
         to="/"
         className="text-2xl font-bold tracking-tight text-fray-text hover:text-fray-primary transition-colors duration-200"
       >
-        The <span className="text-fray-primary">Fray</span>
+        <BrandName />
       </Link>
 
       <div className="flex items-center gap-4">
@@ -20,8 +21,12 @@ export default function NavBar() {
           <UserMenu />
         ) : (
           <>
-            <Link to="/login" className={navLink}>Login</Link>
-            <Link to="/signup" className={navLink}>Sign Up</Link>
+            <Link to="/login" className={navLink}>
+              Login
+            </Link>
+            <Link to="/signup" className={navLink}>
+              Sign Up
+            </Link>
             <Link to="/" className={`${btnPrimary} text-xs px-4 py-1.5`}>
               Home
             </Link>
