@@ -1,5 +1,5 @@
-import type { ReactNode } from 'react';
-import { pageWrapper, pageTitle, pageSubtitle } from '../styles';
+import type { ReactNode } from "react";
+import { pageWrapper, pageTitle, pageSubtitle } from "../styles";
 
 interface Props {
   title?: string;

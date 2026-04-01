@@ -1,5 +1,5 @@
-import type { ReactNode } from 'react';
-import { card, pageTitle, pageSubtitle } from '../styles';
+import type { ReactNode } from "react";
+import { card, pageTitle, pageSubtitle } from "../styles";
 
 interface Props {
   title: string;
@@ -9,7 +9,13 @@ interface Props {
   children: ReactNode;
 }
 
-export default function PromptCard({ title, titleClassName, subtitle, onClose, children }: Props) {
+export default function PromptCard({
+  title,
+  titleClassName,
+  subtitle,
+  onClose,
+  children,
+}: Props) {
   return (
     <div className="w-full max-w-sm">
       <div className="flex items-start justify-between mb-1">
@@ -24,12 +30,8 @@ export default function PromptCard({ title, titleClassName, subtitle, onClose, c
           </button>
         )}
       </div>
-      {subtitle && (
-        <p className={`${pageSubtitle} mb-8`}>{subtitle}</p>
-      )}
-      <div className={`${card} mt-2`}>
-        {children}
-      </div>
+      {subtitle && <p className={`${pageSubtitle} mb-8`}>{subtitle}</p>}
+      <div className={`${card} mt-2`}>{children}</div>
     </div>
   );
 }

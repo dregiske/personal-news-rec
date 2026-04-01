@@ -1,19 +1,19 @@
-import { TOPICS } from '../constants';
-import TopicButton from './TopicButton';
+import { TOPICS } from "../constants";
+import TopicButton from "./TopicButton";
 
 interface Props {
-  value: string; // comma-separated list of selected topics
+  value: string;
   onChange: (value: string) => void;
 }
 
 export default function TopicToggler({ value, onChange }: Props) {
   function toggle(topic: string) {
-    const current = value ? value.split(',').filter(Boolean) : [];
+    const current = value ? value.split(",").filter(Boolean) : [];
     const lower = topic.toLowerCase();
     const next = current.includes(lower)
       ? current.filter((t) => t !== lower)
       : [...current, lower];
-    onChange(next.join(','));
+    onChange(next.join(","));
   }
 
   return (
@@ -21,7 +21,7 @@ export default function TopicToggler({ value, onChange }: Props) {
       {TOPICS.map((topic) => (
         <TopicButton
           key={topic}
-          active={value.split(',').includes(topic.toLowerCase())}
+          active={value.split(",").includes(topic.toLowerCase())}
           onClick={() => toggle(topic)}
         >
           {topic}
