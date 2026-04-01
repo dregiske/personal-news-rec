@@ -4,6 +4,7 @@ import ArticleCard from '../articles/components/ArticleCard';
 import PageLayout from '../../components/PageLayout';
 import FeedStatus from '../../components/FeedStatus';
 import { useFetch } from '../../hooks/useFetch';
+import { metaText } from '../../styles';
 
 export default function SavedPage() {
   const { data, loading, error } = useFetch<SavedArticle[]>(fetchSaved, [], 'Failed to load saved articles.');
@@ -19,14 +20,12 @@ export default function SavedPage() {
       />
 
       {!loading && !error && saved.length > 0 && (
-        <div className="flex flex-col gap-px bg-fray-border">
+        <div className="flex flex-col gap-3">
           {saved.map((s) => (
-            <div key={s.id} className="bg-fray-bg">
-              <div className="px-5 pt-3">
-                <p className="text-xs text-fray-text-faint">
-                  Saved on {new Date(s.saved_at).toLocaleDateString()}
-                </p>
-              </div>
+            <div key={s.id}>
+              <p className={`${metaText} px-1 mb-1.5`}>
+                Saved on {new Date(s.saved_at).toLocaleDateString()}
+              </p>
               <ArticleCard article={s.article} variant="list" isSaved />
             </div>
           ))}
