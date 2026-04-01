@@ -1,4 +1,4 @@
-import { TOPICS } from '../constants';
+import { TOPICS } from '../../../constants';
 
 interface Props {
   active: string | null;

@@ -1,5 +1,5 @@
-import api, { API_BASE } from "./api";
-import type { SavedArticle } from "../types";
+import api, { API_BASE } from '../../api/api';
+import type { SavedArticle } from '../../types';
 
 export async function fetchSaved(): Promise<SavedArticle[]> {
   const res = await api.get<SavedArticle[]>(`${API_BASE}/me/saved`);

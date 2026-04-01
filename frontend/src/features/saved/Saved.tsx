@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { fetchSaved } from '../api/saved';
-import type { SavedArticle } from '../types';
-import ArticleCard from '../components/ArticleCard';
-import PageLayout from '../components/PageLayout';
+import { fetchSaved } from './api';
+import type { SavedArticle } from '../../types';
+import ArticleCard from '../articles/components/ArticleCard';
+import PageLayout from '../../components/PageLayout';
 
 export default function SavedPage() {
   const [saved, setSaved] = useState<SavedArticle[]>([]);

@@ -1,5 +1,5 @@
-import ArticleCard from './ArticleCard';
-import type { Article } from '../types';
+import ArticleCard from "./ArticleCard";
+import type { Article } from "../../../types";
 
 interface Props {
   articles: Article[];
@@ -18,17 +18,22 @@ export default function HeroSection({ articles, savedIds }: Props) {
       </p>
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-px bg-fray-border">
-		
-        {/* Featured article — left, larger */}
         <div className="lg:col-span-3 bg-fray-bg">
-          <ArticleCard article={featured} variant="featured" isSaved={savedIds.has(featured.id)} />
+          <ArticleCard
+            article={featured}
+            variant="featured"
+            isSaved={savedIds.has(featured.id)}
+          />
         </div>
 
-        {/* Top picks — right, stacked */}
         <div className="lg:col-span-2 flex flex-col gap-px bg-fray-border">
           {topPicks.slice(0, 3).map((article) => (
             <div key={article.id} className="flex-1 min-h-40 bg-fray-bg">
-              <ArticleCard article={article} variant="compact" isSaved={savedIds.has(article.id)} />
+              <ArticleCard
+                article={article}
+                variant="compact"
+                isSaved={savedIds.has(article.id)}
+              />
             </div>
           ))}
         </div>

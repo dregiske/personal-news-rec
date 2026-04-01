@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { recordInteraction, deleteInteraction } from '../api/interactions';
-import { saveArticle, unsaveArticle } from '../api/saved';
-import type { Article } from '../types';
+import { recordInteraction, deleteInteraction } from '../api';
+import { saveArticle, unsaveArticle } from '../../saved/api';
+import type { Article } from '../../../types';
 
 interface Props {
   article: Article;
@@ -106,7 +106,6 @@ export default function ArticleCard({ article, variant = 'list', isSaved = false
   if (variant === 'compact') {
     return (
       <article className="group relative overflow-hidden border border-fray-border cursor-pointer h-full">
-        {/* Background image with gradient overlay */}
         {article.image_url && (
           <img
             src={article.image_url}
@@ -117,7 +116,6 @@ export default function ArticleCard({ article, variant = 'list', isSaved = false
         )}
         <div className="absolute inset-0 bg-fray-bg/80 backdrop-blur-sm" />
 
-        {/* Default view */}
         <div className="relative h-full p-4 flex flex-col justify-end transition-opacity duration-300 group-hover:opacity-0">
           {article.source && (
             <p className="text-xs font-semibold uppercase tracking-widest text-fray-primary mb-1">
@@ -129,7 +127,6 @@ export default function ArticleCard({ article, variant = 'list', isSaved = false
           </h3>
         </div>
 
-        {/* Hover reveal */}
         <div className="absolute inset-0 p-4 flex flex-col justify-between opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-fray-overlay">
           <div className="overflow-hidden">
             {article.author && (
@@ -159,7 +156,6 @@ export default function ArticleCard({ article, variant = 'list', isSaved = false
     );
   }
 
-  // list variant (default)
   return (
     <article className="flex flex-col gap-2 p-5 bg-fray-glass border border-fray-border backdrop-blur-md hover:border-fray-border-hover transition-colors duration-200">
       <div className="flex items-start gap-4">

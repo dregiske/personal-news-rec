@@ -1,5 +1,5 @@
 import ArticleCard from './ArticleCard';
-import type { Article } from '../types';
+import type { Article } from '../../../types';
 
 interface Props {
   articles: Article[];

@@ -1,7 +1,7 @@
 import { Routes, Route } from 'react-router-dom';
 import NavBar from './components/NavBar';
 import Home from './pages/Home';
-import Dashboard from './pages/Dashboard';
+import Dashboard from './features/articles/Dashboard';
 import NotFound from './pages/errors/NotFound';
 import Unauthorized from './pages/errors/Unauthorized';
 import Forbidden from './pages/errors/Forbidden';
@@ -10,7 +10,8 @@ import ServiceUnavailable from './pages/errors/ServiceUnavailable';
 import LoginPage from './features/auth/LoginPage';
 import SignupPage from './features/auth/SignupPage';
 import ProtectedRoute from './features/auth/ProtectedRoute';
-import SavedPage from './pages/Saved';
+import SavedPage from './features/saved/Saved';
+import ProfilePage from './features/profile/Profile';
 
 export default function App() {
   return (
@@ -34,6 +35,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <SavedPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <ProfilePage />
               </ProtectedRoute>
             }
           />

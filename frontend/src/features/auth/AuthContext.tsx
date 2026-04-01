@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect } from "react";
 import type { ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { login as loginApi, logout as logoutApi, fetchMe } from "./api";
+import { extractError } from "../../api/api";
 import type { User } from "../../types";
 
 type LoginResult = { ok: true } | { ok: false; error: string };
@@ -11,7 +12,7 @@ interface AuthContextType {
   loading: boolean;
   login: (email: string, password: string) => Promise<LoginResult>;
   logout: () => void;
-  setUser: (user: User) => void;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -21,7 +22,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  // Restore session from existing httpOnly cookie on mount
   useEffect(() => {
     fetchMe().then((me) => {
       setUser(me);
@@ -36,10 +36,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(data.user);
       return { ok: true };
     } catch (err: unknown) {
-      console.error(err);
-      const message =
-        (err as { response?: { data?: { detail?: string } } })?.response?.data
-          ?.detail ?? "Login failed";
+      const message = extractError(err, "Login failed");
       return { ok: false, error: message };
     } finally {
       setLoading(false);
@@ -52,8 +49,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     navigate("/");
   }
 
+  async function refreshUser() {
+    const me = await fetchMe();
+    if (me) setUser(me);
+  }
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, setUser }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );
