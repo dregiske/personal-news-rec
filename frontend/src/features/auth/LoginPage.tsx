@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useAuth } from './AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import PromptCard from '../../components/PromptCard';
+import { APP_SHORT_NAME } from '../../constants';
 import { formInput, formLabel, formError, btnPrimary } from '../../styles';
 
 export default function LoginPage() {
@@ -26,7 +27,7 @@ export default function LoginPage() {
 
   return (
     <div className="mt-15 min-h-[calc(100vh-60px)] flex items-center justify-center px-4">
-      <PromptCard title="Welcome back." subtitle="Sign in to your Fray account.">
+      <PromptCard title="Welcome back." subtitle={`Sign in to your ${APP_SHORT_NAME} account.`}>
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
           <label className="flex flex-col gap-1.5">
             <span className={formLabel}>Email</span>

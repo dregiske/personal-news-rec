@@ -15,6 +15,7 @@ import {
   btnSecondary,
 } from "../../styles";
 import { sanitizeUsername, validateUsername } from "../../utils/validation";
+import { APP_SHORT_NAME } from "../../constants";
 
 export default function SignupPage() {
   const navigate = useNavigate();
@@ -112,7 +113,7 @@ export default function SignupPage() {
     <div className="mt-15 min-h-[calc(100vh-60px)] flex items-center justify-center px-4">
       {step === 1 && (
         <PromptCard
-          title="Join the Fray."
+          title={`Join the ${APP_SHORT_NAME}.`}
           subtitle="Create your account to get started."
         >
           <form onSubmit={handleStep1} className="flex flex-col gap-5">
