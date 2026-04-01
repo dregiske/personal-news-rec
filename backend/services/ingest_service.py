@@ -70,7 +70,7 @@ def ingestion_service(db: Session, api_key: str, query: str, page_size: int) -> 
 		normalize, extract keywords, infer topics, upsert into DB.
 	Returns count of upserted articles.
 	'''
-	params = NewsAPIParams(query=query, pageSize=page_size, apiKey=api_key)
+	params = NewsAPIParams(q=query, pageSize=page_size, apiKey=api_key)
 	raw_articles = fetch_newsapi_articles(params)
 
 	upserted = 0
