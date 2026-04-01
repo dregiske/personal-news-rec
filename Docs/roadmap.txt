@@ -4,20 +4,29 @@ Tests
 27 passing tests across test_routes.py and test_recommendation.py
 
 ---------- To Do ----------
+- If we query newsAPI by topic, we can sort by topic as well
+	- How can we query for new news, make bigger queries?
+- APScheduler
 
-Database
-Issue                                           File            Fix
+Issue                                       File            Fix
 --------------------------------------------------------------------------------------------------------------
 
 
-Code Quality
-Issue                                           File            Fix
---------------------------------------------------------------------------------------------------------------
+
+===== FRONTEND =====
+
+---------- To Do ----------
+- none
+
+Issue                               		File                Fix
+------------------------------------------------------------------------------------
+No client-side input validation     		Login/Signup        Add basic checks (password length, email
+                                    		pages               format) before the API call
+
+No error boundary                   		App.tsx             Wrap Dashboard in a React ErrorBoundary
+                                                    			so a crash doesn't blank the whole app
 
 
-Security
-Issue                                           File            Fix
---------------------------------------------------------------------------------------------------------------
 
 
 ---------- Scalability Path ----------
@@ -38,18 +47,30 @@ Model serving  → At scale, move ML inference out of the FastAPI process
                → Dedicated inference service (e.g. TorchServe or a simple FastAPI sidecar)
 
 
+Phase 1: PostgreSQL + Alembic
+Do these together — they're tightly coupled. Switching to Postgres without Alembic means you're immediately managing schema by hand, which is painful. One session:
 
-===== FRONTEND =====
+database.py — connection pooling for Postgres
+Add psycopg2-binary + alembic
+Set up Alembic, generate initial migration from your existing models
+Swap DATABASE_URL in .env
+Why first: Everything else builds on the database. Redis caches DB results. Docker bundles the DB. The scheduler writes to the DB. Get this right before adding complexity on top.
 
----------- To Do ----------
+Phase 2: Scheduler (APScheduler)
+Now that Postgres is stable, add the scheduler. It's purely Python — no new infra. Easy to test locally.
 
-- user_service "sub" misalignment
+Phase 3: Docker
+Containerize after the stack is stable locally. Your docker-compose.yml will define three services: api (FastAPI), db (Postgres), redis (Redis). Do this before Redis in code because:
 
-Code Quality
-Issue                               File                Fix
-------------------------------------------------------------------------------------
-No client-side input validation     Login/Signup        Add basic checks (password length, email
-                                    pages               format) before the API call
+It gives you a local Postgres + Redis to develop against
+From this point on, docker compose up is your dev environment
+Phase 4: Redis caching
+With Redis running in Docker, wire up fastapi-cache2 or redis-py to cache the heavy read endpoints (/feed/latest, /feed/topics/{topic}, /feed/for-you). These are your hottest paths and will get hammered in production.
 
-No error boundary                   App.tsx             Wrap Dashboard in a React ErrorBoundary
-                                                        so a crash doesn't blank the whole app
+Phase 5: Nginx
+Last layer. Add an nginx service to docker-compose.yml as a reverse proxy in front of FastAPI. Handles SSL termination, static file serving (avatars), and request buffering. Only meaningful once everything else is containerized.
+
+Summary
+
+PostgreSQL + Alembic  →  Scheduler  →  Docker  →  Redis  →  Nginx
+     (foundation)         (feature)   (infra)    (perf)   (prod edge)
