@@ -7,6 +7,7 @@ import PageLayout from '../../components/PageLayout';
 import HeroSection from './components/HeroSection';
 import TodaySection from './components/TodaySection';
 import TopicFilter from './components/TopicFilter';
+import FeedStatus from '../../components/FeedStatus';
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -19,13 +20,6 @@ export default function Dashboard() {
   const loading = heroLoading || latestLoading;
   const error = heroError || latestError;
 
-  if (loading) return (
-    <p className="pt-15 text-center text-fray-text-light mt-16">Loading your feed...</p>
-  );
-  if (error) return (
-    <p className="pt-15 text-center text-fray-danger mt-16">{error}</p>
-  );
-
   const isEmpty = heroArticles.length === 0 && latestArticles.length === 0;
 
   return (
@@ -35,11 +29,14 @@ export default function Dashboard() {
     >
       <TopicFilter active={activeTopic} onChange={setActiveTopic} />
 
-      {isEmpty ? (
-        <p className="text-sm text-fray-text-faint mt-8">
-          No articles available right now. Check back soon.
-        </p>
-      ) : (
+      <FeedStatus
+        loading={loading}
+        error={error}
+        empty={isEmpty}
+        emptyMessage="No articles available right now. Check back soon."
+      />
+
+      {!loading && !error && !isEmpty && (
         <>
           <HeroSection articles={heroArticles.slice(0, 4)} savedIds={savedIds} />
           <TodaySection articles={latestArticles} savedIds={savedIds} />
