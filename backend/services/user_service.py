@@ -8,7 +8,7 @@ from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
 from backend.models import User
-from backend.schemas import UserUpdate, TokenData, UserStats
+from backend.schemas import UserUpdate, TokenData, UserStats, PasswordChange
 from backend.services.auth_service import hash_password, verify_password, create_access_token, normalize_email
 from backend.constants import PERSONALIZATION_THRESHOLD, MAX_AVATAR_BYTES, ALLOWED_IMAGE_TYPES, AVATAR_DIR
 from backend import repositories as repo
@@ -61,6 +61,8 @@ def upload_avatar(db: Session, user: User, content_type: str, filename: str | No
     if len(contents) > MAX_AVATAR_BYTES:
         raise HTTPException(status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, detail="Avatar must be 5 MB or smaller")
 
+    _delete_avatar_file(user.avatar_url)
+
     os.makedirs(AVATAR_DIR, exist_ok=True)
     ext = filename.rsplit('.', 1)[-1] if filename and '.' in filename else 'jpg'
     dest = os.path.join(AVATAR_DIR, f'{uuid.uuid4().hex}.{ext}')
@@ -70,6 +72,28 @@ def upload_avatar(db: Session, user: User, content_type: str, filename: str | No
 
     avatar_url = f'/static/avatars/{os.path.basename(dest)}'
     return repo.user.update(db, user, {'avatar_url': avatar_url})
+
+
+def change_password(db: Session, user: User, data: PasswordChange) -> None:
+    if not verify_password(data.current_password, user.hashed_password):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Current password is incorrect")
+    repo.user.update(db, user, {"hashed_password": hash_password(data.new_password)})
+
+
+def _delete_avatar_file(avatar_url: str) -> None:
+    '''Delete a local avatar file from disk if it exists.'''
+    if avatar_url and avatar_url.startswith('/static/avatars/'):
+        path = os.path.join(os.path.dirname(__file__), '..', '..', avatar_url.lstrip('/'))
+        path = os.path.abspath(path)
+        if os.path.isfile(path):
+            os.remove(path)
+
+
+def delete_avatar(db: Session, user: User) -> User:
+    if not user.avatar_url:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No avatar to delete")
+    _delete_avatar_file(user.avatar_url)
+    return repo.user.update(db, user, {'avatar_url': None})
 
 
 def get_stats(db: Session, user_id: int) -> UserStats:
