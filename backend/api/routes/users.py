@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Response, Request, UploadFile, File
 from sqlalchemy.orm import Session
 
-from backend.schemas import UserCreate, UserOut, UserUpdate, LoginRequest, LoginResponse, UserStats
+from backend.schemas import UserCreate, UserOut, UserUpdate, LoginRequest, LoginResponse, UserStats, PasswordChange
 from backend.database import get_database
 from backend.models import User
 from backend.services.auth_service import get_current_user
@@ -78,6 +78,23 @@ def update_profile(
 	current_user: User = Depends(get_current_user),
 ):
 	return user_service.update_profile(db, current_user, data)
+
+
+@router.patch("/me/password", status_code=204)
+def change_password(
+	data: PasswordChange,
+	db: Session = Depends(get_database),
+	current_user: User = Depends(get_current_user),
+):
+	user_service.change_password(db, current_user, data)
+
+
+@router.delete("/me/avatar", response_model=UserOut)
+def delete_avatar(
+	db: Session = Depends(get_database),
+	current_user: User = Depends(get_current_user),
+):
+	return user_service.delete_avatar(db, current_user)
 
 
 @router.get("/me/stats", response_model=UserStats)
