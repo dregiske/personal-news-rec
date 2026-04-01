@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { btnPrimary } from '../styles/common';
 
 interface Action {
   label: string;
@@ -22,17 +23,11 @@ export default function ErrorPage({ code, title, message, action }: Props) {
         <p className="text-sm text-fray-text-light mb-8">{message}</p>
         {action && (
           action.href ? (
-            <Link
-              to={action.href}
-              className="inline-block px-6 py-2.5 bg-fray-primary text-fray-ink text-sm font-semibold hover:bg-fray-primary-hover transition-colors duration-200"
-            >
+            <Link to={action.href} className={`inline-block ${btnPrimary}`}>
               {action.label}
             </Link>
           ) : (
-            <button
-              onClick={action.onClick}
-              className="px-6 py-2.5 bg-fray-primary text-fray-ink text-sm font-semibold hover:bg-fray-primary-hover transition-colors duration-200"
-            >
+            <button onClick={action.onClick} className={btnPrimary}>
               {action.label}
             </button>
           )
