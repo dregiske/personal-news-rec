@@ -8,8 +8,8 @@ interface Props {
 
 export default function InteractionButtons({ interaction, onInteract, small = false }: Props) {
   const base = small
-    ? 'text-xs px-2 py-1 border font-medium transition-colors duration-200'
-    : 'text-sm px-3 py-1.5 border font-medium transition-colors duration-200';
+    ? 'text-xs px-2 py-1 font-medium rounded-lg transition-all duration-200'
+    : 'text-sm px-3 py-1.5 font-medium rounded-lg transition-all duration-200';
 
   return (
     <div className="flex gap-2">
@@ -17,8 +17,8 @@ export default function InteractionButtons({ interaction, onInteract, small = fa
         onClick={() => onInteract('like')}
         className={`${base} ${
           interaction === 'liked'
-            ? 'border-fray-success text-fray-success'
-            : 'border-fray-border text-fray-text-light hover:border-fray-success hover:text-fray-success'
+            ? 'bg-fray-success/15 text-fray-success'
+            : 'bg-fray-surface-alt text-fray-text-faint hover:bg-fray-success/15 hover:text-fray-success'
         }`}
       >
         {interaction === 'liked' ? 'Liked ✓' : 'Like'}
@@ -27,8 +27,8 @@ export default function InteractionButtons({ interaction, onInteract, small = fa
         onClick={() => onInteract('dislike')}
         className={`${base} ${
           interaction === 'disliked'
-            ? 'border-fray-muted text-fray-muted'
-            : 'border-fray-border text-fray-text-light hover:border-fray-muted hover:text-fray-muted'
+            ? 'bg-fray-danger/15 text-fray-danger'
+            : 'bg-fray-surface-alt text-fray-text-faint hover:bg-fray-danger/15 hover:text-fray-danger'
         }`}
       >
         {interaction === 'disliked' ? 'Disliked ✓' : 'Dislike'}

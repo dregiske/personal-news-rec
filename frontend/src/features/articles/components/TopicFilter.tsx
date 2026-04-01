@@ -12,7 +12,7 @@ export default function TopicFilter({ active, onChange }: Props) {
       <TopicButton
         active={active === null}
         onClick={() => onChange(null)}
-        className="shrink-0 px-4 py-1.5"
+        className="shrink-0"
       >
         All
       </TopicButton>
@@ -24,7 +24,7 @@ export default function TopicFilter({ active, onChange }: Props) {
             key={topic}
             active={isActive}
             onClick={() => onChange(isActive ? null : topic.toLowerCase())}
-            className="shrink-0 px-4 py-1.5"
+            className="shrink-0"
           >
             {topic}
           </TopicButton>

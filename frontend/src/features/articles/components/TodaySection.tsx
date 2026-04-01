@@ -15,14 +15,17 @@ export default function TodaySection({ articles, savedIds }: Props) {
         <h2 className="text-lg font-semibold uppercase tracking-widest text-fray-text">
           Today on the News
         </h2>
-        <div className="flex-1 h-px bg-fray-border" />
+        <div className="flex-1 h-px bg-fray-surface-alt" />
       </div>
 
-      <div className="flex flex-col gap-px bg-fray-border">
+      <div className="flex flex-col gap-3">
         {articles.map((article) => (
-          <div key={article.id} className="min-h-20 bg-fray-bg">
-            <ArticleCard article={article} variant="list" isSaved={savedIds.has(article.id)} />
-          </div>
+          <ArticleCard
+            key={article.id}
+            article={article}
+            variant="list"
+            isSaved={savedIds.has(article.id)}
+          />
         ))}
       </div>
     </section>
