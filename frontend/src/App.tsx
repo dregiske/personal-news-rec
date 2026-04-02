@@ -13,6 +13,8 @@ import SignupPage from "./features/auth/SignupPage";
 import ProtectedRoute from "./features/auth/ProtectedRoute";
 import SavedPage from "./features/saved/Saved";
 import ProfilePage from "./features/profile/Profile";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfService from "./pages/TermsOfService";
 
 export default function App() {
   return (
@@ -47,6 +49,8 @@ export default function App() {
               </ProtectedRoute>
             }
           />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/terms" element={<TermsOfService />} />
           <Route path="/401" element={<Unauthorized />} />
           <Route path="/403" element={<Forbidden />} />
           <Route path="/500" element={<ServerError />} />
