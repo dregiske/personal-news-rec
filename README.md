@@ -1,83 +1,54 @@
-# Personalized News Recommendation App
+# The Fray
 
 ## 1. Project Overview
 
 This is a web application that suggests news articles tailored to each user based on:
-1) Reading histories
-2) Content-based similarity on article metadata
-3) Interaction histories
+
+1. Reading histories
+2. Content-based similarity on article metadata
+3. Interaction histories
+4. Topic filtering
 
 ### Core Features
+
 - User Authentication (JWT)
 - Sign-up / Log-in
 - Oauth2 system for user authentication
 - Secure password storage (hashing)
 - SQLAlchemy databases storing:
-	- User interactions
-	- Articles
-	- User information
+  - User interactions
+  - Articles
+  - User information
+  - Saved article relations
 - Store what articles the user reads, likes, or dislikes
-- Grabs keywords from article content
+- Grabs keywords / topics from article content
 - News ingestion using NewsAPI
 - Recommendation system using ML algorithms (KNN)
 - Generates recommended list of articles for user (defaults to regular feed)
-- Frontend interface using React + Javascript
+- Frontend interface using React + TypeScript + Tailwind CSS
 - REST API setup with FastAPI (backend)
 
-
 ## 2. Tech Stack
+
 - Backend: Python 3.10+, FastAPI, Pydantic, JWT, Uvicorn
-- Machine Learning: scikit-learn, NumPy
-- Database: SQLAlchemy
-- Frontend: React + Javascript
-- Infrastructure: Docker, Docker-Compose, GitHub Actions CI
+- Machine Learning: scikit-learn
+- Database: SQLAlchemy, PostgreSQL
+- Frontend: React + TypeScript, Tailwind CSS, Axios
+- Infrastructure: Nginx, Docker, Docker-Compose, GitHub Actions CI
 
 ## 3. Data Sources
+
 - Fetches news through NewsAPI
-- Ingestion service handles normalizing metadata and storing it in database
+- Ingestion service handles normalizing metadata, extracting information, and storing it in database
 
-## 4. Setup
-1) Clone github repository, and cd into project file:
-```
-git clone https://github.com/dregiske/personal-news-rec.git
-cd personal-news-rec
-```
+## 4. The Web App Domain
 
-2) Start environment:
-```
-python3 -m venv venv
-source venv/bin/activate
-```
-
-3) Install dependencies:
-```
-pip install --upgrade pip
-pip install -r requirements.txt
-```
-
-4) Start uvicorn app (backend)
-```
-uvicorn backend.main:app --reload --port 8000
-```
-
-5) Start react app (frontend)
-```
-cd frontend
-npm install
-npm run dev
-```
-
-Dependencies used:
-```
-npm install react
-npm install react-dom
-npm install react-router-dom
-npm install axios
-```
+The Fray is live at: `www.thefraynews.com`
 
 ## 5. System Design
 
 Backend authentication
+
 - Actual security
 - Verifies password
 - Creates JWT
@@ -85,6 +56,7 @@ Backend authentication
 - Controls access to protected routes
 
 Frontend authentication (AuthContext)
+
 - Holds user info, not JWT
 - Redirects user
 - Shows/hides pages
@@ -92,6 +64,7 @@ Frontend authentication (AuthContext)
 - Purely UI + state management
 
 Backend Responsibilities:
+
 - Password hashing
 - JWT token creation
 - JWT token validation
@@ -101,19 +74,10 @@ Backend Responsibilities:
 - Security logic
 
 Frontend Responsibilities:
+
 - UI
 - Routing
 - Forms
 - Call backend APIs
 - Keep simple “user metadata” (not secrets)
 - Show different screens depending on login state
-
-## 6. Todo Next
-- Refresh feed (gives the user a new list of articles)
-- Automatically ingest content
-- Record views (when user clicks link)
-
-## 7. Misc:
-
-## Demo Run:
-http://127.0.0.1:8000/docs
