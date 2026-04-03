@@ -7,6 +7,7 @@ Tests
 - If we query newsAPI by topic, we can sort by topic as well
 	- How can we query for new news, make bigger queries?
 - APScheduler
+- Fix avatar uploading -- fault display
 
 Issue                                       File            Fix
 --------------------------------------------------------------------------------------------------------------
@@ -47,15 +48,6 @@ Model serving  → At scale, move ML inference out of the FastAPI process
                → Dedicated inference service (e.g. TorchServe or a simple FastAPI sidecar)
 
 
-Phase 1: PostgreSQL + Alembic
-Do these together — they're tightly coupled. Switching to Postgres without Alembic means you're immediately managing schema by hand, which is painful. One session:
-
-database.py — connection pooling for Postgres
-Add psycopg2-binary + alembic
-Set up Alembic, generate initial migration from your existing models
-Swap DATABASE_URL in .env
-Why first: Everything else builds on the database. Redis caches DB results. Docker bundles the DB. The scheduler writes to the DB. Get this right before adding complexity on top.
-
 Phase 2: Scheduler (APScheduler)
 Now that Postgres is stable, add the scheduler. It's purely Python — no new infra. Easy to test locally.
 
@@ -74,3 +66,19 @@ Summary
 
 PostgreSQL + Alembic  →  Scheduler  →  Docker  →  Redis  →  Nginx
      (foundation)         (feature)   (infra)    (perf)   (prod edge)
+
+Whenever you change a model (add a column, new table, etc.):
+
+
+====== ALEMBIC ======
+
+alembic revision --autogenerate -m "describe the change"
+# review the generated file in alembic/versions/
+alembic upgrade head
+That's it. Alembic diffs your models against the live database and generates the exact SQL needed.
+
+
+===== DOCKER =====
+Edit code locally
+docker compose build app (rebuilds just the app container)
+docker compose up -d (restarts with the new build)
