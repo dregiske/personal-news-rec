@@ -14,7 +14,9 @@ class Settings(BaseSettings):
 	API_PREFIX: str
 	
 	NEWSAPI_URL: str
+
 	DATABASE_URL: str
+	DB_PASSWORD: str
 
 	ACCESS_TOKEN_EXPIRE_MINUTES: int
 
