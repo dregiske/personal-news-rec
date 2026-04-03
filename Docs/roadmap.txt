@@ -4,10 +4,7 @@ Tests
 27 passing tests across test_routes.py and test_recommendation.py
 
 ---------- To Do ----------
-- If we query newsAPI by topic, we can sort by topic as well
-	- How can we query for new news, make bigger queries?
 - APScheduler
-- Fix avatar uploading -- fault display
 
 Issue                                       File            Fix
 --------------------------------------------------------------------------------------------------------------
@@ -32,17 +29,11 @@ No error boundary                   		App.tsx             Wrap Dashboard in a Re
 
 ---------- Scalability Path ----------
 
-PostgreSQL     → Drop-in swap via DATABASE_URL + pip install psycopg2-binary
-               → Your config.py + SQLAlchemy setup already supports it
-
 Redis caching  → Cache hybrid_recommend_articles() results per user_id
                → Invalidate on new interaction (TTL ~5 min is fine)
 
 Background     → Move /admin/ingest to a scheduled job (APScheduler or Celery)
 ingestion        instead of an HTTP endpoint triggered manually
-
-Containerize   → Dockerfile + docker-compose with postgres + backend services
-               → config.py + .env pattern is already 12-factor friendly
 
 Model serving  → At scale, move ML inference out of the FastAPI process
                → Dedicated inference service (e.g. TorchServe or a simple FastAPI sidecar)
@@ -51,23 +42,9 @@ Model serving  → At scale, move ML inference out of the FastAPI process
 Phase 2: Scheduler (APScheduler)
 Now that Postgres is stable, add the scheduler. It's purely Python — no new infra. Easy to test locally.
 
-Phase 3: Docker
-Containerize after the stack is stable locally. Your docker-compose.yml will define three services: api (FastAPI), db (Postgres), redis (Redis). Do this before Redis in code because:
-
-It gives you a local Postgres + Redis to develop against
-From this point on, docker compose up is your dev environment
 Phase 4: Redis caching
 With Redis running in Docker, wire up fastapi-cache2 or redis-py to cache the heavy read endpoints (/feed/latest, /feed/topics/{topic}, /feed/for-you). These are your hottest paths and will get hammered in production.
 
-Phase 5: Nginx
-Last layer. Add an nginx service to docker-compose.yml as a reverse proxy in front of FastAPI. Handles SSL termination, static file serving (avatars), and request buffering. Only meaningful once everything else is containerized.
-
-Summary
-
-PostgreSQL + Alembic  →  Scheduler  →  Docker  →  Redis  →  Nginx
-     (foundation)         (feature)   (infra)    (perf)   (prod edge)
-
-Whenever you change a model (add a column, new table, etc.):
 
 
 ====== ALEMBIC ======
@@ -83,3 +60,28 @@ That's it. Alembic diffs your models against the live database and generates the
 Edit code locally
 docker compose build app (rebuilds just the app container)
 docker compose up -d (restarts with the new build)
+
+Your deployment workflow going forward
+Code change:
+
+
+# local
+git push
+
+# on the droplet
+cd ~/TheFray
+git pull
+docker compose build app
+docker compose up -d
+
+Schema change (new model/column):
+
+
+# local
+alembic revision --autogenerate -m "describe change"
+git push
+
+# on the droplet
+git pull
+docker compose build app
+docker compose up -d  # alembic upgrade head runs automatically on startup
