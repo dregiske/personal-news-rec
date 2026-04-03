@@ -1,5 +1,4 @@
 services:
-
   db:
     image: postgres:16
     restart: unless-stopped
@@ -22,12 +21,13 @@ services:
     restart: unless-stopped
     depends_on:
       db:
-        condition: service_healthy  # waits for the healthcheck above to pass
+        condition: service_healthy # waits for the healthcheck above to pass
     ports:
       # Exposed to the OS so Nginx on the host can proxy to it
       - "8000:8000"
     environment:
       DATABASE_URL: postgresql://thefray:${DB_PASSWORD}@db:5432/thefray_dev
+      DB_PASSWORD: ${DB_PASSWORD}
       SECRET_KEY: ${SECRET_KEY}
       ALGORITHM: HS256
       NEWSAPI_KEY: ${NEWSAPI_KEY}
