@@ -1,7 +1,3 @@
-'''
-Create FastAPI app, mount routers and middlewares
-'''
-
 import os
 
 from fastapi import FastAPI
@@ -18,7 +14,6 @@ from backend.core.limiter import limiter
 
 from backend.config import settings
 
-from backend.database import engine, Base
 from backend.ml.model_registry import ModelRegistry
 
 from backend.api.routes import users
@@ -34,7 +29,6 @@ async def lifespan(app: FastAPI):
 	'''
 	Startup / shutdown events
 	'''
-	Base.metadata.create_all(bind=engine)
 	app.state.models = ModelRegistry()
 
 	yield
