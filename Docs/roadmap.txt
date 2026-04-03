@@ -79,6 +79,7 @@ That's it. Alembic diffs your models against the live database and generates the
 
 
 ===== DOCKER =====
+
 Edit code locally
 docker compose build app (rebuilds just the app container)
 docker compose up -d (restarts with the new build)
