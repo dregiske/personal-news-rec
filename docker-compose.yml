@@ -9,6 +9,8 @@ services:
     volumes:
       # Named volume — data persists on the host even if the container is removed
       - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5432:5432"  # localhost only — accessible via SSH tunnel, not publicly
     healthcheck:
       # App container won't start until Postgres is ready to accept connections
       test: ["CMD-SHELL", "pg_isready -U thefray -d thefray_dev"]
