@@ -27,16 +27,16 @@ Uvicorn is never exposed to the internet — only Nginx talks to it. This is imp
 ## Full request lifecycle in production
 
 ### Loading the app (first visit):
-1. Browser → GET https://yournewsapp.com/
+1. Browser → GET https://thefraynews.com/
 2. Nginx reads frontend/dist/index.html from disk → responds
 3. Browser parses HTML, requests main.js
 4. Nginx reads frontend/dist/assets/main.js from disk → responds
 5. React app boots in the browser
 
 ### User logs in:
-1. React → POST https://yournewsapp.com/api/v1/login  { email, password }
+1. React → POST https://thefraynews.com/api/v1/login  { email, password }
 2. Nginx sees /api/* → proxy_pass to 127.0.0.1:8000
-3. Uvicorn → FastAPI → UserService.login() → DB query → JWT
+3. Uvicorn → FastAPI → user_service.login() → DB query → JWT
 4. Response travels back through Nginx to browser
 5. React stores the token, sets auth state
 
@@ -47,54 +47,62 @@ Uvicorn is never exposed to the internet — only Nginx talks to it. This is imp
 4. DB query for article rows
 5. JSON response → Nginx → browser → React renders cards
 With Docker (the clean way to deploy this)
-You'd have two containers orchestrated with Docker Compose:
 
+You'd have two containers orchestrated with Docker Compose:
+1. The app (Uvicorn backend server)
+2. The database (PostgreSQL database)
 
 services:
-  backend:
-    build: ./backend
-    command: uvicorn backend.main:app --host 0.0.0.0 --port 8000
-    env_file: .env
-    # NOT exposed to internet — only nginx can reach it
-
-  nginx:
-    image: nginx:alpine
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./frontend/dist:/usr/share/nginx/html   # built static files
-      - ./nginx.conf:/etc/nginx/nginx.conf
+  app:
+    build: .
+    restart: unless-stopped
     depends_on:
-      - backend
-nginx.conf would look like:
+      db:
+        condition: service_healthy # waits for the healthcheck above to pass
+    ports:
+      # Exposed to the OS so Nginx on the host can proxy to it
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://thefray:${DB_PASSWORD}@db:5432/thefray_dev
+      DB_PASSWORD: ${DB_PASSWORD}
+      SECRET_KEY: ${SECRET_KEY}
+      ALGORITHM: HS256
+      NEWSAPI_KEY: ${NEWSAPI_KEY}
+      NEWSAPI_URL: https://newsapi.org/v2/everything
+      CORS_ORIGINS: ${CORS_ORIGINS}
+      API_PREFIX: /api/v1
+      ACCESS_TOKEN_EXPIRE_MINUTES: 30
+      ENVIRONMENT: production
+    volumes:
+      # Static files (avatars) persist across container rebuilds
+      - static_files:/app/static
 
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: thefray
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: thefray_dev
+    volumes:
+      # Named volume — data persists on the host even if the container is removed
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      # App container won't start until Postgres is ready to accept connections
+      test: ["CMD-SHELL", "pg_isready -U thefray -d thefray_dev"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
-location / {
-    root /usr/share/nginx/html;
-    try_files $uri $uri/ /index.html;   # React router fallback
-}
-
-location /api/ {
-    proxy_pass http://backend:8000;     # "backend" resolves via Docker DNS
-}
-
-location /health {
-    proxy_pass http://backend:8000;
-}
-The try_files ... /index.html line is critical for React Router — if someone navigates directly to /feed, Nginx can't find a file called feed, so it falls back to index.html and lets React Router handle it client-side.
-
-Where SQLite fits
-SQLite (app.db) lives on the same server as the backend container. It works fine for low-to-medium traffic. When you swap to PostgreSQL, it runs as a third container and the DATABASE_URL in .env just changes — the rest of your code is already written to support it.
 
 # Summary
-Concern					Dev								Production
+Concern					Development						Production
 ---------------------------------------------------------------------------------------
 Frontend served by:		Vite dev server (:5173) 		Nginx (static files from dist/)
 Backend served by:		Uvicorn directly (:8000)		Uvicorn behind Nginx (internal only)
 Routing /api/*			Vite proxy or direct			Nginx proxy_pass
-SSL/HTTPS				None							Nginx + Let's Encrypt (Certbot)
-DB						app.db (SQLite file)			PostgreSQL container or managed DB
+SSL/HTTPS				None							Nginx + Certbot (HTTPS encryption)
+DB						app.db (SQLite file)			PostgreSQL container
 
 > Vite disappears entirely in production (only used in development). Here's the full picture:
 
@@ -157,7 +165,7 @@ The production stack:
 ║  │   │   │               REPOSITORIES                         │    │  │  ║
 ║  │   │   │                                                    │    │  │  ║
 ║  │   │   │  user_repository          article_repository       │    │  │  ║
-║  │   │   │  interaction_repository                            │    │  │  ║
+║  │   │   │  interaction_repository   saved_article_repository │    │  │  ║
 ║  │   │   └────────────────┬───────────────────────────────────┘    │  │  ║
 ║  │   │                    │                                        │  │  ║
 ║  │   │   ┌────────────────▼───────────────────────────────────┐    │  │  ║
@@ -182,8 +190,8 @@ The production stack:
 ║  │  articles        │  │  vectorizer.pkl  │  │  index.html          │    ║
 ║  │  interactions    │  │  tfidf.pkl       │  │  assets/main.js      │    ║
 ║  │                  │  │  knn.pkl         │  │  assets/main.css     │    ║
-║  │  (replaces       │  │                  │  │                      │    ║
-║  │   SQLite)        │  │  written by      │  │  built once by:      │    ║
+║  │ 		          │  │                  │  │                      │    ║
+║  │   		          │  │  written by      │  │  built once by:      │    ║
 ║  │                  │  │  training script │  │  vite build          │    ║
 ║  └──────────────────┘  └──────────────────┘  └──────────────────────┘    ║
 ║                                                                          ║
@@ -200,7 +208,7 @@ The production stack:
 ## A full user session traced through every layer:
 
 1. USER OPENS THE APP
-   Browser → GET https://yournewsapp.com/
+   Browser → GET https://thefraynews.com/
    Nginx reads frontend/dist/index.html from disk
    Browser receives bare HTML shell + <script src="/assets/main.js">
    Browser → GET /assets/main.js
@@ -229,7 +237,7 @@ The production stack:
      → merge scores, filter seen articles, return top 20 IDs
    FastAPI: ArticleRepository → fetch 20 Article rows from PostgreSQL
    FastAPI: Pydantic serializes to JSON
-   React renders 20 article cards
+   React renders article cards
 
 4. USER LIKES AN ARTICLE
    React → POST /api/v1/interactions  { article_id: 42, type: "like" }

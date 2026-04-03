@@ -1,10 +1,11 @@
 Product Requirements Document (PRD)
 
 1. Product Name
-Personalized News Recommendation Engine
+The Fray --- www.thefraynews.com
 
 2. Purpose
-To deliver a personalized, intelligent news feed to users based on their previous activity (searches, views, likes) using a combination of backend APIs, machine learning, and a modern frontend interface.
+To deliver a personalized, intelligent news feed to users based on their previous activity (searches, views, likes)
+using a combination of backend APIs, machine learning, and a modern frontend interface.
 
 3. Target Users
 Individuals who want to stay updated with news tailored to their interests.
@@ -22,28 +23,28 @@ Login endpoint (with token-based auth)
 JWT-based session management
 
 b. User Interaction Tracking
-Log user interactions: article views, likes, skips
+Log user interactions: article views, likes, dislikes
 
 Store interaction metadata (timestamp, keywords)
 
 c. Article Management
-Ingest news articles (initially hardcoded or batch-loaded, later via API/scraper)
-
-Store articles in DB with metadata: title, source, content, tags
+Ingest news articles, and store articles in DB with metadata: title, source, content, topics, etc
 
 d. Recommendation Engine
 Phase 1: Keyword-based filtering (matching article tags to past searches)
 
-Phase 2: Add collaborative filtering using Surprise or scikit-learn
+Phase 2: Add collaborative filtering using scikit-learn
 
 Phase 3: Hybrid recommendation engine (content + behavior)
 
 5. REST API
-POST /users/signup – register
+POST /api/v1/signup – register
 
-POST /users/login – authenticate
+POST /api/v1/login – authenticate
 
-GET /users/user/{id} – fetch user profile
+GET /api/v1/me – fetch current user
+
+GET /api/v1/me/stats - fetch current user stats
 
 GET /articles/ – list articles
 
@@ -58,15 +59,15 @@ Feed of personalized articles
 
 Buttons for liking/saving articles
 
-| Layer     | Technology                     |
-| --------- | ------------------------------ |
-| Backend   | Python + FastAPI               |
-| Database  | SQLite → PostgreSQL (later)    |
-| ORM       | SQLAlchemy                     |
-| ML Engine | scikit-learn, Surprise, pandas |
-| Frontend  | React + TypeScript             |
-| Auth      | JWT via FastAPI dependencies   |
-| Infra     | Docker + GitHub Actions (CI)   |
+| Layer     | Technology                        |
+| --------- | --------------------------------- |
+| Backend   | Python + FastAPI                  |
+| Database  | PostgreSQL 				        |
+| ORM       | SQLAlchemy                        |
+| ML Engine | scikit-learning				    |
+| Frontend  | React + TypeScript                |
+| Auth      | JWT via FastAPI dependencies      |
+| Infra     | Docker + GitHub Actions (CI)      |
 
 | Feature                      | Status         |
 | ---------------------------- | -------------- |
@@ -74,14 +75,8 @@ Buttons for liking/saving articles
 | Password Hashing             | Complete       |
 | Test Coverage for Signup     | Complete       |
 | Database Model for Users     | Complete       |
-| Recommendation Logic (basic) | Not Started    |
-| Article Ingestion            | Not Started    |
-| Login with JWT               | Not Started    |
-| Frontend Signup/Login Form   | Not Started    |
-| Recommendations Endpoint     | Not Started    |
-
-Future Enhancements
-- OAuth (Google/GitHub) login
-- Article scraping from news APIs (NewsAPI, NYT)
-- Real-time recommendation refresh with Redis
-- User feedback loop (improves recommendations)
+| Recommendation Logic         | Complete	    |
+| Article Ingestion            | Complete    	|
+| Login with JWT               | Complete    	|
+| Frontend Signup/Login Form   | Complete   	|
+| Recommendations Endpoint     | Complete	    |
