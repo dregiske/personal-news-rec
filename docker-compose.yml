@@ -1,0 +1,57 @@
+services:
+
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: thefray
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: thefray_dev
+    volumes:
+      # Named volume — data persists on the host even if the container is removed
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      # App container won't start until Postgres is ready to accept connections
+      test: ["CMD-SHELL", "pg_isready -U thefray -d thefray_dev"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy  # waits for the healthcheck above to pass
+    environment:
+      DATABASE_URL: postgresql://thefray:${DB_PASSWORD}@db:5432/thefray_dev
+      SECRET_KEY: ${SECRET_KEY}
+      ALGORITHM: HS256
+      NEWSAPI_KEY: ${NEWSAPI_KEY}
+      NEWSAPI_URL: https://newsapi.org/v2/everything
+      CORS_ORIGINS: ${CORS_ORIGINS}
+      API_PREFIX: /api/v1
+      ACCESS_TOKEN_EXPIRE_MINUTES: 30
+      ENVIRONMENT: production
+    volumes:
+      # Static files (avatars) persist across container rebuilds
+      - static_files:/app/static
+
+  nginx:
+    image: nginx:alpine
+    restart: unless-stopped
+    depends_on:
+      - app
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      # SSL certs will be mounted here by Certbot on the droplet
+      - certbot_certs:/etc/letsencrypt:ro
+      - static_files:/app/static:ro
+
+volumes:
+  postgres_data:
+  static_files:
+  certbot_certs:

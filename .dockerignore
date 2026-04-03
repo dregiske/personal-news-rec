@@ -1,0 +1,32 @@
+# Python
+venv/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+
+# Environment & secrets
+.env
+.env.*
+
+# Database
+*.db
+
+# Frontend (built separately)
+frontend/
+
+# Docs
+Docs/
+
+# Git
+.git/
+.gitignore
+
+# Docker
+.dockerignore
+docker-compose*.yml
+Dockerfile*
+
+# Alembic versions are needed — do NOT ignore alembic/
