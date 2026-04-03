@@ -19,7 +19,7 @@ export async function fetchForYou(): Promise<Article[]> {
 
 // Interactions
 export async function recordInteraction(articleId: number, type: InteractionType): Promise<void> {
-  await api.post(`${API_BASE}/interactions/`, { article_id: articleId, type });
+  await api.post(`${API_BASE}/interactions`, { article_id: articleId, type });
 }
 
 export async function deleteInteraction(articleId: number): Promise<void> {
