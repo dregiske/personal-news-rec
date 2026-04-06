@@ -1,6 +1,6 @@
 import HeroCard from "../components/HeroCard";
 import PageLayout from "../components/PageLayout";
-import { bodyText, pageTitle, sectionLabel } from "../styles";
+import { bodyText, pageTitle } from "../styles";
 import { APP_NAME } from "../constants";
 
 export default function PrivacyPolicy() {
@@ -9,7 +9,7 @@ export default function PrivacyPolicy() {
       <HeroCard eyebrow="Legal" title="Privacy Policy" compact />
 
       <PageLayout>
-        <p className={`${bodyText} mb-10`}>Last updated: April 1, 2026</p>
+        <p className={`${bodyText} mb-10`}>Last updated: April 6, 2026</p>
 
         <section className="mb-10">
           <h2 className={`${pageTitle} mb-4`}>1. Introduction</h2>
@@ -139,8 +139,7 @@ export default function PrivacyPolicy() {
           <h2 className={`${pageTitle} mb-4`}>10. Contact</h2>
           <p className={bodyText}>
             If you have questions or concerns about this Privacy Policy, please
-            reach out to us at{" "}
-            <span className={sectionLabel}>privacy@thefray.app</span>.
+            reach out via the developer's website.
           </p>
         </section>
       </PageLayout>

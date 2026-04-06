@@ -1,6 +1,6 @@
 import HeroCard from "../components/HeroCard";
 import PageLayout from "../components/PageLayout";
-import { bodyText, pageTitle, sectionLabel } from "../styles";
+import { bodyText, pageTitle } from "../styles";
 import { APP_NAME } from "../constants";
 
 export default function TermsOfService() {
@@ -9,7 +9,7 @@ export default function TermsOfService() {
       <HeroCard eyebrow="Legal" title="Terms of Service" compact />
 
       <PageLayout>
-        <p className={`${bodyText} mb-10`}>Last updated: April 1, 2026</p>
+        <p className={`${bodyText} mb-10`}>Last updated: April 6, 2026</p>
 
         <section className="mb-10">
           <h2 className={`${pageTitle} mb-4`}>1. Acceptance of Terms</h2>
@@ -152,8 +152,8 @@ export default function TermsOfService() {
         <section className="mb-10">
           <h2 className={`${pageTitle} mb-4`}>12. Contact</h2>
           <p className={bodyText}>
-            For questions about these Terms, please contact us at{" "}
-            <span className={sectionLabel}>legal@thefray.app</span>.
+            For questions about these Terms, please reach out via the
+            developer's website.
           </p>
         </section>
       </PageLayout>
