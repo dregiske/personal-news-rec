@@ -53,7 +53,15 @@ export default function Footer() {
               © {new Date().getFullYear()} {APP_NAME}. All rights reserved.
             </p>
             <p className="text-xs text-fray-muted">
-              Personalized news for everyone.
+              Built by{" "}
+              <a
+                href="https://www.andregiske.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-fray-ink transition-colors duration-200"
+              >
+                Andre Giske
+              </a>
             </p>
           </div>
         </div>
