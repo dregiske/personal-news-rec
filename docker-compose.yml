@@ -7,26 +7,25 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: thefray_dev
     volumes:
-      # Named volume — data persists on the host even if the container is removed
       - postgres_data:/var/lib/postgresql/data
     ports:
-      - "127.0.0.1:5432:5432"  # localhost only — accessible via SSH tunnel, not publicly
+      - "127.0.0.1:5432:5432"
     healthcheck:
-      # App container won't start until Postgres is ready to accept connections
       test: ["CMD-SHELL", "pg_isready -U thefray -d thefray_dev"]
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - backend
 
   app:
     build: .
     restart: unless-stopped
     depends_on:
       db:
-        condition: service_healthy # waits for the healthcheck above to pass
+        condition: service_healthy
     ports:
-      # Exposed to the OS so Nginx on the host can proxy to it
-      - "8000:8000"
+      - "127.0.0.1:8000:8000" # localhost only — nginx on host proxies to this
     environment:
       DATABASE_URL: postgresql://thefray:${DB_PASSWORD}@db:5432/thefray_dev
       DB_PASSWORD: ${DB_PASSWORD}
@@ -39,9 +38,14 @@ services:
       ACCESS_TOKEN_EXPIRE_MINUTES: 30
       ENVIRONMENT: production
     volumes:
-      # Static files (avatars) persist across container rebuilds
       - static_files:/app/static
+    networks:
+      - backend
 
 volumes:
   postgres_data:
   static_files:
+
+networks:
+  backend:
+    driver: bridge
